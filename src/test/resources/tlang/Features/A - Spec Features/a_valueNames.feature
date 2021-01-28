@@ -1,4 +1,4 @@
-Feature: Value names are decorated variable names (TrueJ 0.1)
+Feature: Value names are decorated variable names - TrueJ 0.1
 
   TrueJ directs the programmer's attention to the changing state of the program's data as each
   statement is executed. In procedural and object-oriented languages like Java*, variables hold the
@@ -11,21 +11,20 @@ Feature: Value names are decorated variable names (TrueJ 0.1)
 
 Scenario: Values have names
 
-    TrueJ represents state by adding a syntax for naming the values
-    that are held by variables. We add a distinct decoration to a variable's
-    name for each of the values that it stores, keeping the variable's name as
-    part of the value name to allow the programmer to control details of the
-    procedural programming. Within the scope of each executable, The name of the
-    initial value that a variable holds is the variable name pre-decorated with
-    an apostrophe, and the name of the ending value is the variable name
-    post-decorated with an apostrophe. For example, the initial value of the
-    variable z is named 'z and the final value is named z'. We can read 'z as
+    TrueJ represents state by adding a syntax for naming the values that are held by variables. We
+    add a distinct decoration to a variable's name for each of the values that it stores, keeping
+    the variable's name as part of the value name to allow the programmer to control details of the
+    procedural programming. Within the scope of each executable, The name of the initial value that
+    a variable holds is the variable name pre-decorated with an apostrophe, and the name of the
+    ending value is the variable name post-decorated with an apostrophe. For example, the initial
+    value of the variable z is named 'z and the final value is named z'. We can read 'z as
     "initial-z" and z' as "z-final".
 
     Once we make this transition from variable names to value names, we can show facts about program
-    state as statements about values. We introduce a new statement, the means-statement to summarize
-    the meaning of the preceding operations in terms of facts that have been established in the
-    state.
+    state as statements about values. In a sense, the meaning of a sequence of program commands is
+    the state of the data that they produce. Therefore, we introduce a new statement, the
+    means-statement, where we can summarize all the interesting facts that have been established in the state
+    by the preceding operations.
 
   * A valid run unit is
     """
@@ -62,9 +61,9 @@ Scenario: Values have names
     truths about values, reading off the meaning of the statement "a' = 'b;" as "a-final equals
     initial-b".
 
-    The second comment is that TrueJ gives up Java's ability to include
-    a side-effect-like internal assignment inside an arbitrary expression in
-    exchange for unifying the syntax of three uses of equality:
+    The second comment is that TrueJ gives up Java's ability to include a side-effect-like internal
+    assignment inside an arbitrary expression in exchange for unifying the syntax of three uses of
+    equality:
 
       - equality resulting from an assigment statement
       - equality tests in conditional expressions
