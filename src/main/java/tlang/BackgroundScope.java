@@ -11,10 +11,9 @@ import static tlang.TUtil.*;
  * enclosing class and interface scopes from changes to their decoration state,
  * in order to reuse the field initial or final states when processing other
  * methods.
- *
- * FUTURE: this scope will also need to hold parameter names as part of the background of the
+ */
+/* FUTURE: this scope will also need to hold parameter names as part of the background of the
  *         execution.
- * </p>
  */
 public class BackgroundScope extends Scope {
 
