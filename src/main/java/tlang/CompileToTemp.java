@@ -21,10 +21,10 @@ import javax.tools.ToolProvider;
 // CompileToTemp: class
 /**
  * Provide a connection to the Java compiler, if it is available in the
- * System provided tools. This is not used because the command-line compiler
+ * System provided tools. This is deprecated because the command-line compiler
  * offers the complete set of options and the system provided Java compiler
  * does not. If implemented this class can be used like
- *
+ * <pre><code>
  * String topQualifiedName = packageName +"."+ typeName;
  * StringWriter msgs = new StringWriter();
  * wasSuccessful = comp.compileString(topQualifiedName, javaCodeFromT, options, msgs);
@@ -32,7 +32,7 @@ import javax.tools.ToolProvider;
  * if (compileMsgs.length() > 0) {
  *    if (wasSuccessful) { msgCollector.collectMsg  (compileMsgs); }
  *    else               { msgCollector.collectError(compileMsgs); }
- *  }
+ *  }      </code></pre>
 
  *
  * @author George Cowan
