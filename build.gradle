@@ -1,5 +1,11 @@
 /**
  * Build the TrueJ compiler and package it for distribution.
+ *
+ * According to the Gradle documentation,
+ * after building, TrueJ can be run with
+ *   gradle run --args="<arguments and filenames here>"
+ * for instance, compiling the truej code for a project named "todo" might be
+ *   gradle run --args="-genout ../todo/generated/ ../todo/src/main/truej/"
  */
 
 plugins {
@@ -12,28 +18,26 @@ repositories {
 }
 
 project.ext {
-    cucumberVersion = '5.2.0'
+    cucumberVersion = '5.6.0' // Later versions of Cucumber may produce a less useful test report
 }
 
-dependencies {
-  // https://mvnrepository.com/artifact/org.antlr/antlr4
-  antlr group: 'org.antlr', name: 'antlr4', version: '4.8-1'
-  // https://mvnrepository.com/artifact/org.antlr/antlr4
-  //antlr group: 'org.antlr', name: 'antlr4', version: '4.5.3'
+dependencies {// https://mvnrepository.com/artifact/...
+  antlr group: 'org.antlr', name: 'antlr4', version: '4.8-1' // ...org.antlr/antlr4
 
-  // https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.annotation
   implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.600'
+    // ...org.eclipse.jdt/org.eclipse.jdt.annotation
 
-  // https://mvnrepository.com/artifact/io.cucumber/cucumber-java
-  // implementation group: 'io.cucumber', name: 'cucumber-java', version: '6.4.0'
-
-  // https://mvnrepository.com/artifact/org.fitnesse/fitnesse
   compileOnly group: 'org.fitnesse', name: 'fitnesse', version: '20200501'
+    // ...org.fitnesse/fitnesse
 
-  // https://mvnrepository.com/artifact/it.unibo.alice.tuprolog/tuprolog
+// implementation group: 'io.cucumber', name: 'cucumber-java', version: '6.4.0'
+    // ...io.cucumber/cucumber-java
+
   implementation group: 'it.unibo.alice.tuprolog', name: 'tuprolog', version: '3.3.0'
+    // ...it.unibo.alice.tuprolog/tuprolog
 
   testImplementation 'io.cucumber:cucumber-java:' + cucumberVersion
+    // ...io.cucumber/cucumber-java
   testImplementation 'io.cucumber:cucumber-junit:' + cucumberVersion
 }
 
@@ -41,15 +45,26 @@ generateGrammarSource {
     //maxHeapSize = "64m"
     arguments += ["-visitor", "-no-listener", "-long-messages"
                   // , "-package", "tlang"
-                  // , "-o", "tlang" 
+                  // , "-o", "tlang"
                  ]
 
 }
 
 java {
-  sourceCompatibility = JavaVersion.VERSION_13
-  targetCompatibility = JavaVersion.VERSION_13
+    // withJavadocJar() // problems with Gradle 6.6
+    // withSourcesJar() // problems with Gradle 6.6
 }
+
+//// Used with plugin 'Java'
+//tasks.withType(JavaCompile) {
+//    //enable compilation in a separate daemon process
+//    options.fork = true
+//}
+
+//compileJava {
+//  options.release = 13 // Defaults to compiler release that is used
+//  options.compilerArgs.addAll(['--doclint-format', 'html5'])
+//}
 
 sourceSets {
   main {
@@ -61,3 +76,10 @@ sourceSets {
 }
 
 version = '0.0.0'
+
+//// The following will eliminate the errors for duplicated directories/files,
+//// which should be fixed in Gradle before I need it.
+//task archive(type: Zip) {
+//    duplicatesStrategy = DuplicatesStrategy.INCLUDE // allow duplicates
+//    ...
+//}
