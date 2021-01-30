@@ -62,7 +62,7 @@ java {
 //}
 
 //compileJava {
-//  options.release = 13 // Defaults to compiler release that is used
+//  options.release = 15 // Defaults to compiler release that is used
 //  options.compilerArgs.addAll(['--doclint-format', 'html5'])
 //}
 
