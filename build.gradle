@@ -18,27 +18,21 @@ repositories {
 }
 
 project.ext {
-    cucumberVersion = '5.6.0' // Later versions of Cucumber may produce a less useful test report
+    cukeVersion = '6.8.1'
+    /* Version 5 of Cucumber produces a test report with better feature headers in a collapsable
+     * outline. However, version five requires that a directory name be provided in the
+     * @CucumberOptions() of class TestMainCucumberFeatures instead of a file name.
+     */
+
 }
 
-dependencies {// https://mvnrepository.com/artifact/...
-  antlr group: 'org.antlr', name: 'antlr4', version: '4.8-1' // ...org.antlr/antlr4
-
-  implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.600'
-    // ...org.eclipse.jdt/org.eclipse.jdt.annotation
-
-  compileOnly group: 'org.fitnesse', name: 'fitnesse', version: '20200501'
-    // ...org.fitnesse/fitnesse
-
-// implementation group: 'io.cucumber', name: 'cucumber-java', version: '6.4.0'
-    // ...io.cucumber/cucumber-java
-
-  implementation group: 'it.unibo.alice.tuprolog', name: 'tuprolog', version: '3.3.0'
-    // ...it.unibo.alice.tuprolog/tuprolog
-
-  testImplementation 'io.cucumber:cucumber-java:' + cucumberVersion
-    // ...io.cucumber/cucumber-java
-  testImplementation 'io.cucumber:cucumber-junit:' + cucumberVersion
+dependencies { // https://mvnrepository.com/artifact/...
+                // ...org.antlr/antlr4
+  antlr              'org.antlr:antlr4:4.8-1'
+  implementation     'it.unibo.alice.tuprolog:tuprolog:3.3.0'
+  implementation     'org.eclipse.jdt:org.eclipse.jdt.annotation:2.2.600'
+  testImplementation 'io.cucumber:cucumber-java:'  + cukeVersion
+  testImplementation 'io.cucumber:cucumber-junit:' + cukeVersion
 }
 
 generateGrammarSource {
