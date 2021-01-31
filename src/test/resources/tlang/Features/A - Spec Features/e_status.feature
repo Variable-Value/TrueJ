@@ -31,7 +31,7 @@ Scenario: A block forgets operations from before a means statement
       a' = 'b;
       means (a' = 'b);          // Oops, we are now forgetting that startingA' = 'a
       b' = startingA';          // We generate code, but we don't know what that code means
-      means(a' = 'b & b' = 'a); // So we can't see that    b'=startingA'  ==>  b'='a
+      means(a' = 'b & b' = 'a); // So we can't see that    b' = startingA' = 'a
     }
 
     } // end class
@@ -40,6 +40,10 @@ Scenario: A block forgets operations from before a means statement
     """
     The code does not support the proof of the statement: b' = 'a
     """
+#  And an error message contains
+#    """
+#    The means statement at line 8 may need more facts in it.
+#    """
 
 Scenario: The compiler remembers type information for a variable after a means statement
 
