@@ -47,10 +47,10 @@ public void a_Prolog_engine() throws Throwable {
 @Given("^the eTLeanTap theory is loaded$")
 public void the_eTLeanTap_theory_is_loaded() throws Throwable {
   if (needsETLeanTapTheory) {
-    setAFileTheory(new File(relativeDir +"src/main/prolog/leantap/mydebug.prolog"));
-    addAFileTheory(new File(relativeDir +"src/main/prolog/leantap/nnf.pl"));
-    addAFileTheory(new File(relativeDir +"src/main/prolog/leantap/etleantap.pl"));
-    addAFileTheory(new File(relativeDir +"src/main/prolog/leantap/tLangProof.prolog"));
+    setAFileTheory(new File(relativeDir +"src/leantap/mydebug.prolog"));
+    addAFileTheory(new File(relativeDir +"src/leantap/nnf.pl"));
+    addAFileTheory(new File(relativeDir +"src/leantap/etleantap.pl"));
+    addAFileTheory(new File(relativeDir +"src/leantap/tLangProof.prolog"));
     needsETLeanTapTheory = false;
   }
 }
