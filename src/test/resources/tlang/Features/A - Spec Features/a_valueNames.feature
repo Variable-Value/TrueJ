@@ -1,30 +1,38 @@
 Feature: Value names are decorated variable names - TrueJ 0.1
 
   TrueJ directs the programmer's attention to the changing state of the program's data as each
-  statement is executed. In procedural and object-oriented languages like Java*, variables hold the
-  state, but the particular state held by those variables is never made explicit. So an important
-  difference between TrueJ and Java is that we add a way for each state contained in the variables
-  to be explicitly represented. And because we want programmers to easily make the transition to
-  focusing more on the state and less on the variables that hold the state, we need to resist most
-  of the temptations to make other changes.
+  statement is executed. In procedural and object-oriented languages like Java(TM), variables hold
+  the state, but the particular state held by those variables is never made explicit. So an
+  important difference between TrueJ and Java is that we add a way for each state contained in the
+  variables to be explicitly represented. And because we want programmers to easily make the
+  transition to focusing more on the state and less on the variables that hold the state, we need to
+  resist most of the temptations to make other changes.
 
 
-Scenario: Values have names
+Rule: Values have names
 
-    TrueJ represents state by adding a syntax for naming the values that are held by variables. We
-    add a distinct decoration to a variable's name for each of the values that it stores, keeping
-    the variable's name as part of the value name to allow the programmer to control details of the
-    procedural programming. Within the scope of each executable, The name of the initial value that
-    a variable holds is the variable name pre-decorated with an apostrophe, and the name of the
-    ending value is the variable name post-decorated with an apostrophe. For example, the initial
-    value of the variable z is named 'z and the final value is named z'. We can read 'z as
-    "initial-z" and z' as "z-final".
+  TrueJ represents state by adding a syntax for naming the values that are held by variables. We add
+  a distinct decoration to a variable's name for each of the values that it stores, keeping the
+  variable's name as part of the value name to allow the programmer to control details of the
+  procedural programming. Within the scope of each executable, The name of the initial value that a
+  variable holds is the variable name pre-decorated with an apostrophe, and the name of the ending
+  value is the variable name post-decorated with an apostrophe. For example, the initial value of
+  the variable z is named 'z and the final value is named z'. We can read 'z as "initial-z" and z'
+  as "z-final".
 
-    Once we make this transition from variable names to value names, we can show facts about program
-    state as statements about values. In a sense, the meaning of a sequence of program commands is
-    the state of the data that they produce. Therefore, we introduce a new statement, the
-    means-statement, where we can summarize all the interesting facts that have been established in the state
-    by the preceding operations.
+  Once we make this transition from variable names to value names, we can show facts about program
+  state as statements about values. In a sense, the meaning of a sequence of program commands is the
+  state of the data that they produce. Therefore, we introduce a new statement, the means-statement,
+  where we can summarize all the interesting facts that have been established in the state by the
+  preceding operations.
+
+Example: The means-statement summarizes the above operational statements
+
+  The means-statement does not need to mention type information, for instance, the `int` in
+
+    int startingA' = 'a
+
+  but it does need to mention the important value names and their relationships.
 
   * A valid run unit is
     """
@@ -43,118 +51,127 @@ Scenario: Values have names
     } // end class
     """
 
-  * Notes
-    """
-    Three comments about TrueJ's syntax and semantics will help the reader understand the example
-    program above. The first is that in TrueJ, the syntax for the assignment statement is almost
-    exactly the same as the notation for its semantics. For instance, when making claims about the
-    program state after the assignment:
-        a' = 'b;
-    we use the state expression:
-        a' = 'b
-    and because they are essentially identical the programmer can choose to read off the meaning of
-    the statement instead of its operational action. That is, instead of reading "copy the value in
-    variable b to a", or "the variable a gets the value in b", or "the variable a now has the same
-    value as the variable b", or "the variable a can now be substituted for the expression b in
-    prior statements", the programmer can now abandon mechanical metaphors, transient truths about
-    variables, and substitution of variables and expressions, and instead think about unchanging
-    truths about values, reading off the meaning of the statement "a' = 'b;" as "a-final equals
-    initial-b".
+Example: Notes
 
-    The second comment is that TrueJ gives up Java's ability to include a side-effect-like internal
-    assignment inside an arbitrary expression in exchange for unifying the syntax of three uses of
-    equality:
+  Three comments about TrueJ's syntax and semantics will help the reader understand the example
+  program above. The first is that in TrueJ, the syntax for the assignment statement is almost
+  exactly the same as the notation for its semantics. For instance, when making claims about the
+  program state after the assignment:
 
-      - equality resulting from an assigment statement
-      - equality tests in conditional expressions
-      - equality in claims about program state
+      a' = 'b;
 
-    They all use the single equal sign '='. It will have to be emphasized to new programmers that
-    the new value name must be on the left-hand side of an assigment, and no new value names may
-    occur on the right-hand side. It is an empirical question as to which will weigh the most: the
-    confusion caused by this operational vs. semantic asymmetry/symmetry, or the simplified
-    understanding from using the equality symbol to point to the meaning of the assignment. The
-    uncomfortable itch that some of us feel in overloading the same symbol for these distinct uses
-    is one clue, but the satisfaction in easily reading off the meaning of the assignment is
-    another. I hesitate to begin exploring the other solution, which is to allow the assignment
-    statement to be symmetrical, because it moves further down the slippery slope that takes us away
-    from Java.
+  we use the state expression:
 
-    The third, and more dramatic, comment is that working with a consistent name for each value
-    simplifies our understanding of the overall program's meaning. As you might have noted, in the
-    code inside the swap() method, the means-statement is wasted verbage:
+      a' = 'b
 
-        int startingA' = 'a;
-        a' = 'b;
-        b' = startingA';
+  and because they are essentially identical the programmer can choose to read off the meaning of
+  the statement instead of its operational action. That is, instead of reading "copy the value in
+  variable b to a", or "the variable a gets the value in b", or "the variable a now has the same
+  value as the variable b", or "the variable a can now be substituted for the expression b in
+  prior statements", the programmer can now abandon mechanical metaphors, transient truths about
+  variables, and substitution of variables and expressions, and instead think about unchanging
+  truths about values, reading off the meaning of the statement "a' = 'b;" as "a-final equals
+  initial-b".
 
-        means(startingA' = 'a && a' = 'b && b' = startingA');
+  The second comment is that TrueJ gives up Java's ability to include a side-effect-like internal
+  assignment inside an arbitrary expression in exchange for unifying the syntax of three uses of
+  equality:
 
-    It is simply the meaning of each of the statements, combined with an "and". Once we use values
-    instead of variables, the semantics of a program's top-level sequential statements is
-    conjunction.
+    - equality resulting from an assigment statement
+    - equality tests in conditional expressions
+    - equality in claims about program state
 
-    This brings us closer to our goal of helping programmers think in terms of state as well as
-    operations because the conjunction of statements over values provides a simple semantics for
-    understanding the cumulative change in state created by those operations. People understand
-    conjuction, so we will attempt to dispense with a discussion of inference rules for combining
-    statements in all but the most advanced discussions of TrueJ. Of course, we appreciate the
-    clarity that we gain from formal mathematical descriptions of the use of variables or machine
-    storage locations during program execution; we only claim that this simpler mathematics is more
-    helpful for writing programs.
+  They all use the single equal sign '='. It will have to be emphasized to new programmers that
+  the new value name must be on the left-hand side of an assigment, and no new value names may
+  occur on the right-hand side. It is an empirical question as to which will weigh the most: the
+  confusion caused by this operational vs. semantic asymmetry/symmetry, or the simplified
+  understanding from using the equality symbol to point to the meaning of the assignment. The
+  uncomfortable itch that some of us feel in overloading the same symbol for these distinct uses
+  is one clue, but the satisfaction in easily reading off the meaning of the assignment is
+  another. I hesitate to begin exploring the other solution, which is to allow the assignment
+  statement to be symmetrical, because it moves further down the slippery slope that takes us away
+  from Java.
 
-    Functional and logic programming languages also focus on values, but at the expense of
-    increasing the conceptual distance from the procedural instructions of the programmers mental
-    model of the underlying machine that runs the programs (but see Chisnall, 2018).
+  The third, and more dramatic, comment is that working with a consistent name for each value
+  simplifies our understanding of the overall program's meaning. As you might have noted, in the
+  code inside the swap() method, the means-statement is wasted verbage:
 
-    A careful look at the above program also raises the issue of the scope of
-    the value names. Within the means-statements we use the initial value 'a,
-    even though that value is no longer present in any variable -- it has been
-    overwritten by the statement
-       a' = 'b;
-    So it seems that the scope of a value has to continue after the value ceases to exist, at least
-    for logic statements. Should we allow the overwritten value to be used in the logic statements,
-    but not the operational statements? We seem to have two uncomfortable options. The first is that
-    we make sure that programmers understand that only values that exist can be mentioned in
-    operational statements, but that values that no longer exist can be mentioned in logic. The
-    alternative, and the option that TrueJ uses, is to allow the values to be reused in both code
-    and descriptions of state. We make this explicit in the following scenario.
-    """
+      int startingA' = 'a;
+      a' = 'b;
+      b' = startingA';
+
+      means(startingA' = 'a && a' = 'b && b' = startingA');
+
+  It is simply the meaning of each of the statements, combined with an "and". Once we use values
+  instead of variables, the semantics of a program's top-level sequential statements is
+  conjunction.
+
+  This brings us closer to our goal of helping programmers think in terms of state as well as
+  operations because the conjunction of statements over values provides a simple semantics for
+  understanding the cumulative change in state created by those operations. People understand
+  conjuction, so we will attempt to dispense with a discussion of inference rules for combining
+  statements in all but the most advanced discussions of TrueJ. Of course, we appreciate the
+  clarity that we gain from formal mathematical descriptions of the use of variables or machine
+  storage locations during program execution; we only claim that this simpler mathematics is more
+  helpful for writing programs.
+
+  Functional and logic programming languages also focus on values, but at the expense of
+  increasing the conceptual distance from the procedural instructions of the programmers mental
+  model of the underlying machine that runs the programs (but see Chisnall, 2018).
+
+  A careful look at the above program also raises the issue of the scope of
+  the value names. Within the means-statements we use the initial value 'a,
+  even though that value is no longer present in any variable -- it has been
+  overwritten by the statement
+
+     a' = 'b;
+
+  So it seems that the scope of a value has to continue after the value ceases to exist, at least
+  for logic statements. Should we allow the overwritten value to be used in the logic statements,
+  but not the operational statements? We seem to have two uncomfortable options. The first is that
+  we make sure that programmers understand that only values that exist can be mentioned in
+  operational statements, but that values that no longer exist can be mentioned in logic. The
+  alternative, and the option that TrueJ uses, is to allow the values to be reused in both code
+  and descriptions of state. We make this explicit in the following scenario.
+
+  * end note
 
 
-Scenario: The scope of a value name ends with the scope of its variable
+Rule: The scope of a value name ends with the scope of its variable
 
-    Normally in a procedural language, the value held by a variable disappears
-    when you overwrite it with a new value, but not in TrueJ. If you need a value
-    whose variable is still in scope, the compiler will make sure the value
-    still exists. Obviously, the implementation must keep a copy of any
-    overwritten values that are needed for later statements.
+  Normally in a procedural language, the value held by a variable disappears
+  when you overwrite it with a new value, but not in TrueJ. If you need a value
+  whose variable is still in scope, the compiler will make sure the value
+  still exists. Obviously, the implementation must keep a copy of any
+  overwritten values that are needed for later statements.
 
-    The link between variables and their values becomes more abstract, but we
-    hope to wave that issue away for beginning programmers by saying,
-    "Obviously, the implementation must keep a copy of any overwritten values
-    that are needed for later statements".
+  The link between variables and their values becomes more abstract, but we
+  hope to wave that issue away for beginning programmers by saying,
+  "Obviously, the implementation must keep a copy of any overwritten values
+  that are needed for later statements".
 
-    The reason that we go to the trouble to allow the use of overwritten values in TrueJ is that our
-    state-based focus will often require us to make claims about how the current state relates to an
-    earlier one, and we don't want to confuse beginning programmers with a different rule about
-    using value names in operational statements vs. using them in claims about state. TrueJ makes
-    the scope of overwritten values the same in both logic statements and operational statements by
-    introducing the rule that the scope of a value begins with its definition and ends with the end
-    of the scope of its variable.
+  The reason that we go to the trouble to allow the use of overwritten values in TrueJ is that our
+  state-based focus will often require us to make claims about how the current state relates to an
+  earlier one, and we don't want to confuse beginning programmers with a different rule about
+  using value names in operational statements vs. using them in claims about state. TrueJ makes
+  the scope of overwritten values the same in both logic statements and operational statements by
+  introducing the rule that the scope of a value begins with its definition and ends with the end
+  of the scope of its variable.
 
-    This feature embarasses me a little because, above, I was fussy over the conceptual distance of
-    functional and logic languages from the procedural nature of the computer, and here we are,
-    hiding a variable to hold the copy of the overwritten value and hiding the copy operation
-    itself. My only defense is that it seems the best compromise if our primary goal is to integrate
-    state and process.
+  This feature embarasses me a little because, above, I was fussy over the conceptual distance of
+  functional and logic languages from the procedural nature of the computer, and here we are,
+  hiding a variable to hold the copy of the overwritten value and hiding the copy operation
+  itself. My only defense is that it seems the best compromise if our primary goal is to integrate
+  state and process.
 
-    The ability to refer back to values that have been overwritten will only simplify program code a
-    little, but the readability of programs is so important that this bit of simplification is still
-    a worthwhile contribution of TrueJ. At any rate, for some programs, reusing old values does
-    wonders. For instance, the semantics of the swap() method becomes so obvious from the code that
-    writing it out as a separate means-statement adds useless verbage and detracts from its
-    readability; instead, we just let the compiler infer the meaning of the method.
+  The ability to refer back to values that have been overwritten will only simplify program code a
+  little, but the readability of programs is so important that this bit of simplification is still
+  a worthwhile contribution of TrueJ. At any rate, for some programs, reusing old values does
+  wonders. For instance, the semantics of the swap() method becomes so obvious from the code that
+  writing it out as a separate means-statement adds useless verbage and detracts from its
+  readability; instead, we just let the compiler infer the meaning of the method.
+
+Example: Reusing an "overwritten" value when its variable is still in scope
 
   * A valid run unit is
     """
@@ -170,8 +187,8 @@ Scenario: The scope of a value name ends with the scope of its variable
     } // end class
     """
 
-  * Note
-  """
+Example: Notes
+
   Some other languages gain a similar simplification by allowing assignment of
   multiple values to corresponding variables in a single assignment statement.
   For example,
@@ -179,7 +196,9 @@ Scenario: The scope of a value name ends with the scope of its variable
     a, b := b, a;
 
   which also requires a hidden copying of values.
-  """
+  * end note
+
+Example: We cannot refer to a value whose variable is out of scope
 
   When an invalid run unit is
     """
@@ -205,16 +224,19 @@ Scenario: The scope of a value name ends with the scope of its variable
     """
 
 
-Scenario: Intermediate value names use middle decoration
+Rule: Intermediate value names use middle decoration
 
-    Because the value of a variable may change more than once in a method, a way of naming the
-    intermediate values is needed. This is accomplished by appending an apostrophe and additional
-    name continuation characters. For instance lovely'14, lovely'temp2, or lovely'Mary could all be
-    middle-decorated intermediate values of the variable named "lovely".
+  Because the value of a variable may change more than once in a method, a way of naming the
+  intermediate values is needed. This is accomplished by appending an apostrophe and additional name
+  continuation characters to the variable name. The decorator is the apostrophe and all the
+  following characters, but we use the term "middle-decorated" because of the apostrophe in the
+  middle of other name characters. For instance lovely'14, lovely'temp2, or lovely'Mary could all be
+  middle-decorated intermediate values of the variable named "lovely".
 
-    We end up with the pleasant conceit that a variable's pre-execution value is
-    pre-decorated, any mid-execution values are mid-decorated, and its post-
-    execution value is post-decorated.
+  We end up with the pleasant conceit that a variable's pre-execution value is pre-decorated, any
+  mid-execution values are mid-decorated, and its post- execution value is post-decorated.
+
+Example: Using middle-decorated value names
 
   * A valid run unit is
     """
@@ -236,21 +258,26 @@ Scenario: Intermediate value names use middle decoration
     """
 
 
-Scenario: Using value names allows proving logical statements
+Rule: Using value names allows proving logical statements
 
-    A means-statement uses value names in fist-order predicate logic statements. It consists of only
-    those things that can be deduced from operational statements and logic statements that occured
-    earlier in the code. From a code execution point of view, by the time that any execution path
-    through the code reaches it, the means-statement must be true.
+  A means-statement is a first-order predicate logic statement, using value names, that summarizes
+  everything the programmer needs to know about the code above it in order to understand the code
+  that follows it. It is one of several statements that we call "status statements", because they
+  reveal facts about the _state_ of the program at a specific point in its execution. From a code
+  execution point of view, by the time any execution path through the code reaches it, the
+  means-statement must be true.
 
-    Logic statements are not just for helping programmers understand a program;
-    it is a compiler error to have a means-statement that cannot be proven. The
-    compiler must only prove valid statements, but cannot be guaranteed to prove
-    all valid statements, so the programmer will sometimes need to help the
-    prover by providing intermediate steps.
+  Other types of status statements will be introduced to let the programmer show why an otherwise
+  mysterious means-statement is true and to ease the job of the prover. Constraints that are placed
+  on a prover to make automated proofs useful to programmers and compilers will be covered as
+  separate features.
 
-    In other features, we will have a lot more to say about making automated proofs useful to
-    programmers and about the constraints that are placed on a prover when it is part of a compiler.
+  The means-statement is not just for helping programmers understand a program, it may assert only
+  things that can be proven from the preceeding code or the compiler will mark it as an error. The
+  prover has verified that all means statements in the above examples were accurate without
+  mentioning it to the programmer, but we need an example where the prover finds an error.
+
+Example: A means statement that is false
 
   When an invalid run unit is
     """
@@ -274,9 +301,9 @@ Scenario: Using value names allows proving logical statements
     """
 
 
-* Notes
-  """"
-  Previous Research
+Example: Notes
+
+  <h3>Previous Research</h3>
 
   The use of Tony Hoare's logic (1969) to prove the correctness of programs often uses proof
   outlines, that is, assertions embedded in code -- not to check for errors during program
@@ -367,7 +394,7 @@ Scenario: Using value names allows proving logical statements
   means.
 
 
-  Conclusion
+  <h3>Conclusion</h3>
 
   TrueJ provides a syntax for naming values as well as variables in a
   Java-like programming language. Because the syntax of an operation is
@@ -378,7 +405,7 @@ Scenario: Using value names allows proving logical statements
   operations are predicates, we are able to see that the meaning of a sequence
   of operations is simply their conjunction.
 
-  It can be hoped that drawing the attention of the programmer to changes in state with value names
+  It can be hoped that using value names to draw the attention of the programmer to changes in state
   and integrating a prover into the compiler will lead to a practical fulfillment of the idea of
   constructing programs in parallel with their proofs of correctness (?Dijktra?, ????). Indeed, it
   looks like they are they are one and the same task, and TrueJ can be thought of as a syntax that
@@ -390,7 +417,15 @@ Scenario: Using value names allows proving logical statements
   the use of interfaces for program specification in separate feature descriptions.
 
 
-  References
+  <h3>Thanks</h3>
+
+  TrueJ builds upon the considerable orderly thinking that underlies
+  the complexity of the Java language. Many thanks to the creators of Java, to
+  the Sun and Oracle corporations for developing and supporting it, and to the
+  Java Community for their work through the years.
+
+
+  <h3>References</h3>
 
 
     David Chisnall. 2018. C Is Not a Low-level Language. Queue Vol. 16, No. 2, April, 2018. DOI: https://doi.org/10.1145/3212477.3212479
@@ -430,16 +465,7 @@ Scenario: Using value names allows proving logical statements
     processes. In Proceedings of the April 30--May 2, 1968, spring joint
     computer conference (AFIPS '68 (Spring)). ACM, New York, NY, USA, 403-408.
     DOI=http://dx.doi.org/10.1145/1468075.1468134
-  """
 
-* Note
-  """
-  Java is a trademark of Oracle, Inc.
 
-  TrueJ depends upon the considerable orderly thinking that underlies
-  the complexity of the Java language. Many thanks to the creators of Java, to
-  the Sun and Oracle corporations for developing and supporting it, and to the
-  Java Community for their work through the years.
-
-  Copyright (c) 2017, George S. Cowan
-  """
+  <h4>Copyright (c) 2017, George S. Cowan<h4>
+  * end notes

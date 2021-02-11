@@ -233,6 +233,12 @@ public void notes(String arbitraryText) {
   // To allow adding notes between steps
 }
 
+@When("end {word}")
+public void end_notes(String anyWord) {
+  /* To close any notes added, e.g., Example: Notes ... * end notes,
+   * or Example: References ... * end References
+   */
+}
 
 // ************* Helper methods **********************
 

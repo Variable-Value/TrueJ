@@ -24,8 +24,8 @@ Scenario: The while loop
   the body accomplishes its goal; the loop exit condition and the loop invariant, together, must
   imply the goal of the loop statement.
 
-
-    """
+XXXXX  * a valid method is
+    XXXXX"""
     int product(int multiplicand', int multiplier' >= 0) {
       int 'productSoFar = 0;
       loop for upThru(1, multiplier')
@@ -33,9 +33,11 @@ Scenario: The while loop
       return productSoFar';
     }
     means return' = multiplicand' * multiplier';
+    XXXXX"""
 
-
-  What the prover is implicitly using:
+XXXXX  And another valid method is
+    XXXXX"""
+    // What the prover is implicitly using for the above method:
 
     int productWithDetails(int multiplicand', int multiplier') {
       given (multiplier' >= 0);
@@ -51,9 +53,11 @@ Scenario: The while loop
       return productSoFar';
     }
     means return' = multiplicand' * multiplier';
+    XXXXX"""
 
-
-  Using a generalized loop structure:
+XXXXX  And another valid method is
+    XXXXX"""
+    // The above program using a generalized loop structure:
 
     Int productUsingGeneralLoop(Int multiplicand', Int multiplier') {
       given multiplier' >= 0;
@@ -77,11 +81,12 @@ Scenario: The while loop
       return product';
     }
     means return' = multiplicand' * multiplier'; // method final means
+    XXXXX"""
 
 
-
-    /*
-       When the variant is true, the next pass of the body must exit at a break and never reach a
+XXXXX  * note
+    XXXXX"""
+       XXXXXWhen the variant is true, the next pass of the body must exit at a break and never reach a
        continue. Therefore, by modus tollens, when the body reaches a continue, the variant, in
        beginning values, must have been false at the beginning of that loop. (Should we put it at
        the bottom, then, after all possible continues? NO, because it needs to be stated in terms of
@@ -89,6 +94,13 @@ Scenario: The while loop
 
        We begin with variant expressions involving Int types, but with care this could be applied to
        any finite-descending-chain (Neutherian) relation.
+    XXXXX"""
+XXXXX TODO:
+XXXXX  * a valid run unit is
+    XXXXX"""
+
+    /*
+
      */
 
     // ***    Verification conditions:    ****
@@ -221,7 +233,7 @@ Scenario: The while loop
         return productSoFar';
       }
       Means(return = multiplicand' * multiplier');
-    """
+    XXXXX"""
 
 Scenario: In a status statement, each conjunct of a top-level forall is checked separately
 
@@ -246,18 +258,18 @@ Scenario: In a status statement, each conjunct of a top-level forall is checked 
       conjunct while highlighting the lowest level phrase discovered thru parity-driven conjunct
       checking.
 
-    # TODO:
-    #  When an invalid run unit is
-    #    """
-    #    class ForallWithConjunction {
-    #
-    #      void checkTruth() {
-    #        for(t' : tests'.indices) {
-    #          result'[t'] = 'result[t'] || tests'[t'];
-    #        }
-    #        means forall (t' : tests'.indices) ( (result'[t'] ==> 'result[t'])
-    #                                          /\ (result'[t'] ==>  tests'[t']) );
-    #          // the programmer has accidentally reversed the implications
-    #      }
-    #
-    #    }
+    XXXXX TODO:
+    XXXXX  When an invalid run unit is
+    XXXXX    """
+    XXXXX    class ForallWithConjunction {
+    XXXXX
+    XXXXX      void checkTruth() {
+    XXXXX        for(t' : tests'.indices) {
+    XXXXX          result'[t'] = 'result[t'] || tests'[t'];
+    XXXXX        }
+    XXXXX        means forall (t' : tests'.indices) ( (result'[t'] ==> 'result[t'])
+    XXXXX                                          /\ (result'[t'] ==>  tests'[t']) );
+    XXXXX          // the programmer has accidentally reversed the implications
+    XXXXX      }
+    XXXXX
+    XXXXX    }
