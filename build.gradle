@@ -69,6 +69,76 @@ sourceSets {
   }
 }
 
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
+/** Test all the features, even details and end-to-end tests (but not the prover)
+ */
+task TestAllFinishedFeatures() {
+    dependsOn assemble, testClasses
+    doLast {
+        javaexec {
+            main = "io.cucumber.core.cli.Main"
+            classpath = ( configurations.cucumberRuntime + sourceSets.main.output
+                        + sourceSets.test.output )
+            args = [ '--plugin', 'progress'
+                   , '--plugin', 'html:build/reports/tests/cucumber/AllTrueJFeatures.html'
+                   , '--glue',   'tlang'
+                   , 'src/test/resources/tlang'
+                   ]
+        }
+    }
+}
+
+task TestNewFeatures() {
+    dependsOn assemble, testClasses
+    doLast {
+        javaexec {
+            main = "io.cucumber.core.cli.Main"
+            classpath = ( configurations.cucumberRuntime + sourceSets.main.output
+                        + sourceSets.test.output )
+            args = [ '--plugin', 'progress'
+                   , '--plugin', 'html:build/reports/tests/cucumber/NewFeatures.html'
+                   , '--glue',   'tlang'
+                   , 'src/test/resources/tlang/NewFeatures'
+                   ]
+        }
+    }
+}
+
+task CukeHelp () {
+  dependsOn assemble, testClasses
+  doLast {
+    javaexec {
+      main = "io.cucumber.core.cli.Main"
+      classpath = ( configurations.cucumberRuntime + sourceSets.main.output
+                  + sourceSets.test.output )
+      args = [ '--help'
+             ]
+    }
+  }
+
+}
+
+task TestProverFeatures() {
+    dependsOn assemble, testClasses
+    doLast {
+        javaexec {
+            main = "io.cucumber.core.cli.Main"
+            classpath = ( configurations.cucumberRuntime + sourceSets.main.output
+                        + sourceSets.test.output )
+            args = [ '--plugin', 'progress'
+                   , '--plugin', 'html:build/reports/tests/cucumber/ProverFeatures.html'
+                   //, '--glue',   ''
+                   , 'src/test/resources/ProofTestFeatures'
+                   ]
+        }
+    }
+}
+
 version = '0.0.0'
 
 //// The following will eliminate the errors for duplicated directories/files,
