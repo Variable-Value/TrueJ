@@ -1,13 +1,23 @@
+@Ready
+@SmokeTest
 Feature: The if-statement - end to end test
 
     This feature specification is for the end to end testing of the features specified in the file
     ab_IfStatement.feature. That file specifies the visible aspects of the if-statement and offers
     more complete explanations of its use. This file shows generated Java code for compilation.
 
+Rule: Value names defined in one branch must be defined in all branches
 
-Scenario: Always include definitions of value names in all branches
+Example: Trivial assignments are often ignored in generated code
 
-    Here we show the implementation of the if-statement in the code that is generated for it.
+  Notice that in the first branch of this example, trivial assignments are made to new value names.
+  They have no effect since they are assignments from a variable to itself. But they are necessary
+  because when we prove the means statement we must know that it is true in both conditions. The
+  means statement for the method assumes that any unmentioned variables keep the same value, but all
+  mentioned variables must have an assignment to a final value under all conditions. In the
+  generated code, you can see that the assignment to `b` is ignored by turning it into a comment.
+  You will also see that the copy of `'a` that is needed later is made in a very conservative
+  location, preventing us from ignoring the assignment to the variable `a`.
 
   * a valid run unit is
     """
@@ -51,7 +61,10 @@ Scenario: Always include definitions of value names in all branches
     } // end class
     """
 
-#  * using feature "***** ba_IfStatementEndToEnd.feature - Include definitions of value names - second test *****"
+Example: Value names do not need to be defined in the same order in all branches
+
+  Here the temp1 and temp2 values are defined in different orders. Note that all the generateed
+  holding values are caused by reusing overwritten values, not by reordering assignment.
 
   * a valid run unit is
     """

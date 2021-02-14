@@ -1,3 +1,4 @@
+@Ready
 Feature: Value names - end to end test (TrueJ 0.1)
 
   This feature specification is for the end to end testing of the features
@@ -580,8 +581,9 @@ Scenario: Values have names
 
 Scenario: Values have block scoping
 
-    If a value is reused, then we generate code saving the value at the end of
-    the line preceding the line where it is overwritten.
+  A value that is overwritten in the variable is still available while it
+  is in scope. We generate code saving the value at the end of the line preceding the line where it
+  is overwritten.
 
   When a valid run unit is
     """
@@ -660,48 +662,11 @@ Scenario: Intermediate value names use middle decoration
     """
 
 
- Scenario: Value names may only refer to one value
-
-     In order for value names to be consistent across the method, they cannot
-     have new values given to them like a variable name.
-
-  When an invalid run unit is
-    """
-    class AllTrue2 {
-
-    boolean a;
-    boolean b;
-    boolean c;
-
-    boolean allTrue;
-
-    void checkAll() {
-      allTrue'reset = true;
-      allTrue'temp  = allTrue'reset && 'a;
-      allTrue'temp  = allTrue'temp  && 'b; // error here
-      allTrue'      = allTrue'temp  && 'c;
-    }
-    means(allTrue' = 'a && 'b && 'c);
-
-    } // end class
-    """
-
-  # expect error here
-  Then an error message contains
-    """
-    at line 12:2 for <allTrue'temp>: The value allTrue'temp has already been defined on line 11
-    """
-
-  And the error messages are
-    """
-    Context Checking during testing
-    Context Check error at line 12:2 for <allTrue'temp>: The value allTrue'temp has already been defined on line 11
-
-    """
-
 Scenario: Assignments with no operational effect are commented out in Java
 
-  If the current value of a variable is assigned to an new value name of the same variable, the assignment is translated to a Java comment. This does not affect the reusability of value names or the use of the value names in logic.
+  If the current value of a variable is assigned to an new value name of the same variable, the
+  assignment is translated to a Java comment. This does not affect the reusability of value names or
+  the use of the value names in logic.
 
   When a valid run unit is
     """
@@ -711,7 +676,7 @@ Scenario: Assignments with no operational effect are commented out in Java
 
     void assign() {
       a'temp = 4;
-      a'another = a'temp;
+      a'another = a'temp; // This assignment will become a comment
 
       b'temp = 'b;
       b' = a'another;
@@ -730,7 +695,7 @@ Scenario: Assignments with no operational effect are commented out in Java
 
     void assign() { int b$T$temp;
       a/*'temp*/ = 4;
-      /*$T$* a'another = a'temp; *$T$*/
+      /*$T$* a'another = a'temp; *$T$*/ // This assignment will become a comment
 
       /*$T$* b'temp = 'b; *$T$*/ b$T$temp = b/*'temp*/;
       b/*'*/ = a/*'another*/;
@@ -741,7 +706,7 @@ Scenario: Assignments with no operational effect are commented out in Java
     }
     """
 
-Scenario: A reused intermediate value is saved immediately before reuse
+Scenario: A reused value is saved immediately before it is overwritten
 
   When a valid run unit is
     """
@@ -749,11 +714,11 @@ Scenario: A reused intermediate value is saved immediately before reuse
 
     int a, b;
 
-    void swap() {
-      b'temp = 'a;
-      a'temp = 'b; // reusing 'b that was overwritten with b'temp
-      a' = b'temp;
-      b' = a'temp; // reusing a'temp that was overwritten with a'
+    void swap() {  // We copy 'b
+      b'temp = 'a; // 'b is being overwritten, but we have already copied it
+      a'temp = 'b; // 'b was overwritten with b'temp, so we use the copy of 'b, and we copy a'temp
+      a' = b'temp; // a'temp is being overwritten, but we have already copied it
+      b' = a'temp; // a'temp was overwritten with a', so we use the copy of a'temp
     }
 
     } // end class Swapper2
@@ -765,11 +730,11 @@ Scenario: A reused intermediate value is saved immediately before reuse
 
     int a, b;
 
-    void swap() { int a$T$temp; int $T$b = /*'*/b;
-      b/*'temp*/ = /*'*/a;
-      a/*'temp*/ = $T$b; a$T$temp = a/*'temp*/; // reusing 'b that was overwritten with b'temp
-      a/*'*/ = b/*'temp*/;
-      b/*'*/ = a$T$temp; // reusing a'temp that was overwritten with a'
+    void swap() { int a$T$temp; int $T$b = /*'*/b;  // We copy 'b
+      b/*'temp*/ = /*'*/a; // 'b is being overwritten, but we have already copied it
+      a/*'temp*/ = $T$b; a$T$temp = a/*'temp*/; // 'b was overwritten with b'temp, so we use the copy of 'b, and we copy a'temp
+      a/*'*/ = b/*'temp*/; // a'temp is being overwritten, but we have already copied it
+      b/*'*/ = a$T$temp; // a'temp was overwritten with a', so we use the copy of a'temp
     }
 
     } // end class Swapper2

@@ -1,3 +1,4 @@
+@Ready
 Feature: Final value names may be left undecorated (TrueJ 0.1)
 
   In this feature we experiment with a simpler notation. Currently allowing either a' or a to represent the final value of the variable a in executable code. In an object's field declarations,

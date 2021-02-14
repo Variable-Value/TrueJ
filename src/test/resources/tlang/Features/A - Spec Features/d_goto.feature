@@ -1,3 +1,4 @@
+@Ready
 Feature: Consideration of the goto statement
 
 The TrueJ language does not have a goto statement; however, it is instructive to consider how it

@@ -77,7 +77,7 @@ configurations {
 
 /** Test all the features, even details and end-to-end tests (but not the prover)
  */
-task TestAllFinishedFeatures() {
+task TestReadyFeatures() {
     dependsOn assemble, testClasses
     doLast {
         javaexec {
@@ -85,15 +85,16 @@ task TestAllFinishedFeatures() {
             classpath = ( configurations.cucumberRuntime + sourceSets.main.output
                         + sourceSets.test.output )
             args = [ '--plugin', 'progress'
-                   , '--plugin', 'html:build/reports/tests/cucumber/AllTrueJFeatures.html'
-                   , '--glue',   'tlang'
+                   , '--plugin', 'html:build/reports/tests/cucumber/ReadyFeatures.html'
+                   , '--glue', 'tlang'
+                   , '--tags', "@Ready and not @InProcess"
                    , 'src/test/resources/tlang'
                    ]
         }
     }
 }
 
-task TestNewFeatures() {
+task TestFeaturesInProgress() {
     dependsOn assemble, testClasses
     doLast {
         javaexec {
@@ -101,9 +102,10 @@ task TestNewFeatures() {
             classpath = ( configurations.cucumberRuntime + sourceSets.main.output
                         + sourceSets.test.output )
             args = [ '--plugin', 'progress'
-                   , '--plugin', 'html:build/reports/tests/cucumber/NewFeatures.html'
+                   , '--plugin', 'html:build/reports/tests/cucumber/FeaturesInProgress.html'
                    , '--glue',   'tlang'
-                   , 'src/test/resources/tlang/NewFeatures'
+                   , '--tags', "@InProgress"
+                   , 'src/test/resources/tlang/'
                    ]
         }
     }

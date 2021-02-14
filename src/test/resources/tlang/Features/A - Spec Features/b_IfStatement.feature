@@ -1,3 +1,4 @@
+@Ready
 Feature: The if statement
 
   The if-statement control structure provides conditional operations. We postpone discussing the

@@ -1,3 +1,4 @@
+@Ready
 Feature: If-Statement Details
 
   The consideration of both possible paths in an if-statement raises several issues. For instance, we allow the else-branch to be omitted, but the then-branch code cannot set any values. This is because those values would only exist conditionally and could not be counted upon to exist when we wanted to refer to them lateer in the code.

@@ -1,3 +1,4 @@
+@Ready
 Feature: Value names are decorated variable names - TrueJ 0.1
 
   TrueJ directs the programmer's attention to the changing state of the program's data as each

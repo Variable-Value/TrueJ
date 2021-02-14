@@ -1,3 +1,4 @@
+@Ready
 Feature: Value names - end to end details test (T Language 0.1)
 
   This feature specification tests additional cases and options of the features
@@ -90,11 +91,11 @@ Scenario: The string of characters $T$ is not allowed in identifiers
 
 Scenario: A Type name cannot be decorated when it is declared
 
-    Declaration of classes and other types must not be decorated. All static fields must be final.
-    This is because all instances of a class can access its static fields, making a classes mutable
-    static fields a part of the state of its instances. In the future, we might make allowance for
-    mutable static fields that are "virtually immutable", with only non-functional or operational
-    purposes, such as reordering items or logging.
+  Declaration of classes and other types must not be decorated. All static fields must be final.
+  This is because all instances of a class can access its static fields, making a classes mutable
+  static fields a part of the state of its instances. In the future, we might make allowance for
+  mutable static fields that are irrelevant to the objects purpose, with only operational or
+  non-functional purposes, such as logging or reordering items in a list.
 
   When an invalid run unit is
   """
@@ -208,11 +209,13 @@ Scenario: Initial values of a variable must be correctly decorated
   #    The final value of field b must be b'
   #  """
 
-Scenario: Value names may only refer to one value within their scope
+Rule: Value names may only refer to one value within their scope
 
     Within its scope, we need all uses of a single value-name to refer to a
     single value, so it may not be assigned new values as though it were a
     variable name.
+
+Example: Attempting to give two values to the value-name allTrue'temp
 
   When an invalid run unit is
     """
@@ -233,9 +236,9 @@ Scenario: Value names may only refer to one value within their scope
     } // end class
     """
 
-  Then an error message contains "allTrue'temp has already been defined"
+  Then an error message contains "allTrue'temp has already been defined on line 9"
 
-Scenario: A single valid literal can be proven
+Scenario: A single valid fact can be proven
 
   * A valid run unit is
     """
@@ -254,7 +257,7 @@ Scenario: A single valid literal can be proven
     """
 
 
-Scenario: The prover detects a single invalid literal
+Scenario: The prover detects a single invalid fact
 
   When an invalid run unit is
     """
@@ -265,7 +268,7 @@ Scenario: The prover detects a single invalid literal
     void swap() {
       int startingA' = 'a;
       a' = 'b;
-      b' = a'; // should be = startingA'; so expect an error
+      b' = a'; // should be startingA', not a', so expect an error
     }
     means( b' = 'a );
 
@@ -299,7 +302,7 @@ Scenario: Priority (stikiness) of && and || translate to the Prover correctly
     }
     means( true || a' = 'b && b' = 'b );
       /* In TrueJ, like Java, this is interpreted as
-         ( true || ( a' = 'b && b' = 'b ) ) which is always true
+         ( true || ( a' = 'b && b' = 'b ) ) which is always true even though b' = 'b is false
 
          If the statement is interpreted by the prover as
          ( ( true || a' = 'b ) && b' = 'b ) it will be false

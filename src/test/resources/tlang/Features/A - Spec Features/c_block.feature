@@ -1,3 +1,4 @@
+@Ready
 Feature: Blocks delimit the scope of variable names
 
   A block is compound statement that organizes a list of statements together into a single unit and
