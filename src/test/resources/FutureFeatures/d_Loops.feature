@@ -1,7 +1,10 @@
+@InProgress
+@Ready
 Feature: Iteration with the while statement
 
   Iterations loop through a block of code, executing it repeatedly, until a stopping condition is
-  reached. Here we only consider iteration with arithmetic problems. Looping through arrays and other more complex loops will be considered later.
+  reached. Here we only consider iteration with arithmetic problems. Looping through arrays and
+  other more complex loops will be considered later.
 
   TODO: Develop the number theory that the loops depend on, instead of relying on the Java integers.
 
@@ -24,10 +27,68 @@ Scenario: The while loop
   the body accomplishes its goal; the loop exit condition and the loop invariant, together, must
   imply the goal of the loop statement.
 
-  Even when the loop is never executed, we
-  must ensure that the invariant is maintained as if the loop were executed.
+Rule: The invariant is true at the start of a every test for entering the loop
 
-  # * a compile unit that parses is
+  The code following the loop can count on the invariant being true, so it must be true before every
+  test to see if the loop continues, or even if it begins.
+
+Example: The invariant is true on the first test, whether the loop is entered or not
+
+  Even when the loop is never executed, we must ensure that the invariant is true.
+
+  Example:
+
+
+  * a compile unit that parses is
+    """
+    class NullLoop {
+
+    void nullCountWithLoopingGoto() {
+      int n' = 0;
+      int 'count = 0;
+
+      condition loopInv(j, m) ( j = sum(int i : upto(0, m) : 1 ) );
+
+      LoopStart: // ('count --> count')
+        means loopInv('count, n');
+        variant 'count < n'; // 'count + epsilon' <= count'  (where epsilon' > 0)
+
+        if ('count < n')
+          goto LoopEnd;
+
+        count' = 'count + 1;
+        m' = 'm + 1;
+        means 'count + 1 <= count'
+            & loopInv(count', n');
+
+        goto LoopStart (count' --> 'count);
+        LoopEnd: ;
+      }
+      means count' = 0;
+    }
+
+    }
+    """
+
+  * a valid run unit is
+    """
+    class NullLoopExample {
+      private int n' = 0;
+
+      void nullLoop() {
+        int 'count = 0;
+        while ('count < n') { // ('count --> count')
+          invar 'count = sum(int i : upto(0, n') : 1 );
+          variant 'count < n';
+
+          count' = 'count + 1;
+        }
+        means count' = 0;
+      }
+    }
+    """
+
+
   * a valid run unit is
     """
     class MultiplyByAdding {
@@ -56,23 +117,6 @@ Scenario: The while loop
     }
     """
 
-  * a valid run unit is
-    """
-    class NullLoopExample {
-      private int n' = 0;
-
-      void nullLoop() {
-        int 'count = 0;
-        while ('count < n') { // ('count --> count')
-          invar 'count = sum(int i : 0 <=: 1 );
-          variant 'count < n';
-
-          count' = 'count + 1;
-        }
-        means count' = 0;
-      }
-    }
-    """
 
 
 #  # TODO:
