@@ -70,7 +70,7 @@ t_typeDeclaration
   | ';'
   ;
 
-// The Context checker must prohibit certain modifiers, e.g., private constants in an interface.
+// The Context checker must prohibit certain modifiers, e.g., native interfaces.
 t_modifier
   : t_classOrInterfaceModifier
   | ( 'native'

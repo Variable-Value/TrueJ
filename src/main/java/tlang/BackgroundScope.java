@@ -1,5 +1,6 @@
 package tlang;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.Optional;
@@ -17,8 +18,20 @@ import static tlang.TUtil.*;
  */
 public class BackgroundScope extends Scope {
 
-public BackgroundScope(String backgroundLabel, Scope parent) {
-  super(backgroundLabel, parent);
+/** The parent of a method's BackgroundScope is the top level, class scope, which always exists */
+private final Scope topLevelScope;
+
+
+
+public BackgroundScope(String backgroundLabel, Scope topLevelScope) {
+  super(backgroundLabel, topLevelScope);
+  this.topLevelScope = notNull(topLevelScope);
+}
+
+/** The parent of a BackGroundScope is not an executable, so do nothing */
+@Override
+public void makeNewValueNamesAvailableToParent() {
+  //  do nothing
 }
 
 /* Notes on getVarDeclarationInfo and getVarReferenceInfo
@@ -60,26 +73,15 @@ public @Nullable VarInfo getConflictingVarDeclarationInfo(String varName) {
  */
 @Override
 public @Nullable VarInfo getExistingVarInfo(String varName) {
-  @Nullable VarInfo varInfo = (varToInfoMap.get(varName));
-  final boolean varDefinedInThisScope = ! isNull(varInfo);
-  if (varDefinedInThisScope) {
-    return notNull(varInfo);
-  } else { // background always has a parent
-    @Nullable VarInfo originalInfo = notNull(parent).getExistingVarInfo(varName);
-    final boolean varUndefined = isNull(originalInfo);
-    if (varUndefined) {
-      return null;
-    } else { // variable definition is in originalInfo
-      VarInfo shadowingInfo = new VarInfo(notNull(originalInfo));
-      if (shadowingInfo.getCurrentValueName() == "") {
-        final String valueName = TUtil.decorator+ varName;
-        shadowingInfo.setCurrentValueName(valueName);
-        shadowingInfo.defineNewValue(valueName, shadowingInfo.getLineWhereDeclared());
-      }
-      varToInfoMap.put(varName, shadowingInfo);
-      return shadowingInfo;
-    }
-  }
+  if (isVariableDefinedInThisScope(varName))
+    return varToInfoMap.get(varName);
+
+  if ( ! topLevelScope.isVariableDefinedInThisScope(varName))
+    return null;
+
+  VarInfo shadowingInfo = shadowingInfoFor(varName);
+  varToInfoMap.put(varName, shadowingInfo);
+  return shadowingInfo;
 }
 
 /**
@@ -98,28 +100,28 @@ public @Nullable VarInfo getExistingVarInfo(String varName) {
  */
 @Override
 public Optional<VarInfo> getOptionalExistingVarInfo(String varName) {
-  VarInfo varInfo = varToInfoMap.get(varName);
-  final boolean varDefinedInThisScope = varInfo != null;
-  if (varDefinedInThisScope) {
-    return Optional.of(varInfo);
-  } else { // background always has a parent
-    Optional<VarInfo> originalInfo = parent.getOptionalExistingVarInfo(varName);
-    if ((originalInfo.isPresent())) {
-      VarInfo shadowingInfo = new VarInfo(originalInfo.get());
-      String shadowCurrentValueName = shadowingInfo.getCurrentValueName();
-      if (shadowCurrentValueName == null || shadowCurrentValueName == "") {
-        final String valueName = TUtil.decorator+ varName;
-        shadowingInfo.setCurrentValueName(valueName);
-        shadowingInfo.defineNewValue(valueName, shadowingInfo.getLineWhereDeclared());
-      }
-      varToInfoMap.put(varName, shadowingInfo);
-      return Optional.of(shadowingInfo);
-    } else {
-    return Optional.empty();
-    }
-  }
+  if (isVariableDefinedInThisScope(varName))
+    return notNull(Optional.of(notNull(varToInfoMap.get(varName))));
+
+  if ( ! topLevelScope.isVariableDefinedInThisScope(varName))
+    return notNull(Optional.empty());
+
+  VarInfo shadowingInfo = shadowingInfoFor(varName);
+  varToInfoMap.put(varName, shadowingInfo);
+  return notNull(Optional.of(shadowingInfo));
 }
 
+private VarInfo shadowingInfoFor(String varName) {
+  VarInfo topLevelVarInfo = notNull(topLevelScope.getExistingVarInfo(varName));
+  VarInfo shadowingInfo = new VarInfo(topLevelVarInfo);
+  if (shadowingInfo.isFirstReferenceToUninitializedField()) {
+    String valueName = decorator + varName;
+    shadowingInfo.defineNewValue(valueName, shadowingInfo.getLineWhereDeclared());
+    this.makeValueAvailable(valueName);
+    shadowingInfo.setCurrentValueName(valueName);
+  }
+  return shadowingInfo;
+}
 
  /**
  * When declaring a local variable, we search up to but not in the background
@@ -127,7 +129,7 @@ public Optional<VarInfo> getOptionalExistingVarInfo(String varName) {
  * scope, the local variable is allowed to shadow it.
  */
 @Override
-Scope getDeclarationScope(String varName) {
+@Nullable Scope getDeclarationScope(String varName) {
   return null; // not found, except in background, which can be shadowed
 }
 
@@ -141,7 +143,7 @@ Scope getDeclarationScope(String varName) {
  * background scope is created.
  */
 @Override
-Scope getVariableDeclarationScope(String varName) {
+@Nullable Scope getVariableDeclarationScope(String varName) {
   if (varToInfoMap.containsKey(varName)) {
     return this;
   } else { // background always has a parent
@@ -156,6 +158,22 @@ Scope getVariableDeclarationScope(String varName) {
     }
   }
 }
+
+
+/**
+ * Juggle the status of an object from @Nullable to @NonNull for an object that is known to be
+ * non-null. The programmer must ensure that the object is guaranteed by other code to be non-null.
+ * It is much safer to check for <code>null</code> and throw an exception if you made a mistake.
+ * But if you are confident, using this is more elegant than a
+ * <code>@SuppressWarnings("null")</code> on a whole method. Since this method is private and
+ * doesn't do anything, it compiles away to nothing.
+ */
+@SuppressWarnings("null")
+private static <T> @NonNull T notNull(@Nullable T item) {
+  return item;
+}
+
+
 
 
 

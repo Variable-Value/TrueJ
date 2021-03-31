@@ -124,8 +124,36 @@ public void the_error_messages_are(String expected) {
   assertEquals(expected, errs.toString());
 }
 
-/** There is an error message containing the given string. Assumes a compile unit has already
- * been processed, probably by <code>an_invalid_run_unit_is(String tCode)</code> */
+/**
+ * The error messages contain the corresponding expected messages.
+ */
+ @Then("the error messages contain")
+public void the_error_messages_contain(String uniquePartOfErrMsgs) {
+  var expectedList = uniquePartOfErrMsgs.split("\\n"); // split on line ending
+  var errLines = errs.errLines();
+  int numberExpected = expectedList.length;
+  int numberActual = errLines.size();
+  if (numberExpected != numberActual)
+    assertTrue("Different number of messages in expected (" + numberExpected +") "
+                + "and actual ("+ numberActual +")."
+                + "\nExpected \n"+ uniquePartOfErrMsgs
+                + "\nActual "+ errs.toString()
+                , false);
+  for (int i = 0; i < numberExpected; i++) {
+    if ( ! errLines.get(i).contains(expectedList[i]) )
+      assertTrue("An expected message was not contained in the corresponding actual message."
+                   + "\nExpected: "+ expectedList[i]
+                   + "\nActual  : "+ errLines.get(i)
+                   + "\n\nThe " + numberExpected +" Expected messages \n"+ uniquePartOfErrMsgs
+                   + "\n\nThe " + numberActual +" actual messages from "+ errs.toString()
+                  , false);
+  }
+}
+
+/**
+ * There is an error message containing the given string. Assumes a compile unit has already been
+ * processed, probably by <code>an_invalid_run_unit_is(String tCode)</code>
+ */
 @Then("^an error message contains$")
 public void an_error_message_contains(String uniquePartOfErr) {
   an_error_message_contains__(uniquePartOfErr);
