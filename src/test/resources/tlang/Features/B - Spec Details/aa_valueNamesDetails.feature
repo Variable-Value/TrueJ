@@ -334,7 +334,7 @@ Scenario: TODO: Assignment of an equality test requires the equality test to be 
 
     void test() {
       boolean fact2' = 'a = 'b;    // Parentheses required for bool assignment: fact2' = ('a = 'b)
-      means   fact2' = ('a = 'b);
+      means   fact2' = ('a = 'b);  // does this have to be fact2' === 'a = 'b ?
     }
 
     } // end class
@@ -342,7 +342,7 @@ Scenario: TODO: Assignment of an equality test requires the equality test to be 
 
     Then an error message contains
       """
-      The right-hand side must be parenthesized to keep the assignment from looking like a conjunctive relational expression
+      The right-hand side must be parenthesized to keep the assignment from looking like part of a conjunctive relational expression
       """
 
   When an invalid run unit is
