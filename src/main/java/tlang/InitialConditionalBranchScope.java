@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import tlang.Scope.VarInfo;
 import tlang.TLantlrParser.T_assignableContext;
@@ -96,16 +98,17 @@ void delegateInScope(String valueName, String currentValueName) {
 void setEndingValueNames() {
   Set<String> modififedVariables = varToHeldLatestValue.keySet();
   for (String var : modififedVariables) {
-    VarInfo varInfo = getExistingVarInfo(var);
+    @NonNull
+    VarInfo varInfo = notNull(getExistingVarInfo(var));
     varToEndingValueName.put(var, varInfo.getCurrentValueName());
   }
 }
 
 public void captureConflictingEndingValueNames() {
   for (Entry<String,String> maplet : varToEndingValueName.entrySet()) {
-    String var = maplet.getKey();
-    String endingValueName = maplet.getValue();
-    VarInfo varInfo = getExistingVarInfo(var);
+    String var = notNull(maplet.getKey());
+    String endingValueName = notNull(maplet.getValue());
+    VarInfo varInfo = notNull(getExistingVarInfo(var));
     String currentValueName = varInfo.getCurrentValueName();
     if ( ! endingValueName.equals(currentValueName) ) {
       if (endingValueName != TLantlrRewriteVisitor.$T$)
@@ -121,6 +124,22 @@ void setCollectionsToEmpty() {
   varToHeldLatestValue = TUtil.EMPTY_HASH_MAP;
   delegatedValueNames = TUtil.EMPTY_HASH_SET;
 }
+
+
+/**
+ * Juggle the status of an object from @Nullable to @NonNull for an object that is known to be
+ * non-null. The programmer must ensure that the object is guaranteed by other code to be non-null.
+ * It is much safer to check for <code>null</code> and throw an exception if you made a mistake.
+ * But if you are confident, using this is more elegant than a
+ * <code>@SuppressWarnings("null")</code> on a whole method. Since this method is private and
+ * doesn't do anything, it compiles away to almost nothing.
+ */
+@SuppressWarnings("null")
+private static <T> @NonNull T notNull(@Nullable T item) {
+  return item;
+}
+
+
 
 
 }

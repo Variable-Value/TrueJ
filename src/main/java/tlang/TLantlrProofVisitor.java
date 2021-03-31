@@ -8,6 +8,9 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
 import tlang.KnowledgeBase.ProofResult;
 import tlang.Scope.VarInfo;
 import tlang.TLantlrParser.InitializedVariableContext;
@@ -83,12 +86,13 @@ public TLantlrProofVisitor(
  * @param  tokenStream that was used to generate the parseTree
  * @param  ctxToScope  map from a parse context to all scope information, especially variables
  * @param  errors      collects all error messages
- * @return             a record of the prolog calls that were made to the prover */
-public static String proveCorrectness(
-  ParseTree parseTree,
-  TokenStream tokenStream,
-  Map<RuleContext, Scope> ctxToScope,
-  CollectingMsgListener errors)
+ * @return             a record of the prolog calls that were made to the prover
+ */
+public static String proveCorrectness( ParseTree               parseTree,
+                                       TokenStream             tokenStream,
+                                       Map<RuleContext, Scope> ctxToScope,
+                                       CollectingMsgListener   errors
+                                     )
 {
   latestProofVisitor = new TLantlrProofVisitor(tokenStream, ctxToScope, errors);
   latestProofVisitor.visit(parseTree);
@@ -230,8 +234,9 @@ private boolean needsEquivalenceForBooleanTarget(InitializedVariableContext ctx)
 }
 
 private boolean isBooleanIdentifier(T_identifierContext targetCtx) {
-  String targetVarName = TUtil.variableName(targetCtx.getText());
-  String varType = currentScope.getExistingVarInfo(targetVarName).getType();
+  String targetVarName = TUtil.variableName(notNull(targetCtx.getText()));
+  Scope curScope = notNull(currentScope);
+  String varType = notNull(curScope.getExistingVarInfo(targetVarName)).getType();
   return varType.equals("boolean") || varType.equals("Boolean");
 }
 
@@ -734,6 +739,19 @@ private void withChildOfKb(Runnable acceptFunction) {
   kb = new KnowledgeBase(parentKb);  // create child kb
   acceptFunction.run();              // use child kb
   kb = parentKb;                     // restore parent kb
+}
+
+/**
+ * Juggle the status of an object from @Nullable to @NonNull for an object that is known to be
+ * non-null. The programmer must ensure that the object is guaranteed by other code to be non-null.
+ * It is much safer to check for <code>null</code> and throw an exception if you made a mistake.
+ * But if you are confident, using this is more elegant than a
+ * <code>@SuppressWarnings("null")</code> on a whole method. Since this method is private and
+ * doesn't do anything, it compiles away to almost nothing.
+ */
+@SuppressWarnings("null")
+private static <T> @NonNull T notNull(@Nullable T item) {
+  return item;
 }
 
 } // end class
