@@ -3,8 +3,3 @@ The TrueJ language applies the Variable-Value approach, but attempts to stay as 
 feasible.
 
 The website is at http://truej-lang.org.
-
-The best place to get a feel for the language is currently 
-the [Cucumber readable specifications](src/test/resources/tlang/Features/A%20-%20Spec%20Features/). 
-The [latest results of testing against the specifications](https://truej-lang.org/TestHtml/) 
-are less convenient for reading.
