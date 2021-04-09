@@ -1,4 +1,3 @@
-@InProgress
 @Ready
 Feature: Status Statements for Executable code
 
