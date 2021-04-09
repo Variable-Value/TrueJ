@@ -113,9 +113,9 @@ Scenario Outline: Simple Examples
     | theorem   | (p ===(q ===  q)) === p   | Another associativity            |
     | theorem   |  p === ((q === q) === p)  | Another associativity            |
     | theorem   |  p === (q === (q === p))  | Another associativity            |
-    | theorem   | true === p   ===  p       | true is the Identity of === (3.3)|
-    | theorem   | true                      | / representation of true as a  \ |
-    |non-theorem| -true                     | \ proposition (3.4)            / |
+    | theorem   | true === p   ===   p      | true is the Identity of === (3.3)|
+    | theorem   | true                      | true is a proposition (3.4)      |
+    |non-theorem| -true                     | true is a proposition (3.4)      |
     | theorem   | p === p                   | === is reflexive G&S 3.5         |
 
 
