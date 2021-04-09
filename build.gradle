@@ -18,7 +18,7 @@ repositories {
 }
 
 project.ext {
-    cukeVersion = '6.8.1'
+    cukeVersion = '6.10.2'
     /* Version 5 of Cucumber produces a test report with better feature headers in a collapsable
      * outline. However, version five requires that a directory name be provided in the
      * @CucumberOptions() of class TestMainCucumberFeatures instead of a file name.
