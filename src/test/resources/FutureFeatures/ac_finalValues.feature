@@ -6,7 +6,7 @@ Scenario: Final values may not be overwritten
 
     A new value may not be written to a variable that contains a final (post-decorated) value.
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class Swapper {
 
@@ -36,7 +36,7 @@ Scenario: Changed fields require a final value name
 
     that we expect the compiler to optimize away. Besides neatly rounding off the process definition in a consistent and sensible way, the final value name is required for use by closing means statements as documented in d_meansStatement.feature.
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class Swapper {
 

@@ -26,7 +26,7 @@ Scenario: A label must be immediately followed by a means or invariant statement
   will eventually exit, which can be easily automated when all the goto statements jump forward.
   Jumps that loop back will be discussed later.
 
-  * A valid run unit is
+  * A valid compile unit is
     """
     // TODO: Implement the check for labels without a means statement
     class Goto01 {

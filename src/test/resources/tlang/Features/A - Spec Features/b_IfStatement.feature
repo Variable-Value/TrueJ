@@ -9,7 +9,7 @@ Scenario: The if-statement allows alternative definitions for values
     A value name has only one value for the whole range of its scope, but that value may be selected
     from different options, depending upon the runtime conditions of the state.
 
-  * A valid run unit is
+  * A valid compile unit is
     """
     class Rates {
 
@@ -68,7 +68,7 @@ Scenario: A valid value name has a definition in each branch of a conditional
       required, and issuing a good error message to help the programmer locate a problem would
       require saving the same information that is now reported.)
 
-  * a valid run unit is
+  * a valid compile unit is
     """
     class Swapper_2 {
 
@@ -89,7 +89,7 @@ Scenario: A valid value name has a definition in each branch of a conditional
     } // end class
     """
 
-  * a valid run unit is
+  * a valid compile unit is
     """
     class Swapper_3 {
 
@@ -116,7 +116,7 @@ Scenario: A valid value name has a definition in each branch of a conditional
     } // end class
     """
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class Rates_1X {
 
@@ -165,7 +165,7 @@ Scenario: A more complex example - ThreeSort
     a different ordering of the code than our preferred one to avoid creating two implicit local
     variables.
 
-  * A valid run unit is
+  * A valid compile unit is
     """
     class Triplet {
 
@@ -225,7 +225,7 @@ Scenario: An if-then-statement may not define value names
     as no value names are defined. Perhaps writing to a log file would be a good example, but even
     that would not apply if you wanted the accuracy of the log file to be part of the specification.
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class Swapper_1 {
 

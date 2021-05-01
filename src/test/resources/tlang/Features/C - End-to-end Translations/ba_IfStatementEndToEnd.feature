@@ -19,7 +19,7 @@ Example: Trivial assignments are often ignored in generated code
   You will also see that the copy of `'a` that is needed later is made in a very conservative
   location, preventing us from ignoring the assignment to the variable `a`.
 
-  * a valid run unit is
+  * a valid compile unit is
     """
     class Swapper_2 {
 
@@ -40,7 +40,7 @@ Example: Trivial assignments are often ignored in generated code
     } // end class
     """
 
-  And the Java operational run unit is
+  And the Java operational compile unit is
     """
     import tlang.runtime.*; @TType class Swapper_2 {
 
@@ -66,7 +66,7 @@ Example: Value names do not need to be defined in the same order in all branches
   Here the temp1 and temp2 values are defined in different orders. Note that all the generateed
   holding values are caused by reusing overwritten values, not by reordering assignment.
 
-  * a valid run unit is
+  * a valid compile unit is
     """
     class Swapper_3 {
 
@@ -93,7 +93,7 @@ Example: Value names do not need to be defined in the same order in all branches
     } // end class
     """
 
-    And the Java operational run unit is
+    And the Java operational compile unit is
     """
     import tlang.runtime.*; @TType class Swapper_3 {
 

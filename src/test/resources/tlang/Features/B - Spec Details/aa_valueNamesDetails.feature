@@ -15,7 +15,7 @@ Scenario: The string of characters $T$ is not allowed in identifiers
     characters, $T$, from ever being used in the T language, freeing us to
     generate names and any other sequences of Java code without worry.
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class Swap$T$Error {
 
@@ -37,7 +37,7 @@ Scenario: The string of characters $T$ is not allowed in identifiers
   """
 
 
-  When an invalid run unit is
+  When an invalid compile unit is
   """
   class SwapError1 {
 
@@ -63,7 +63,7 @@ Scenario: The string of characters $T$ is not allowed in identifiers
 
     """
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class SwapError2 {
 
@@ -97,7 +97,7 @@ Scenario: A Type name cannot be decorated when it is declared
   mutable static fields that are irrelevant to the objects purpose, with only operational or
   non-functional purposes, such as logging or reordering items in a list.
 
-  When an invalid run unit is
+  When an invalid compile unit is
   """
   class SwapError2' {
 
@@ -134,7 +134,7 @@ Scenario: Initial values of a variable must be correctly decorated
     used, the assigned value will always be middle- or post-decorated. (When we get to construtors,
     we will even insist on this when setting the value of a final field.)
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class SwapError3 {
 
@@ -156,7 +156,7 @@ Scenario: Initial values of a variable must be correctly decorated
     Value a'current has not been defined
     """
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class SwapError4 {
 
@@ -186,7 +186,7 @@ Scenario: Initial values of a variable must be correctly decorated
   #  final-decorated value name by the termination point of every path through the program unless an
   #  Exception is thrown.
   #
-  #  When an invalid run unit is
+  #  When an invalid compile unit is
   #  """
   #  class SwapErrorXXX {
   #
@@ -217,7 +217,7 @@ Rule: Value names may only refer to one value within their scope
 
 Example: Attempting to give two values to the value-name allTrue'temp
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class AllTrue2 { // invalid class
 
@@ -240,7 +240,7 @@ Example: Attempting to give two values to the value-name allTrue'temp
 
 Scenario: A single valid fact can be proven
 
-  * A valid run unit is
+  * A valid compile unit is
     """
     class SwapAgain1 {
 
@@ -259,7 +259,7 @@ Scenario: A single valid fact can be proven
 
 Scenario: The prover detects a single invalid fact
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class SwapAgain2 {
 
@@ -289,7 +289,7 @@ Scenario: Priority (stikiness) of && and || translate to the Prover correctly
     semantics of the code remains the same. We must either code the provers operator priority for /\
     and \/ carefully or insert extra parentheses before sending code to the prover.
 
-  * A valid run unit is
+  * A valid compile unit is
     """
     class SwapAgain3 {
 
@@ -326,7 +326,7 @@ Scenario: TODO: Assignment of an equality test requires the equality test to be 
   will relax the constraint on parenthesizing equality tests, but still keep the parentheses for the
   equalities on the right-hand-side of assignment statements.
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class assignmentVsEquality {
 
@@ -345,7 +345,7 @@ Scenario: TODO: Assignment of an equality test requires the equality test to be 
       The right-hand side must be parenthesized to keep the assignment from looking like part of a conjunctive relational expression
       """
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class assignmentVsEquality {
 
@@ -385,7 +385,7 @@ Scenario: The scope of value names
   Therefore in the following example, the intermediate value a'start is defined in the method and
   can be used in the internal means statement, but not the final means statement.
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class SwapError5 {
 
@@ -433,7 +433,7 @@ Scenario: TODO: Back translation of comments requires absence of reserved charac
   generated code, e.g., value' is translated into value/*'*/.
 
   # TODO: implement the $T$ and /*'*/ prohibition in comments
-    #  When an invalid run unit is
+    #  When an invalid compile unit is
     #    """
     #    class SwapError5 {
     #

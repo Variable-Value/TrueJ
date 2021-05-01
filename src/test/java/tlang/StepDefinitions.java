@@ -89,21 +89,30 @@ public static void decorated_final_value_names_are_required() throws Throwable {
   TCompiler.isRequiringDecoratedFinalValue = true;
 }
 
-@Given("^[Aa] valid run unit is$")
-public void a_valid_run_unit_is(String tSourceCode)
+@Given("^[Aa] valid compile unit is$")
+public void a_valid_compile_unit_is(String tSourceCode)
       throws IOException, InterruptedException {
   runAllSteps(tSourceCode);
   checkForErrors();
 }
 
-@When("^[Aa]n invalid run unit is$")
-public void an_invalid_run_unit_is(String tSourceCode)
+@When("^[Aa]n invalid compile unit is$")
+public void an_invalid_compile_unit_is(String tSourceCode)
       throws IOException, InterruptedException {
   runAllSteps(tSourceCode);
   if (errs.hasNoErrs())
     System.out.println("\n\n****** Errors were expected, but none were found! ******\n");
       /* Cannot use an assertTrue to check for presence of errors because it would prevent us from
        * seeing the checks for the partiular errors that should be there. */
+}
+
+@Given("a compile unit that parses is")
+public void a_compile_unit_that_parses_is(String truejCode) {
+  tCode = truejCode;
+  parse("", tCode);
+  checkForErrors();
+
+  TCompiler.isRequiringDecoratedFinalValue = false;
 }
 
 @Then("^[Ww]e display all the error messages for inspection$")
@@ -190,7 +199,7 @@ public void the_parse_tree_is(String expectedTree) {
   assertEquals(stripFormating(expectedTree), stripFormating(tree.toStringTree(parser)));
 }
 
-@Then("^[Tt]he Java operational run unit is$")
+@Then("^[Tt]he Java operational compile unit is$")
 public void the_Java_operational_run_unit_is(String javaCodeExpected) {
   latestJavaExpected = javaCodeExpected;
   assertEquals(javaCodeExpected,javaCodeFromT);            // better output
@@ -261,11 +270,22 @@ public void notes(String arbitraryText) {
   // To allow adding notes between steps
 }
 
+/**
+ * A dummy test to close any Examples that are just for explanatory notes and do not have a test,
+ * e.g.,
+ *   Example: Notes
+ *     ...
+ *   * end notes
+ * or
+ *   Example: References
+ *     ...
+ *   * end References
+ *
+ * Without some test, an Example will not be displayed on the HTML output.
+ */
 @When("end {word}")
 public void end_notes(String anyWord) {
-  /* To close any notes added, e.g., Example: Notes ... * end notes,
-   * or Example: References ... * end References
-   */
+  ;
 }
 
 // ************* Helper methods **********************

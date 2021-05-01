@@ -28,7 +28,7 @@ Scenario: Collect field variable names.
   Field names must be collected for a class in a form that will be used by a
   the semantics checker.
 
-  Given the run unit "Swapper" is
+  Given the compile unit "Swapper" is
     """
     class Swapper {
 
@@ -70,7 +70,7 @@ Scenario: Collect field variable names for enum classes.
   representation of enumerations as singletob classes is very elegant, but it
   leads to a lot of capability that is seldom used. We check those details here.
 
-  Given the run unit "Swapper" is
+  Given the compile unit "Swapper" is
     """
 	public enum EnumA {
 	  A1 {
@@ -101,7 +101,7 @@ Scenario: Collect field variable names for enum classes.
     [[EnumA, [EnumAa, EnumAb]], [A1, [a1a, a1b]], [A2, [a2a, a2z]]]
     """
 
-  And the Java operational run unit is
+  And the Java operational compile unit is
     """
     public enum EnumA {
       A1 {

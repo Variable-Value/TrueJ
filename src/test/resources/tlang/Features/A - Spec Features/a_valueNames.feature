@@ -35,7 +35,7 @@ Example: The means-statement summarizes the above operational statements
 
   but it does need to mention the important value names and their relationships.
 
-  * A valid run unit is
+  * A valid compile unit is
     """
     class Swapper {
 
@@ -174,7 +174,7 @@ Rule: The scope of a value name ends with the scope of its variable
 
 Example: Reusing an "overwritten" value when its variable is still in scope
 
-  * A valid run unit is
+  * A valid compile unit is
     """
     class Swapper2 {
 
@@ -201,7 +201,7 @@ Example: Notes
 
 Example: We cannot refer to a value whose variable is out of scope
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class Swapper3 {
 
@@ -239,7 +239,7 @@ Rule: Intermediate value names use middle decoration
 
 Example: Using middle-decorated value names
 
-  * A valid run unit is
+  * A valid compile unit is
     """
     class AllTrue {
 
@@ -280,7 +280,7 @@ Rule: Using value names allows proving logical statements
 
 Example: A means statement that is false
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class Swapper4 {
 

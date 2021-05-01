@@ -21,7 +21,7 @@ Scenario: A process's following meaning uses initial and final values
     A process definition or declaration, that is, a method, constructor, or initializer, may have its effect stated in a closing 'means' statement that resides immediately following and outside the scope of the process. This closing means statement must convey the changes caused to the fields of the enclosing object by using initial and final values for relevant fields. In addition, a closing means statement must include the final value of every modified variable. If this meaning statement is not provided by the programmer, then the compiler generates it for its internal use. For security purposes, the compiler publishes any such generated statement for each publicly accessible method.
 
     # TODO make this example illustrate the scenario
-    When an invalid run unit is
+    When an invalid compile unit is
       """
       class Swapper {
 

@@ -4,18 +4,38 @@ Feature: Final value names may be left undecorated (TrueJ 0.1)
   In this feature we experiment with a simpler notation. Currently allowing either a' or a to represent the final value of the variable a in executable code. In an object's field declarations,
       Int a;
   just declares the variable as final with its default value. To initialize the value we must decorate the variable or it will be final:
-      Int 'a = 2;
-      Int b' = 5;
-      Int b = 5; // equivalent to b' = 5
+
+      int 'a = 2; // the value of the variable a can change
+
+      int b' = 5; // the value of variable b cannot change
+      int b = 5;  // equivalent to b' = 5
+
+      int c;      // the value of variable c cannot change once the value is provided;
+                  // for fields the final value must be provided
+                  // in either a finalizer block or in the constructors
 
   There is a command-line flag to force use of final decoration for final values. In that case,
-      Int a;
-  is interpreted as only declaring a variable; the variable does not have a value.
+      Int b;
+  generates an error message.
+
+  Using the undecorated form of value names for final values rather than the more explicit
+  post-decorated names makes the code look less cluttered for readability, but runs the risk of
+  having beginners and programmers that primarily work in other procedural languages misinterpret an
+  undecorated final value name for a variable name; for example, the code
+
+      i = 0;
+
+  should be read, not as meaning that the variable `i` gets the value `0`, but as a definition of a
+  name for a final value, and `i` will be `0` for the rest of its scope. If the programmer tries to
+  reuse the "variable", the compiler will issue an error, but these errors might be frustrating to
+  the programmer until they reorient their thinking. The important thing to remember is that in
+  TrueJ, the variable name is never used except as a part of a value name, so if it looks like a
+  variable name it is really the name of a value that never changes, the variable's final value.
 
 
 Scenario: Values have names
 
-  * A valid run unit is
+  * A valid compile unit is
     """
     class Swapper {
 
@@ -40,7 +60,7 @@ Scenario: Values have names
 
   Given decorated final value names are required
 
-  Then an invalid run unit is
+  Then an invalid compile unit is
     """
     class Swapper_error {
 
@@ -65,7 +85,7 @@ Scenario: Values have names
 Scenario: The scope of a value name ends with the scope of its variable
 
 
-  * A valid run unit is
+  * A valid compile unit is
     """
     class Swapper2 {
 
@@ -81,7 +101,7 @@ Scenario: The scope of a value name ends with the scope of its variable
 
   Given decorated final value names are required
 
-  Then an invalid run unit is
+  Then an invalid compile unit is
     """
     class Swapper2_error {
 
@@ -100,7 +120,7 @@ Scenario: The scope of a value name ends with the scope of its variable
     b must be decorated
     """
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class Swapper3 {
 
@@ -124,7 +144,7 @@ Scenario: The scope of a value name ends with the scope of its variable
     """
 
   Given decorated final value names are required
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class Swapper3 {
 
@@ -153,7 +173,7 @@ Scenario: The scope of a value name ends with the scope of its variable
 
 Scenario: A final value defined with one decoration cannot be used with the other
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class DecorationErr1 {
 
@@ -175,7 +195,7 @@ Scenario: A final value defined with one decoration cannot be used with the othe
     line 11:6 for <a'>: A different final decoration, a, was defined at line 7
     """
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class DecorationErr2 {
 
@@ -197,7 +217,7 @@ Scenario: A final value defined with one decoration cannot be used with the othe
     line 9:26 for <a>: A different final decoration, a', was defined at line 7
     """
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class DecorationErr3 {
 
@@ -220,7 +240,7 @@ Scenario: A final value defined with one decoration cannot be used with the othe
     line 9:6 for <startingA'>: A different final decoration, startingA, was defined at line 4
     """
 
-  When An invalid run unit is
+  When An invalid compile unit is
     """
     class RedefinitionErr1 {
 
@@ -245,7 +265,7 @@ Scenario: A final value defined with one decoration cannot be used with the othe
     10:22 for <'b>: Value 'b has not been defined for the variable b that was declared at line 3
     """
 
-    When An invalid run unit is
+    When An invalid compile unit is
     """
     class RedefinitionErr2 {
 
@@ -267,7 +287,7 @@ Scenario: A final value defined with one decoration cannot be used with the othe
     line 8:2 for <starting'>: A different final decoration, starting, was defined at line 6
     """
 
-  When An invalid run unit is
+  When An invalid compile unit is
     """
     class Swapper_3 {
 
@@ -304,7 +324,7 @@ Scenario: A final value defined with one decoration cannot be used with the othe
     23:6 for <a'>: Value a' has not been defined for the variable a that was declared at line 3
     """
 
-  When An invalid run unit is
+  When An invalid compile unit is
     """
     class Swapper_3 {
 

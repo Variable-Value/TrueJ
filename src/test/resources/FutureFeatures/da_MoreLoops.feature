@@ -96,7 +96,7 @@ XXXXX  * note
        any finite-descending-chain (Neutherian) relation.
     XXXXX"""
 XXXXX TODO:
-XXXXX  * a valid run unit is
+XXXXX  * a valid compile unit is
     XXXXX"""
 
     /*
@@ -259,7 +259,7 @@ Scenario: In a status statement, each conjunct of a top-level forall is checked 
       checking.
 
     XXXXX TODO:
-    XXXXX  When an invalid run unit is
+    XXXXX  When an invalid compile unit is
     XXXXX    """
     XXXXX    class ForallWithConjunction {
     XXXXX

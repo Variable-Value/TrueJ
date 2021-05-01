@@ -79,7 +79,7 @@ Rule: The means-statement summarizes the preceding executable code
 
 Example: Using a final means-statement to show the intent of the commands in a block
 
-  * a valid run unit is
+  * a valid compile unit is
     """
     class Status1 {
 
@@ -112,7 +112,7 @@ Example: A value-name must be referenced in a means-statement to be meaningful i
   The meaning of a value name is eclipsed when it is not included in a following _means_-statement,
   so it cannot be used in any following commands or status statements.
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class Status2 {
 
@@ -156,7 +156,7 @@ Example: A means-statement can eclipse facts that are then unavailable in follow
 
       b' = b'
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class Status2 {
 
@@ -193,7 +193,7 @@ Example: A new value of a variable can be defined after a means-statement
 
   References can be eclipsed by a means statement, but the type of a variable is remembered, so that new values for that variable can be defined. In this example we eclipse the only value of the variable startingB, but we are still able to define the new value startingB'.
 
-  * a valid run unit is
+  * a valid compile unit is
     """
     class BlockMeaning2a {
 
@@ -217,7 +217,7 @@ Example: The compiler remembers facts from a surrounding block once it returns t
 
   The _means_-statement only eclipses facts and value names within the current scope.
 
-  * a valid run unit is
+  * a valid compile unit is
     """
     class BlockMeaning5 {
 

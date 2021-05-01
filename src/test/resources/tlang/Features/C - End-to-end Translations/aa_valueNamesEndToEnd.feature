@@ -24,7 +24,7 @@ Scenario: Insertion of TrueJ runtime import relative to comments
     We avoid creating new lines when translating in order to help programmers (or a future version
     of TrueJ) identify the TrueJ code resposible for generating Java compiler error messages.
 
-  When a valid run unit is
+  When a valid compile unit is
   """
   /**
    * A class to demonstrate value names
@@ -44,7 +44,7 @@ Scenario: Insertion of TrueJ runtime import relative to comments
   } // end class
     """
 
-  Then the Java operational run unit is
+  Then the Java operational compile unit is
     """
     import tlang.runtime.*; /**
      * A class to demonstrate value names
@@ -66,7 +66,7 @@ Scenario: Insertion of TrueJ runtime import relative to comments
 
 Scenario: Insertion of TrueJ runtime import relative to package
 
-  When a valid run unit is
+  When a valid compile unit is
     """
     package ttestclass;
     class Swapper {
@@ -84,7 +84,7 @@ Scenario: Insertion of TrueJ runtime import relative to package
     } // end class
     """
 
-  Then the Java operational run unit is
+  Then the Java operational compile unit is
     """
     package ttestclass; import tlang.runtime.*;
     @TType class Swapper {
@@ -104,7 +104,7 @@ Scenario: Insertion of TrueJ runtime import relative to package
 
 Scenario: Insertion of TrueJ runtime import relative to other imports
 
-  When a valid run unit is
+  When a valid compile unit is
     """
     import tlang.runtime.* /*ORIGINAL*/;
     class Swapper {
@@ -122,7 +122,7 @@ Scenario: Insertion of TrueJ runtime import relative to other imports
     } // end class
     """
 
-  Then the Java operational run unit is
+  Then the Java operational compile unit is
     """
     import tlang.runtime.*; import tlang.runtime.* /*ORIGINAL*/;
     @TType class Swapper {
@@ -142,7 +142,7 @@ Scenario: Insertion of TrueJ runtime import relative to other imports
 
 Scenario: Insertion of TrueJ runtime import relative to other imports and package
 
-  When a valid run unit is
+  When a valid compile unit is
     """
     package ttestclass;
 
@@ -178,7 +178,7 @@ Scenario: Insertion of TrueJ runtime import relative to other imports and packag
     } // end class
     """
 
-  Then the Java operational run unit is
+  Then the Java operational compile unit is
     """
     package ttestclass;
 
@@ -290,7 +290,7 @@ Scenario: Values have names
   # model the TrueJ code for the syntax on the code in
   # javax.lang.model.SourceVersion.isName(CharSequence name)
 
-  When a valid run unit is
+  When a valid compile unit is
     """
     class Swapper {
 
@@ -315,7 +315,7 @@ Scenario: Values have names
     synchronized.
     """
 
-  Then the Java operational run unit is
+  Then the Java operational compile unit is
     """
     import tlang.runtime.*; @TType class Swapper {
 
@@ -585,7 +585,7 @@ Scenario: Values have block scoping
   is in scope. We generate code saving the value at the end of the line preceding the line where it
   is overwritten.
 
-  When a valid run unit is
+  When a valid compile unit is
     """
     class Swapper2 {
 
@@ -599,7 +599,7 @@ Scenario: Values have block scoping
     } // end class Swapper2
     """
 
-  Then the Java operational run unit is
+  Then the Java operational compile unit is
     """
     import tlang.runtime.*; @TType class Swapper2 {
 
@@ -618,7 +618,7 @@ Scenario: Intermediate value names use middle decoration
     The whole decorator that is used to transform a variable name into a value name is commented out
     in the generated code.
 
-  When a valid run unit is
+  When a valid compile unit is
     """
     class AllTrue {
 
@@ -640,7 +640,7 @@ Scenario: Intermediate value names use middle decoration
     """
 
 
-  Then the Java operational run unit is
+  Then the Java operational compile unit is
     """
     import tlang.runtime.*; @TType class AllTrue {
 
@@ -668,7 +668,7 @@ Scenario: Assignments with no operational effect are commented out in Java
   assignment is translated to a Java comment. This does not affect the reusability of value names or
   the use of the value names in logic.
 
-  When a valid run unit is
+  When a valid compile unit is
     """
     class Assignment1 {
     int 'a = 1;
@@ -687,7 +687,7 @@ Scenario: Assignments with no operational effect are commented out in Java
     }
     """
 
-  Then the Java operational run unit is
+  Then the Java operational compile unit is
     """
     import tlang.runtime.*; @TType class Assignment1 {
     int /*'*/a = 1;
@@ -708,7 +708,7 @@ Scenario: Assignments with no operational effect are commented out in Java
 
 Scenario: A reused value is saved immediately before it is overwritten
 
-  When a valid run unit is
+  When a valid compile unit is
     """
     class Swapper2 {
 
@@ -724,7 +724,7 @@ Scenario: A reused value is saved immediately before it is overwritten
     } // end class Swapper2
     """
 
-  Then the Java operational run unit is
+  Then the Java operational compile unit is
     """
     import tlang.runtime.*; @TType class Swapper2 {
 
@@ -748,7 +748,7 @@ Scenario: Comments inside code that is commented out are adjusted
     Java by simply doing the reverse any time those odd strings of characters
     are found.
 
-  When a valid run unit is
+  When a valid compile unit is
     """
     class SwapSomeMore {
 
@@ -770,7 +770,7 @@ Scenario: Comments inside code that is commented out are adjusted
     } // end class
     """
 
-  Then the Java operational run unit is
+  Then the Java operational compile unit is
     """
     import tlang.runtime.*; @TType class SwapSomeMore {
 

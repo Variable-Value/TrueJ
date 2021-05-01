@@ -14,7 +14,7 @@ Scenario: The meaning of a block is the conjunction of the meanings of its seque
   meaning of its statements by comparing it with the means statement for the entire method
   definition.
 
-  * a valid run unit is
+  * a valid compile unit is
     """
     class BlockMeaning1 {
 
@@ -42,7 +42,7 @@ Scenario: Blocks may be nested
   control statement. We will treat the conditional and iterative statements that may contain blocks
   in a separate feature descriptions.
 
-  * a valid run unit is
+  * a valid compile unit is
     """
     class BlockMeaning3 {
 
@@ -75,7 +75,7 @@ Scenario: A variable's scope encloses the scopes of all its values
 
   Our example shows an attempt to use a value name that is out of scope.
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class BlockMeaning4 {
 

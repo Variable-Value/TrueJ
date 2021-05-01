@@ -9,7 +9,7 @@ Scenario: The if statement with empty branches
 
   Empty branches do not accomplish anything, of course. And apparently, the meaning of a program that accomplishes nothing is "true". If you think of computational work as setting more and more facts to be one way and not another until you have what you want, then if you set so many facts that they contradict one another that would mean the whole situation is "false". Setting facts takes you closer to "false" and removing facts takes you closer to "true"; an empty set of conjoined facts means "true".
 
-  * A valid run unit is
+  * A valid compile unit is
     """
     class EmptyBranches1 {
 
@@ -22,7 +22,7 @@ Scenario: The if statement with empty branches
     } // end class
     """
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class EmptyBranches2 {
 
@@ -40,7 +40,7 @@ Scenario: The if statement with empty branches
 
 Scenario: The if statement with nested empty branches
 
-  * A valid run unit is
+  * A valid compile unit is
     """
     class NestedEmptyBranches1 {
 
@@ -56,7 +56,7 @@ Scenario: The if statement with nested empty branches
     } // end class
     """
 
-  When an invalid run unit is
+  When an invalid compile unit is
     """
     class MultipleEmptyBranches2 {
 
@@ -77,7 +77,7 @@ Scenario: The if statement with nested empty branches
 
 Scenario: The if statement with one variable
 
-  * A valid run unit is
+  * A valid compile unit is
     """
     class Rates1 {
 
@@ -103,7 +103,7 @@ Scenario: The if statement with one variable
 
 Scenario: Two-deep if-statement
 
-  * A valid run unit is
+  * A valid compile unit is
     """
     class TwoDeepIfNull_1 {
       Object a;
@@ -124,7 +124,7 @@ Scenario: Two-deep if-statement
     }
     """
 
-  * A valid run unit is
+  * A valid compile unit is
     """
     class TwoDeepIfNull_2 {
       Object a;
@@ -150,7 +150,7 @@ Scenario: Two-deep if-statement
 
 Scenario: Three-deep if-statement
 
-  * A valid run unit is
+  * A valid compile unit is
     """
     class ThreeDeepIfNull {
       Object a;
@@ -201,7 +201,7 @@ Scenario: A reference to a value name from inside a following branch is to the e
   did.
 
   # an error when the following branch refers to an initial branch value name
-  When an invalid run unit is
+  When an invalid compile unit is
   """
   class UndefinedValueNameOnBranch {
 
@@ -228,7 +228,7 @@ Scenario: Defining a value name on all branches of a conditional
   If a value name is defined on all branches of a conditional, then it can be referenced in the
   code following the conditional.
 
-  * A valid run unit is
+  * A valid compile unit is
   """
     class valueNameOnAllPaths {
       int a;
@@ -251,7 +251,7 @@ Scenario: The condition is available inside the branches of an if-statement
 
   We make various condition checks and make sure that we have access to them with means statements.
 
-  * A valid run unit is
+  * A valid compile unit is
   """
   class ConditionAvailablity {
     int a, b, c;
