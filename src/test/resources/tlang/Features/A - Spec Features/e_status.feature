@@ -236,7 +236,7 @@ Example: The compiler remembers facts from a surrounding block once it returns t
     } // end class
     """
 
-@InProgress
+# @InProgress
 Scenario: Object fields that are modified must have a final value for security
 
   Because the _means_-statement is expected to summarize the code above it, a security review should

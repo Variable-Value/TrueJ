@@ -30,7 +30,7 @@ Rule: The components of a loop work together
   Here, we will present a simple example. Then, below, we will use the example to explain how the
   different statements help us understand loops and write them correctly.
 
-@InProgress
+# @InProgress
 Example: A simple loop to multiply by adding
 
   The example multiplies two numbers by repeatedly adding.
@@ -54,14 +54,14 @@ Example: A simple loop to multiply by adding
   int 'product;
 
   void multiplyByAdding() {
-    product'current = 0; // "product-naught" will be the value name at the beginning of each iteration
+    product'current = 0; // "product-naught" is the value name at the beginning of each iteration
     int 'i = 0;
 
     loop (product'current --> product, 'i --> i)
       invar: i <= n  &  product = m * i;
       var: n - i > 0;
     while ('i < n) {
-      product = product'current + m; // "product" will be the value name at the end of each iteration
+      product = product'current + m; // "product" is the value name at the end of each iteration
       i = 'i + 1;
     }
     means: ~(i < n) & i <= n & product = m * i;
@@ -72,7 +72,7 @@ Example: A simple loop to multiply by adding
   }
   """
 
-@InProgress
+# @InProgress
 Example: An explanation of the above code
 
   Some loops are simpler, but the example that we gave requires a complete explanation of the

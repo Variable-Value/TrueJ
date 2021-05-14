@@ -151,7 +151,7 @@ public Void visitUninitializedField(UninitializedFieldContext uninitializedCtx) 
       currentScope.makeValueAvailable(varOrValueName + decoratorString);
     else if (TUtil.isDecorated(fieldId))
       currentScope.makeValueAvailable(varOrValueName);
-    else // undecorated (nonfinal)
+    else // undecorated, meaning final value will be provided in initializer block or constructor
       currentScope.makeValueAvailable(decoratorString + varOrValueName);
   }
 

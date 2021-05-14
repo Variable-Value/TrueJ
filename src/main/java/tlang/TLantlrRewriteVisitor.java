@@ -8,6 +8,7 @@ import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import tlang.Scope.VarInfo;
 import tlang.TLantlrParser.T_expressionContext;
+import tlang.TLantlrParser.T_varInvarContext;
 import static tlang.TUtil.*;
 import static tlang.TLantlrParser.*;
 
@@ -345,13 +346,7 @@ visitT_means(T_meansContext ctx) {
   return null;
 }
 
-@Override public Void visitVariantStmt(TLantlrParser.VariantStmtContext ctx) {
-  commentTheCode(ctx);
-  // do not visitChildren(ctx);
-  return null;
-}
-
-@Override public Void visitInvariantStmt(TLantlrParser.InvariantStmtContext ctx) {
+@Override public Void visitT_varInvar(TLantlrParser.T_varInvarContext ctx) {
   commentTheCode(ctx);
   // do not visitChildren(ctx);
   return null;

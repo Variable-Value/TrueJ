@@ -440,10 +440,10 @@ t_statement
   | ASSERT t_expression (':' t_expression)? ';'                                  # AssertStmt
   | 'if' t_parExpression t_statement ('else' t_statement)?                       # IfStmt
   | 'for' '(' t_forControl ')' t_statement                                       # ForStmt
-  | 'while' t_parExpression t_statement                                          # WhileStmt
-  | 'variant' t_expression ';'                                                   # VariantStmt
-  | 'invariant' t_expression ';'                                                 # InvariantStmt
-  | 'do' t_statement 'while' t_parExpression ';'                                 # DoStmt
+  | 'loop' ('(' t_identifier_shift? ')')? t_varInvar?
+                               'while' t_parExpression t_statement               # WhileStmt
+  | 'loop' ('(' t_identifier_shift? ')')? t_varInvar?
+                               'do' t_statement 'while' t_parExpression ';'      # DoStmt
   | 'try' t_block (t_catchClause+ t_finallyBlock? | t_finallyBlock)              # TryStmt
   | 'try' t_resourceSpecification t_block t_catchClause* t_finallyBlock?         # TryStmt
   | 'switch' t_parExpression '{' t_switchBlockStatementGroup* t_switchLabel* '}' # SwitchStmt
@@ -460,6 +460,25 @@ t_statement
   | t_means                                                                      # MeansStmt
   | t_given                                                                      # GivenStmt
   | t_ERROR                                                                      # ERROR_STMT
+  ;
+
+t_varInvar
+  : t_variant t_invariant?
+  | t_invariant t_variant?
+  ;
+
+t_invariant
+  : 'invar' ':' t_expression ';'
+  ;
+
+t_variant
+  : 'var' ':' t_expression ';'
+  ;
+
+t_identifier_shift
+  : ','? t_identifier '-->' t_identifier
+    (',' t_identifier '-->' t_identifier )?
+    ','?
   ;
 
 /**
@@ -710,11 +729,11 @@ t_genericFinalMeans
   ;
 
 t_means
-  : MEANS t_expression ';'
+  : MEANS ':' t_expression ';'
   ;
 
 t_given
-  : GIVEN t_expression ';'
+  : GIVEN ':' t_expression ';'
   ;
 
 t_idDeclaration [String idType]
@@ -784,8 +803,9 @@ IMPORT        : 'import';
 INSTANCEOF    : 'instanceof';
 INT           : 'int';
 INTERFACE     : 'interface';
-INVARIANT     : 'invariant';
+INVARIANT     : 'invar';
 LONG          : 'long';
+LOOP          : 'loop';
 MEANS         : 'means';
 NATIVE        : 'native';
 NEW           : 'new';
@@ -807,10 +827,12 @@ THROW         : 'throw';
 THROWS        : 'throws';
 TRANSIENT     : 'transient';
 TRY           : 'try';
-VARIANT       : 'variant';
+VAR           : 'var'; // variable or variant
 VOID          : 'void';
 VOLATILE      : 'volatile';
 WHILE         : 'while';
+
+SHIFTER: '-->';
 
 // §3.10.3 Boolean Literals
 

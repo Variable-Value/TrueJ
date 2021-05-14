@@ -256,6 +256,10 @@ private void issueMissingValueNameMessages(IfStmtContext ctx, Set<String> undefi
   final Token varOrValueNameToken = notNull(ctx.t_idDeclaration().getStart());
   final String varName = variableName(varOrValueNameToken);
   VarInfo varInfo = notNull(currentScope.varToInfoMap.get(varName));
+  if (varInfo == null) {
+    System.out.println("***** varInfo null for uninitialized "+ varOrValueNameToken.getText()
+                      +" at line "+ varOrValueNameToken.getLine() +" ********");
+  }
   checkForAlreadyDeclared(varOrValueNameToken, varName, varInfo);
   return visitChildren(ctx);
 }
@@ -270,6 +274,10 @@ public Void visitInitializedField(InitializedFieldContext ctx) {
   final Token varOrValueNameToken = notNull(ctx.t_idDeclaration().getStart());
   final String varName = variableName(varOrValueNameToken);
   VarInfo varInfo = notNull(currentScope.varToInfoMap.get(varName));
+  if (varInfo == null) {
+    System.out.println("***** varInfo null for initialized "+ varOrValueNameToken.getText()
+                      +" at line "+ varOrValueNameToken.getLine()+" ********");
+  }
   checkForInitializedFieldDecorationErrors(varOrValueNameToken);
   checkForAlreadyDeclared(varOrValueNameToken, varName, varInfo);
   checkForConfusingRelationalExpression(ctx.t_variableInitializer().t_expression());
