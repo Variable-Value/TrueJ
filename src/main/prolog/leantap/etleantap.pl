@@ -401,13 +401,19 @@ findNext([all(X,Fml,LastVar)|RestUnexp],UnusedSoFar,UnExpOut,UnusedAllToAppend,N
 findNext([Next|RestUnexp],UnusedSoFar,RestUnexp,UnusedSoFar,Next).
 % findNext([],_,_,_,_) :- fail.
 
-%% No more literals to check, but A=A so -(A=A) is inconsistent
-inconsistent(-(A=A),_,[],_,_,_). % inconsistent
+%% If both sides of an equality are ground, then they must be equal. If one or both contain
+%% variables, then those variables came from a for-all statement, so it is inconsistent that any
+%% match for them would be inconsistent.
+inconsistent(-(A=A),_,_,_,_,_).
 
-%% If identical ground terms A and B are equal, then -(A=B) is inconsistent.
-%% However, if either involves a variable, to allow the match would
-%% claim that arbitrary different items exist.
-inconsistent(-(A=B),_,_,_,_,_) :- ground(A=B),A=B.
+%%% OUTDATED and covered by the above.
+%%% No more literals to check, but A=A so -(A=A) is inconsistent
+%%inconsistent(-(A=A),_,[],_,_,_). % inconsistent
+%
+%%% If identical ground terms A and B are equal, then -(A=B) is inconsistent.
+%%% However, if either involves a variable, to allow the match would
+%%% claim that arbitrary different items exist.
+%%inconsistent(-(A=B),_,_,_,_,_) :- ground(A=B),A=B.
 
 
 negTest(-S, _,[ S|Lits]).
@@ -427,7 +433,6 @@ eqTest([FirstTest|RestTests],[FirstList|RestList])
  :- eqTest(RestTests,[FirstList|RestList]) % or member(FirstList,RestTests)
   ; eqTest([FirstTest|RestTests],RestList)
   .
-
 
 inconsistent(-(A=B),UnExp,Lits,FreeV,Guarded, DepthLeft)
  :- mydebug(['Proving equal: ',-(A=B),'Lits: ',Lits,'Guarded: ',Guarded])

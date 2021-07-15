@@ -8,6 +8,8 @@ import io.cucumber.java.Before;
 import io.cucumber.java.DataTableType;
 import io.cucumber.java.en.*;
 import io.cucumber.junit.Cucumber;
+import tlang.KnowledgeBase;
+import tlang.KnowledgeBase.ProofResult;
 //import io.org.junit.Assert;
 import org.hamcrest.core.CombinableMatcher;
 
@@ -38,6 +40,7 @@ private Term goal;
 private String currentGoal = "";
 private SolveInfo solutionInfo;
 private String factFormula = "";
+private KnowledgeBase kb = new KnowledgeBase();
 
 @Given("^a Prolog engine$")
 public void a_Prolog_engine() throws Throwable {
@@ -60,7 +63,7 @@ public void debugging_on() throws Throwable {
   debugging = true;
 }
 
-@Then("^[Dd]ebugging off$")
+@Given("^[Dd]ebugging off$")
 public void debugging_off() throws Throwable {
   debugging = false;
 }
@@ -119,10 +122,48 @@ public void formula_is_underspecified(String formula) throws Throwable {
 
 @Given("^[Tt]he conjunction of these formulas is underspecified$")
 public void the_conjunction_of_these_formulas_is_underspecified(String formulas) throws Throwable {
-  final String f1 = formulas.replace("\r\n", ") /\\ (").replace("\n"  , ") /\\ ("); //  a) /\ (b
+  final String f1 = linesToConjuncts(formulas); //  a) /\ (b
   final String conjunction = "("+ f1 +")";               // (a) /\ (b)
   formula_is_underspecified(conjunction);
+}
+
+private String linesToConjuncts(String formulas) {
+  return formulas.replace("\r\n", ") /\\ (").replace("\n"  , ") /\\ (");  //  a) /\ (b
+}
+
+@Given("^[Aa]ssumptions?$")
+public void assumptions(String formulaLines) throws Throwable {
+  kb = new KnowledgeBase();
+  String[] assumptions = linesToArray(formulaLines);
+  if (assumptions.length == 0)
+    fail("No assumptions were provided.");
+
+  for (String assumption : assumptions)
+    kb.assumeIfConsistent(assumption);
+}
+
+@Then("^[Tt]he following theorems? holds?$")
+public void the_following_theorems_hold(String theoremLines) {
+  String[] theorems = linesToArray(theoremLines);
+  if (theorems.length == 0)
+    fail("No theorems were provided.");
+
+  for (String theorem : theorems) {
+    var result = kb.prove(theorem);
+    assertEquals("Result was "+ result +" for theorem <"+ theorem +">", ProofResult.provenTrue, result);
   }
+}
+
+String[] linesToArray(String lines) {
+  return lines.split("\\r?\\n");
+}
+
+@Then("the proof of this statement reaches the depth limit")
+public void the_proof_of_this_statement_reaches_the_depth_limit(String statement) {
+  var proofResult = kb.prove(statement);
+  assertEquals("The statement <"+ statement +"> did not reach the depth limit."
+              , ProofResult.reachedLimit, proofResult);
+}
 
 @When("^[Tt]he FOP is \"([^\"]*)\"$")
 public void the_FOP_is(String formula) throws Throwable {
