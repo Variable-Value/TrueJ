@@ -35,7 +35,7 @@ Example: Trivial assignments are often ignored in generated code
         b' = 'a;
       }
     }
-    means(a' = 'b && b' = 'a);
+    means: a' = 'b && b' = 'a;
 
     } // end class
     """
@@ -56,7 +56,7 @@ Example: Trivial assignments are often ignored in generated code
         b/*'*/ = $T$a;
       }
     }
-    /*$T$* means(a' = 'b && b' = 'a); *$T$*/
+    /*$T$* means: a' = 'b && b' = 'a; *$T$*/
 
     } // end class
     """
@@ -88,7 +88,7 @@ Example: Value names do not need to be defined in the same order in all branches
       a' = a'temp2;
       b' = b'temp2;
     }
-    means(a' = 'b && b' = 'a);
+    means: a' = 'b && b' = 'a;
 
     } // end class
     """
@@ -115,7 +115,7 @@ Example: Value names do not need to be defined in the same order in all branches
       a/*'*/ = a$T$temp2;
       b/*'*/ = b$T$temp2;
     }
-    /*$T$* means(a' = 'b && b' = 'a); *$T$*/
+    /*$T$* means: a' = 'b && b' = 'a; *$T$*/
 
     } // end class
     """

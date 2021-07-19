@@ -7,7 +7,7 @@ Feature: If-Statement Details
 
 Scenario: The if statement with empty branches
 
-  Empty branches do not accomplish anything, of course. And apparently, the meaning of a program that accomplishes nothing is "true". If you think of computational work as setting more and more facts to be one way and not another until you have what you want, then if you set so many facts that they contradict one another that would mean the whole situation is "false". Setting facts takes you closer to "false" and removing facts takes you closer to "true"; an empty set of conjoined facts means "true".
+  Empty branches do not accomplish anything, of course. And, apparently, the meaning of a program that accomplishes nothing is "true". If you think of computational work as setting more and more facts to be one way and not another until you have what you want, then if you set so many facts that they contradict one another that would mean the whole situation is "false". Setting facts takes you closer to "false" and removing facts takes you closer to "true"; an empty set of conjoined facts means "true".
 
   * A valid compile unit is
     """
@@ -17,7 +17,7 @@ Scenario: The if statement with empty branches
       if (true) ;
       else ;
     }
-    means (true);
+    means: true;
 
     } // end class
     """
@@ -32,7 +32,7 @@ Scenario: The if statement with empty branches
       if (true) ;
       else ;
     }
-    means 'a = 'b;
+    means: 'a = 'b;
 
     } // end class
     """
@@ -51,7 +51,7 @@ Scenario: The if statement with nested empty branches
       else if (true) ;
       else ;
     }
-    means (true);
+    means: true;
 
     } // end class
     """
@@ -69,7 +69,7 @@ Scenario: The if statement with nested empty branches
       else if (true) ;
       else ;
     }
-    means 'a != 'b;
+    means: 'a != 'b;
 
     } // end class
     """
@@ -89,14 +89,14 @@ Scenario: The if statement with one variable
       if ('hasDiscount) rate' = .10;
                    else rate' = .20;
     // a natural logic for if-then-else statements
-    means ( (   'hasDiscount ==> rate' = .10 )
-          & ( ! 'hasDiscount ==> rate' = .20 )
-          );
+    means: (   'hasDiscount ==> rate' = .10 )
+         & ( ! 'hasDiscount ==> rate' = .20 )
+         ;
     }
     // an equivalent logic
-    means ( (   'hasDiscount & rate' = .10)
-          | ( ! 'hasDiscount & rate' = .20)
-          );
+    means: (   'hasDiscount & rate' = .10)
+         | ( ! 'hasDiscount & rate' = .20)
+         ;
 
     } // end class
     """
@@ -119,7 +119,7 @@ Scenario: Two-deep if-statement
             a' = null;
         }
       }
-      means (a' = null);
+      means: a' = null;
 
     }
     """
@@ -144,7 +144,7 @@ Scenario: Two-deep if-statement
           }
         }
       }
-      means (a' = null);
+      means: a' = null;
     }
     """
 
@@ -186,7 +186,7 @@ Scenario: Three-deep if-statement
           }
         }
       }
-      means (a' = null);
+      means: a' = null;
 
     }
     """
@@ -242,7 +242,7 @@ Scenario: Defining a value name on all branches of a conditional
         a'next = a'temp + 2;
       a' = a'next -1; // a'next is defined on both branches
     }
-    means (true);
+    means: true;
 
     } // end class
   """
@@ -259,11 +259,11 @@ Scenario: The condition is available inside the branches of an if-statement
   void checkBranchConditions() {
     if ('a <= 'b ) {
       if ('b <= 'c) {
-        means( 'a <= 'b & 'b <= 'c);
+        means:  'a <= 'b & 'b <= 'c;
         a' = 'a;
       } else {
         if ('a <= 'c) {
-          means ('a <= 'b && 'a <= 'c && ! ('b <= 'c));
+          means: 'a <= 'b && 'a <= 'c && ! ('b <= 'c);
           a' = 'a;
         } else {
           a' = 'a;
@@ -273,7 +273,7 @@ Scenario: The condition is available inside the branches of an if-statement
       a' = 'a;
     }
   }
-  means (a' = 'a);
+  means: a' = 'a;
 
   }
   """

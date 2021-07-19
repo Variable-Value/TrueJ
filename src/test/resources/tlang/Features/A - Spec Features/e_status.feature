@@ -89,7 +89,7 @@ Example: Using a final means-statement to show the intent of the commands in a b
       int startingA' = 'a;
       a' = 'b;
       b' = startingA';
-      means(a' = 'b & b' = 'a);
+      means: a' = 'b & b' = 'a;
     }
 
     } // end class
@@ -121,9 +121,9 @@ Example: A value-name must be referenced in a means-statement to be meaningful i
     void swap() {
       int startingA' = 'a;
       a' = 'b;
-      means (a' = 'b);          // Oops, we are now forgetting the value of startingA' and 'a
+      means: a' = 'b;           // Oops, we are now forgetting the value of startingA' and 'a
       b' = startingA';          // So we can't use startingA' here
-      means(a' = 'b & b' = 'a); // Or 'a here
+      means: a' = 'b & b' = 'a; // Or 'a here
     }
 
     } // end class
@@ -131,7 +131,7 @@ Example: A value-name must be referenced in a means-statement to be meaningful i
   Then the error messages contain
     """
     9:7 for <startingA'>: The value name startingA' was eclipsed by the means statement at line 8
-    10:23 for <'a>: The value name 'a was eclipsed by the means statement at line 8
+    10:24 for <'a>: The value name 'a was eclipsed by the means statement at line 8
     """
 
 Example: A means-statement can eclipse facts that are then unavailable in following code
@@ -167,17 +167,17 @@ Example: A means-statement can eclipse facts that are then unavailable in follow
       a' = 'b;
       b' = startingA';
 
-      means startingA' = 'a & a' = 'b & b' = b';
+      means: startingA' = 'a & a' = 'b & b' = b';
         // We trivially mention b', but eclipse the fact that b' = startingA'
 
-      means(a' = 'b & b' = 'a);
+      means: a' = 'b & b' = 'a;
     }
 
     } // end class
     """
   Then the error messages contain
     """
-    line 13:18 for <b'>: The code does not support the proof of the statement: b' = 'a
+    line 13:19 for <b'>: The code does not support the proof of the statement: b' = 'a
     """
 
 
@@ -203,11 +203,11 @@ Example: A new value of a variable can be defined after a means-statement
       int startingA' = 'a;
       int 'startingB = 'b + 'a;
       int tempB' = 'b;
-      means (startingA' = 'a & tempB' = 'b); // <==== start reading here, eclipsing 'startingB
+      means: startingA' = 'a & tempB' = 'b; // <==== start reading here, eclipsing 'startingB
       startingB' = 'b;                       // a new value for variable startingB
       a' = startingB';
       b' = startingA';
-      means (a' = 'b & b' = 'a);
+      means: a' = 'b & b' = 'a;
     }
 
     } // end class
@@ -227,10 +227,10 @@ Example: The compiler remembers facts from a surrounding block once it returns t
       int startingA' = 'a;
       { int startingB' = 'b;
         a' = startingB';
-        means (a' = 'b);
+        means: a' = 'b;
       }
       b' = startingA';
-      means (a' = 'b & b' = 'a);
+      means: a' = 'b & b' = 'a;
     }
 
     } // end class

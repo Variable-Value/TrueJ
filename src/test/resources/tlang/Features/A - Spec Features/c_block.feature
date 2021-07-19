@@ -26,7 +26,7 @@ Scenario: The meaning of a block is the conjunction of the meanings of its seque
       a' = 'b;
       b' = startingA';
     }
-    means(startingA' = 'a & a' = 'b & b' = startingA');
+    means: startingA' = 'a & a' = 'b & b' = startingA';
 
     } // end class
     """
@@ -52,11 +52,11 @@ Scenario: Blocks may be nested
       int startingA' = 'a;
       { int startingB' = 'b;
         a' = startingB';
-        means (a' = 'b);
+        means: a' = 'b;
       }
       b' = startingA';
     }
-    means (a' = 'b & b' = 'a);
+    means: a' = 'b & b' = 'a;
 
     } // end class
     """
@@ -86,11 +86,11 @@ Scenario: A variable's scope encloses the scopes of all its values
       { // Here we will save and set b
         int startingB' = 'b;
         b' = startingA';
-        means(b' = 'a);
+        means: b' = 'a;
       }
       a' = startingB'; // Oops, the variable startingB is out of scope
     }
-    means(a' = 'b & b' = 'a);
+    means: a' = 'b & b' = 'a;
 
     } // end class
     """

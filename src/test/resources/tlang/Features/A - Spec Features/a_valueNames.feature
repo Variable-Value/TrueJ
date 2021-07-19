@@ -45,9 +45,9 @@ Example: The means-statement summarizes the above operational statements
       int startingA' = 'a;
       a' = 'b;
       b' = startingA';
-      means startingA' = 'a && a' = 'b && b' = startingA';
+      means: startingA' = 'a && a' = 'b && b' = startingA';
     }
-    means(a' = 'b && b' = 'a);
+    means: a' = 'b && b' = 'a;
 
     } // end class
     """
@@ -101,7 +101,7 @@ Example: Notes
       a' = 'b;
       b' = startingA';
 
-      means(startingA' = 'a && a' = 'b && b' = startingA');
+      means: startingA' = 'a && a' = 'b && b' = startingA';
 
   It is simply the meaning of each of the statements, combined with an "and". Once we use values
   instead of variables, the semantics of a program's top-level sequential statements is
@@ -212,7 +212,7 @@ Example: We cannot refer to a value whose variable is out of scope
       a' = 'b;
       b' = startingA';
     }
-    means(startingA' = 'a && a' = 'b && b' = startingA');
+    means: startingA' = 'a && a' = 'b && b' = startingA';
        // startingA' value is out of scope here, outside the method's block,
        // because its variable startingA is declared inside the block
 
@@ -249,11 +249,11 @@ Example: Using middle-decorated value names
 
     void checkAll() {
       allTrue'reset = true;
-      allTrue'thruA = allTrue'reset && 'a; // && is stickier than assignment
-      allTrue'thruB = allTrue'thruA && 'b;
-      allTrue'      = allTrue'thruB && 'c;
+      allTrue'thruA = (allTrue'reset && 'a);
+      allTrue'thruB = (allTrue'thruA && 'b);
+      allTrue'      = (allTrue'thruB && 'c);
     }
-    means(allTrue' = ('a && 'b && 'c));    // equality is stickier than &&
+    means: allTrue' = ('a && 'b && 'c);    // equality is stickier than &&
 
     } // end class
     """
@@ -291,7 +291,7 @@ Example: A means statement that is false
       a' = 'b;
       b' = startingA';
     }
-    means(a' = 'b && b' = 'b); // error here
+    means: a' = 'b && b' = 'b; // error here
 
     } // end class
     """

@@ -29,7 +29,7 @@ Feature: A value name is used to declare a field (TrueJ 0.1)
       int b = 5;  // equivalent to b' = 5
 
       int c;      // the value of variable c cannot change once the value is provided;
-      or          // and a final value must be provided
+      or          // and that final value must be provided
       int c';     // during construction
 
   Using the undecorated form of value names for final values, rather than the explicit
@@ -40,20 +40,20 @@ Feature: A value name is used to declare a field (TrueJ 0.1)
       i = 0;
 
   should be read, not as meaning that the variable `i` gets the value `0`, but as a definition of a
-  name for a final value, and `i` will be `0` for the rest of its scope. If the programmer tries to
-  reuse a value name that they mistake for a variable name, the compiler will issue an error, but
-  these errors might be frustrating to the programmer until they reorient their thinking. The
-  important thing to remember is that in TrueJ, the variable name is never used except as a part of
-  a value name, so if it looks like a variable name, it is really the name of a value that never
-  changes: the variable's final value.
+  name for a final value of `0`, that holds for the rest of the scope of the variable `i`. If the
+  programmer tries to reuse a value name that they mistake for a variable name, the compiler will
+  issue an error, but these errors might be frustrating to the programmer until they reorient their
+  thinking. The important thing to remember is that in TrueJ, the variable name is never used except
+  as a part of a value name, so if you start to think its a variable name, it is really the name of
+  a value that never changes: the variable's final value.
 
   For beginners, and programmers that primarily work in other procedural languages, there is a
   command-line flag that they may find useful, `-decorateFinal`, to force use of final decoration
-  for final values. In that case,
+  for final values. In that case, undecorated values are forbidden, and
 
       int b;
 
-  generates an error message.
+  generates an error message at its declaration rather than when its value is modified.
 
 
 Rule: Final values can be assigned to an undecorated value name
@@ -72,9 +72,9 @@ Example: Using undedorated final value names in executable code
       int startingA = 'a;
       a = 'b;
       b = startingA;
-      means startingA = 'a && a = 'b && b = startingA;
+      means: startingA = 'a && a = 'b && b = startingA;
     }
-    means(a = 'b && b = 'a);
+    means: a = 'b && b = 'a;
 
     } // end class
     """
@@ -96,9 +96,9 @@ Example: But decoration of the names can be forced with an option
       int startingA = 'a;
       a = 'b;
       b = startingA;
-      means startingA = 'a && a = 'b && b = startingA;
+      means: startingA = 'a && a = 'b && b = startingA;
     }
-    means(a = 'b && b = 'a);
+    means: a = 'b && b = 'a;
 
     } // end class
     """
@@ -158,7 +158,7 @@ Example: Using a value name that has been overwritten with another value
       a = 'b;
       b = startingA;
     }
-    means(startingA = 'a && a = 'b && b = startingA);
+    means: (startingA = 'a && a = 'b && b = startingA;
        // startingA value is out of scope here, outside the method's block,
        // because its variable startingA is declared inside the block
 
@@ -182,7 +182,7 @@ Example: Using a value name that has been overwritten with another value
       a = 'b;
       b = startingA;
     }
-    means(startingA = 'a && a = 'b && b = startingA);
+    means: startingA = 'a && a = 'b && b = startingA;
        // startingA value is out of scope here, outside the method's block,
        // because its variable startingA is declared inside the block
 
@@ -210,9 +210,9 @@ Scenario: A final value defined with one decoration cannot be used with the othe
       int startingA = 'a;
       a = 'b;
       b = startingA';
-      means startingA' = 'a && a = 'b && b = startingA';
+      means: startingA' = 'a && a = 'b && b = startingA';
     }
-    means(a' = 'b && b = 'a);
+    means: a' = 'b && b = 'a;
 
     } // end class
     """
@@ -232,9 +232,9 @@ Scenario: A final value defined with one decoration cannot be used with the othe
       int startingA' = 'a;
       a' = 'b;
       b' = startingA;
-      means startingA = 'a && a = 'b && b' = startingA;
+      means: startingA = 'a && a = 'b && b' = startingA;
     }
-    means(a = 'b && b' = 'a);
+    means: a = 'b && b' = 'a;
 
     } // end class
     """
@@ -255,9 +255,9 @@ Scenario: A final value defined with one decoration cannot be used with the othe
     void swap() {
       a = startingB;
       b = startingA';
-      means startingA' = 'a && a = startingB && b = startingA';
+      means: startingA' = 'a && a = startingB && b = startingA';
     }
-    means(a = 'b && b = 'a);
+    means: a = 'b && b = 'a;
 
     } // end class
     """
@@ -278,9 +278,9 @@ Scenario: A final value defined with one decoration cannot be used with the othe
       a = 2;
       b = 'a;
       c = 1;
-      means b = 'a && a = 'b;
+      means: b = 'a && a = 'b;
     }
-    means(a' = 'b && b = 'a);
+    means: a' = 'b && b = 'a;
 
     } // end class
     """
@@ -303,9 +303,9 @@ Scenario: A final value defined with one decoration cannot be used with the othe
       a = starting;
       starting' = 'a;
       b = starting';
-      means starting' = 'a && a = 'b && b = starting;
+      means: starting' = 'a && a = 'b && b = starting;
     }
-    means(a = 'b && b = 'a);
+    means: a = 'b && b = 'a;
 
     } // end class
     """
@@ -338,7 +338,7 @@ Scenario: A final value defined with one decoration cannot be used with the othe
         b' = b'temp2;
       }
     }
-    means(a' = 'b && b' = 'a);
+    means: a' = 'b && b' = 'a;
 
     } // end class
     """
@@ -375,7 +375,7 @@ Scenario: A final value defined with one decoration cannot be used with the othe
         b = b'temp2;
       }
     }
-    means(a = 'b & b' = 'a);
+    means: a = 'b & b' = 'a;
 
     } // end class
     """

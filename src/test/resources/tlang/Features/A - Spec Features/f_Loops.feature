@@ -427,7 +427,7 @@ Example: The invariant is true on the first test, whether the loop is entered or
       condition loopInv(j, m) ( j = sum(int i : upto(0, m) : 1 ) );
 
       LoopStart: // ('count --> count')
-        means loopInv('count, n');
+        means: loopInv('count, n');
         variant 'count < n'; // 'count + epsilon' <= count'  (where epsilon' > 0)
 
         if ('count < n')
@@ -435,13 +435,13 @@ Example: The invariant is true on the first test, whether the loop is entered or
 
         count' = 'count + 1;
         m' = 'm + 1;
-        means 'count + 1 <= count'
+        means: 'count + 1 <= count'
             & loopInv(count', n');
 
         goto LoopStart (count' --> 'count);
         LoopEnd: ;
       }
-      means count' = 0;
+      means: count' = 0;
     }
 
     }
@@ -460,7 +460,7 @@ Example: The invariant is true on the first test, whether the loop is entered or
 
           count' = 'count + 1;
         }
-        means count' = 0;
+        means: count' = 0;
       }
     }
     """
@@ -481,15 +481,15 @@ Example: The invariant is true on the first test, whether the loop is entered or
         invariant 'product = m' * 'i;     // (2)
 
         product' = 'product + m';
-        // means product' = m' * 'i + m';
+        // means: product' = m' * 'i + m';
 
         i' = 'i + 1;
-        // means product' = m' * i';
+        // means: product' = m' * i';
       }
-      // means i' = n' & product' = m' * i'; // (3)
+      // means: i' = n' & product' = m' * i'; // (3)
       return product';
     }
-    means return' = n' * m';
+    means: return' = n' * m';
 
     }
     """
@@ -519,16 +519,16 @@ Example: The invariant is true on the first test, whether the loop is entered or
 #          variant multiplier' - i’ > 0;
 #
 #          productSoFar'inLoop = 'productSoFar + multiplicand';
-#          means (productSoFar'inLoop = multiplicand' * ('i+1));
+#          means: productSoFar'inLoop = multiplicand' * ('i+1);
 #
 #          i' = 'i+1;
-#          means (productSoFar'inLoop = multiplicand' * i');
+#          means: productSoFar'inLoop = multiplicand' * i';
 #        }
-#        means (productSoFar' = multiplicand' * multiplier');
+#        means: productSoFar' = multiplicand' * multiplier';
 #
 #        return productSoFar';
 #      }
-#      means(return' = multiplicand' * multiplier');
+#      means: return' = multiplicand' * multiplier';
 #
 #    }
 #    """
@@ -545,12 +545,12 @@ Example: The invariant is true on the first test, whether the loop is entered or
 #        variant multiplier' - i’ > 0;
 #      {
 #        productSoFar'inLoop = 'productSoFar + multiplicand';
-#        means (productSoFar'inLoop = multiplicand' * ('i+1));
+#        means: productSoFar'inLoop = multiplicand' * ('i+1);
 #        i' = 'i+1;
-#        means (productSoFar'inLoop = multiplicand' * i');
+#        means: productSoFar'inLoop = multiplicand' * i';
 #      }
-#      means (productSoFar' = multiplicand' * multiplier');
+#      means: productSoFar' = multiplicand' * multiplier';
 #      return productSoFar';
 #    }
-#    Means(return = multiplicand' * multiplier');
+#    means: return = multiplicand' * multiplier';
 #    """

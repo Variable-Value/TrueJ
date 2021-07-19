@@ -45,9 +45,9 @@ Scenario: Values have names
       int startingA = 'a;
       a = 'b;
       b = startingA;
-      means startingA = 'a && a = 'b && b = startingA;
+      means: startingA = 'a && a = 'b && b = startingA;
     }
-    means(a = 'b && b = 'a);
+    means: a = 'b && b = 'a;
 
     } // end class
     """
@@ -70,9 +70,9 @@ Scenario: Values have names
       int startingA = 'a;
       a = 'b;
       b = startingA;
-      means startingA = 'a && a = 'b && b = startingA;
+      means: startingA = 'a && a = 'b && b = startingA;
     }
-    means(a = 'b && b = 'a);
+    means: a = 'b && b = 'a;
 
     } // end class
     """
@@ -131,9 +131,9 @@ Scenario: The scope of a value name ends with the scope of its variable
       a = 'b;
       b = startingA;
     }
-    means(startingA = 'a && a = 'b && b = startingA);
-       // startingA value is out of scope here, outside the method's block,
-       // because its variable startingA is declared inside the block
+    means: startingA = 'a && a = 'b && b = startingA;
+       // the value name startingA is out of scope here, outside of the method's block,
+       // because its variable is declared inside the block
 
     } // end class
     """
@@ -155,9 +155,9 @@ Scenario: The scope of a value name ends with the scope of its variable
       a = 'b;
       b = startingA;
     }
-    means(startingA = 'a && a = 'b && b = startingA);
-       // startingA value is out of scope here, outside the method's block,
-       // because its variable startingA is declared inside the block
+    means: startingA = 'a && a = 'b && b = startingA;
+       // the value name startingA is out of scope here, outside of the method's block,
+       // because its variable is declared inside the block
 
     } // end class
     """
@@ -183,16 +183,16 @@ Scenario: A final value defined with one decoration cannot be used with the othe
       int startingA = 'a;
       a = 'b;
       b = startingA';
-      means startingA' = 'a && a = 'b && b = startingA';
+      means: startingA' = 'a && a = 'b && b = startingA';
     }
-    means(a' = 'b && b = 'a);
+    means: a' = 'b && b = 'a;
 
     } // end class
     """
    Then the following are in the error messages
     """
     line 8:6 for <startingA'>: A different final decoration, startingA, was defined at line 6
-    line 11:6 for <a'>: A different final decoration, a, was defined at line 7
+    line 11:7 for <a'>: A different final decoration, a, was defined at line 7
     """
 
   When an invalid compile unit is
@@ -205,16 +205,16 @@ Scenario: A final value defined with one decoration cannot be used with the othe
       int startingA' = 'a;
       a' = 'b;
       b' = startingA;
-      means startingA = 'a && a = 'b && b' = startingA;
+      means: startingA = 'a && a = 'b && b' = startingA;
     }
-    means(a = 'b && b' = 'a);
+    means: a = 'b && b' = 'a;
 
     } // end class
     """
   Then the following are in the error messages
     """
     line 8:7 for <startingA>: A different final decoration, startingA', was defined at line 6
-    line 9:26 for <a>: A different final decoration, a', was defined at line 7
+    line 9:27 for <a>: A different final decoration, a', was defined at line 7
     """
 
   When an invalid compile unit is
@@ -228,9 +228,9 @@ Scenario: A final value defined with one decoration cannot be used with the othe
     void swap() {
       a = startingB;
       b = startingA';
-      means startingA' = 'a && a = startingB && b = startingA';
+      means: startingA' = 'a && a = startingB && b = startingA';
     }
-    means(a = 'b && b = 'a);
+    means: a = 'b && b = 'a;
 
     } // end class
     """
@@ -251,9 +251,9 @@ Scenario: A final value defined with one decoration cannot be used with the othe
       a = 2;
       b = 'a;
       c = 1;
-      means b = 'a && a = 'b;
+      means: b = 'a && a = 'b;
     }
-    means(a' = 'b && b = 'a);
+    means: a' = 'b && b = 'a;
 
     } // end class
     """
@@ -262,7 +262,7 @@ Scenario: A final value defined with one decoration cannot be used with the othe
     line 7:2 for <a>: A different final decoration, a', was defined at line 6
     line 8:2 for <b>: The value b has already been defined on line 3
     line 9:2 for <c>: A different final decoration, c', was defined at line 3
-    10:22 for <'b>: Value 'b has not been defined for the variable b that was declared at line 3
+    10:23 for <'b>: Value 'b has not been defined for the variable b that was declared at line 3
     """
 
     When An invalid compile unit is
@@ -276,9 +276,9 @@ Scenario: A final value defined with one decoration cannot be used with the othe
       a = starting;
       starting' = 'a;
       b = starting';
-      means starting' = 'a && a = 'b && b = starting;
+      means: starting' = 'a && a = 'b && b = starting;
     }
-    means(a = 'b && b = 'a);
+    means: a = 'b && b = 'a;
 
     } // end class
     """
@@ -311,7 +311,7 @@ Scenario: A final value defined with one decoration cannot be used with the othe
         b' = b'temp2;
       }
     }
-    means(a' = 'b && b' = 'a);
+    means: a' = 'b && b' = 'a;
 
     } // end class
     """
@@ -321,7 +321,7 @@ Scenario: A final value defined with one decoration cannot be used with the othe
     20:4 for <b'>: Value name b' must also be defined in the initial branch
     21:2 for <}>: The value name b was not defined in the else-clause
     21:2 for <}>: The value name a' was not defined in the else-clause
-    23:6 for <a'>: Value a' has not been defined for the variable a that was declared at line 3
+    23:7 for <a'>: Value a' has not been defined for the variable a that was declared at line 3
     """
 
   When An invalid compile unit is
@@ -348,12 +348,12 @@ Scenario: A final value defined with one decoration cannot be used with the othe
         b = b'temp2;
       }
     }
-    means(a = 'b & b' = 'a);
+    means: a = 'b & b' = 'a;
 
     } // end class
     """
     Then the following are in the error messages
     """
-    23:6 for <a>: A different final decoration, a', was defined at line 19
-    23:15 for <b'>: A different final decoration, b, was defined at line 20
+    23:7 for <a>: A different final decoration, a', was defined at line 19
+    23:16 for <b'>: A different final decoration, b, was defined at line 20
     """

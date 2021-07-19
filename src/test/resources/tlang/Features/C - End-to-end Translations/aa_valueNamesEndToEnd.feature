@@ -37,9 +37,9 @@ Scenario: Insertion of TrueJ runtime import relative to comments
     int startingA' = 'a;
     a' = 'b;
     b' = startingA';
-    means(startingA' = 'a && a' = 'b && b' = startingA');
+    means: startingA' = 'a && a' = 'b && b' = startingA';
   }
-  means(a' = 'b && b' = 'a);
+  means: a' = 'b && b' = 'a;
 
   } // end class
     """
@@ -57,9 +57,9 @@ Scenario: Insertion of TrueJ runtime import relative to comments
       int startingA/*'*/ = /*'*/a;
       a/*'*/ = /*'*/b;
       b/*'*/ = startingA/*'*/;
-      /*$T$* means(startingA' = 'a && a' = 'b && b' = startingA'); *$T$*/
+      /*$T$* means: startingA' = 'a && a' = 'b && b' = startingA'; *$T$*/
     }
-    /*$T$* means(a' = 'b && b' = 'a); *$T$*/
+    /*$T$* means: a' = 'b && b' = 'a; *$T$*/
 
     } // end class
     """
@@ -77,9 +77,9 @@ Scenario: Insertion of TrueJ runtime import relative to package
       int startingA' = 'a;
       a' = 'b;
       b' = startingA';
-      means(startingA' = 'a && a' = 'b && b' = startingA');
+      means: startingA' = 'a && a' = 'b && b' = startingA';
     }
-    means(a' = 'b && b' = 'a);
+    means: a' = 'b && b' = 'a;
 
     } // end class
     """
@@ -95,9 +95,9 @@ Scenario: Insertion of TrueJ runtime import relative to package
       int startingA/*'*/ = /*'*/a;
       a/*'*/ = /*'*/b;
       b/*'*/ = startingA/*'*/;
-      /*$T$* means(startingA' = 'a && a' = 'b && b' = startingA'); *$T$*/
+      /*$T$* means: startingA' = 'a && a' = 'b && b' = startingA'; *$T$*/
     }
-    /*$T$* means(a' = 'b && b' = 'a); *$T$*/
+    /*$T$* means: a' = 'b && b' = 'a; *$T$*/
 
     } // end class
     """
@@ -115,9 +115,9 @@ Scenario: Insertion of TrueJ runtime import relative to other imports
       int startingA' = 'a;
       a' = 'b;
       b' = startingA';
-      means(startingA' = 'a && a' = 'b && b' = startingA');
+      means: startingA' = 'a && a' = 'b && b' = startingA';
     }
-    means(a' = 'b && b' = 'a);
+    means: a' = 'b && b' = 'a;
 
     } // end class
     """
@@ -133,9 +133,9 @@ Scenario: Insertion of TrueJ runtime import relative to other imports
       int startingA/*'*/ = /*'*/a;
       a/*'*/ = /*'*/b;
       b/*'*/ = startingA/*'*/;
-      /*$T$* means(startingA' = 'a && a' = 'b && b' = startingA'); *$T$*/
+      /*$T$* means: startingA' = 'a && a' = 'b && b' = startingA'; *$T$*/
     }
-    /*$T$* means(a' = 'b && b' = 'a); *$T$*/
+    /*$T$* means: a' = 'b && b' = 'a; *$T$*/
 
     } // end class
     """
@@ -155,9 +155,9 @@ Scenario: Insertion of TrueJ runtime import relative to other imports and packag
       int startingA' = 'a;
       a' = 'b;
       b' = startingA';
-      means(startingA' = 'a && a' = 'b && b' = startingA');
+      means: startingA' = 'a && a' = 'b && b' = startingA';
     }
-    means(a' = 'b && b' = 'a);
+    means: a' = 'b && b' = 'a;
 
     //test swapAandB {
     //  a = 0;
@@ -191,9 +191,9 @@ Scenario: Insertion of TrueJ runtime import relative to other imports and packag
       int startingA/*'*/ = /*'*/a;
       a/*'*/ = /*'*/b;
       b/*'*/ = startingA/*'*/;
-      /*$T$* means(startingA' = 'a && a' = 'b && b' = startingA'); *$T$*/
+      /*$T$* means: startingA' = 'a && a' = 'b && b' = startingA'; *$T$*/
     }
-    /*$T$* means(a' = 'b && b' = 'a); *$T$*/
+    /*$T$* means: a' = 'b && b' = 'a; *$T$*/
 
     //test swapAandB {
     //  a = 0;
@@ -240,9 +240,9 @@ Scenario: Insertion of TrueJ runtime import relative to other imports and packag
   #      int startingA/*'*/ = /*'*/a;
   #      a/*'*/ = /*'*/b;
   #      b/*'*/ = startingA/*'*/;
-  #      /*$T$* means(startingA = 'a && a' = 'b && b' = startingA'); *$T$*/
+  #      /*$T$* means: startingA = 'a && a' = 'b && b' = startingA'; *$T$*/
   #    }
-  #    /* means(a' = 'b && b' = 'a); */
+  #    /* means: a' = 'b && b' = 'a; */
   #
   #    /*test*/ void swapAandB() throws Exception {
   #      a = 1;
@@ -300,9 +300,9 @@ Scenario: Values have names
       int startingA' = 'a;
       a' = 'b;
       b' = startingA';
-      means(startingA' = 'a && a' = 'b && b' = startingA');
+      means: startingA' = 'a && a' = 'b && b' = startingA';
     }
-    means(a' = 'b && b' = 'a);
+    means: a' = 'b && b' = 'a;
 
     } // end class
     """
@@ -325,9 +325,9 @@ Scenario: Values have names
       int startingA/*'*/ = /*'*/a;
       a/*'*/ = /*'*/b;
       b/*'*/ = startingA/*'*/;
-      /*$T$* means(startingA' = 'a && a' = 'b && b' = startingA'); *$T$*/
+      /*$T$* means: startingA' = 'a && a' = 'b && b' = startingA'; *$T$*/
     }
-    /*$T$* means(a' = 'b && b' = 'a); *$T$*/
+    /*$T$* means: a' = 'b && b' = 'a; *$T$*/
 
     } // end class
     """
@@ -560,9 +560,9 @@ Scenario: Values have names
   #      int startingA/*'*/ = /*'*/a;
   #      a/*'*/ = /*'*/b;
   #      b/*'*/ = startingA/*'*/;
-  #      /* means(startingA = 'a && a' = 'b && b' = startingA'); */
+  #      /* means: startingA = 'a && a' = 'b && b' = startingA'; */
   #    }
-  #    /* means(a' = 'b && b' = 'a); */
+  #    /* means: a' = 'b && b' = 'a; */
   #
   #    @test
   #    public void swapAandB() throws Exception {
@@ -634,7 +634,7 @@ Scenario: Intermediate value names use middle decoration
       allTrue'thruB = allTrue'thruA && 'b;
       allTrue'      = allTrue'thruB && 'c;
     }
-    means(allTrue' = ('a && 'b && 'c)); // equality is stickier than && (higher TrueJ "priority")
+    means: allTrue' = ('a && 'b && 'c); // equality is stickier than &&
 
     } // end class
     """
@@ -656,7 +656,7 @@ Scenario: Intermediate value names use middle decoration
       allTrue/*'thruB*/ = allTrue/*'thruA*/ && /*'*/b;
       allTrue/*'*/      = allTrue/*'thruB*/ && /*'*/c;
     }
-    /*$T$* means(allTrue' = ('a && 'b && 'c)); *$T$*/ // equality is stickier than && (higher TrueJ "priority")
+    /*$T$* means: allTrue' = ('a && 'b && 'c); *$T$*/ // equality is stickier than &&
 
     } // end class
     """
@@ -682,7 +682,7 @@ Scenario: Assignments with no operational effect are commented out in Java
       b' = a'another;
       a' = b'temp;
     }
-    means(a' = 'b & b' = 4);
+    means: a' = 'b & b' = 4;
 
     }
     """
@@ -701,7 +701,7 @@ Scenario: Assignments with no operational effect are commented out in Java
       b/*'*/ = a/*'another*/;
       a/*'*/ = b$T$temp;
     }
-    /*$T$* means(a' = 'b & b' = 4); *$T$*/
+    /*$T$* means: a' = 'b & b' = 4; *$T$*/
 
     }
     """
@@ -758,14 +758,14 @@ Scenario: Comments inside code that is commented out are adjusted
       int startingA' = 'a;
       a' = 'b;
       b' = startingA';
-      means( startingA' = 'a  // an end of line comment
+      means: startingA' = 'a  // an end of line comment
            & a' = 'b          // does not cause a problem
            & b' = startingA'  // nor does this
-           );                 // no problem here, either
+           ;                 // no problem here, either
     }
-    means( a' = /* a comment right in the middle of things */ 'b
+    means: a' = /* a comment right in the middle of things */ 'b
          & b' = 'a /* a comment at the end causes no problem */
-         ); /* a comment after the means causes no problem */
+         ; /* a comment after the means causes no problem */
 
     } // end class
     """
@@ -780,14 +780,14 @@ Scenario: Comments inside code that is commented out are adjusted
       int startingA/*'*/ = /*'*/a;
       a/*'*/ = /*'*/b;
       b/*'*/ = startingA/*'*/;
-      /*$T$* means( startingA' = 'a  // an end of line comment
+      /*$T$* means: startingA' = 'a  // an end of line comment
            & a' = 'b          // does not cause a problem
            & b' = startingA'  // nor does this
-           ); *$T$*/                 // no problem here, either
+           ; *$T$*/                 // no problem here, either
     }
-    /*$T$* means( a' = (*$T$* a comment right in the middle of things *$T$*) 'b
+    /*$T$* means: a' = (*$T$* a comment right in the middle of things *$T$*) 'b
          & b' = 'a (*$T$* a comment at the end causes no problem *$T$*)
-         ); *$T$*/ /* a comment after the means causes no problem */
+         ; *$T$*/ /* a comment after the means causes no problem */
 
     } // end class
     """

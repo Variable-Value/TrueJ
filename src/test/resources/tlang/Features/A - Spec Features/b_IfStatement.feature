@@ -25,14 +25,14 @@ Scenario: The if-statement allows alternative definitions for values
                    else rate' = standardRate';
 
       // a natural logic for if-then-else statements
-      means ( (   'hasDiscount ==> rate' = discountRate' )
-            & ( ! 'hasDiscount ==> rate' = standardRate' )
-            );
+      means: (   'hasDiscount ==> rate' = discountRate' )
+           & ( ! 'hasDiscount ==> rate' = standardRate' )
+           ;
     }
     // an equivalent logic
-    means ( (   'hasDiscount & rate' = discountRate')
-          | ( ! 'hasDiscount & rate' = standardRate')
-          );
+    means: (   'hasDiscount & rate' = discountRate')
+         | ( ! 'hasDiscount & rate' = standardRate')
+         ;
 
     } // end class
     """
@@ -84,7 +84,7 @@ Scenario: A valid value name has a definition in each branch of a conditional
         b' = 'a;
       }
     }
-    means(a' = 'b && b' = 'a);
+    means: a' = 'b && b' = 'a;
 
     } // end class
     """
@@ -111,7 +111,7 @@ Scenario: A valid value name has a definition in each branch of a conditional
       a' = a'temp2;
       b' = b'temp2;
     }
-    means(a' = 'b && b' = 'a);
+    means: a' = 'b && b' = 'a;
 
     } // end class
     """
@@ -133,17 +133,14 @@ Scenario: A valid value name has a definition in each branch of a conditional
       if ('hasDiscount)
         rate' = discountRate';
       else
-        ; // ERROR: attempting to let rate variable default to rate'standard previous value
+        ; // ERROR: attempting to let rate variable default to rate'standard previous value.
+          //        The other errors below are not checked.
 
-      reportRate' = rate'; /* This is also an error because rate' is not defined in all paths
-                            * but it is not discovered here */
+      reportRate' = rate';
     }
-    means ( (   'hasDiscount & reportRate' = discountRate')
-          | ( ! 'hasDiscount & reportRate' = standardRate')
-              /* this last disjunct would also be an error because there is no proof
-                * that reportRate' = standardRate' when 'hasDiscount = false,
-                * but it is not found because the else-error stops the proof attempt */
-          );
+    means: (   'hasDiscount & reportRate' = discountRate')
+         | ( ! 'hasDiscount & reportRate' = standardRate')
+         ;
 
     } // end class
     """
@@ -181,12 +178,12 @@ Scenario: A more complex example - ThreeSort
           c' = 'c;
         } else {
           if ('a <= 'c) {
-            means 'a <= 'c & !('b <= 'c);    // 'a <= 'c < 'b
+            means: 'a <= 'c & !('b <= 'c);    // 'a <= 'c < 'b
             a' = 'a;
             b' = 'c;
             c' = 'b;
           } else {
-            means !('a <= 'c) & 'a <= 'b;    // 'c < 'a <= 'b);
+            means: !('a <= 'c) & 'a <= 'b;    // 'c < 'a <= 'b);
             a' = 'c;                         // 'a is saved in an implicit variable here
             c' = 'b;                         // a,c,b assignment here to avoid implicit 'b variable
             b' = 'a;
@@ -194,18 +191,18 @@ Scenario: A more complex example - ThreeSort
         }
       } else { // 'b < 'a
         if ('a <= 'c) { // 'b < 'a <= 'c
-          means ( !('a <= 'b ) && 'a <= 'c); // 'b < 'a <= 'c);
+          means: ( !('a <= 'b ) && 'a <= 'c); // 'b < 'a <= 'c);
           a' = 'b;
           b' = 'a;
           c' = 'c;
         } else {
           if ('b <= 'c) {
-            means ('b <= 'c && !('a <= 'c)); // 'b <= 'c < 'a
+            means: ('b <= 'c && !('a <= 'c)); // 'b <= 'c < 'a
             a' = 'b;
             b' = 'c;
             c' = 'a;
           } else {
-            means ( !('b <= 'c) && !('a <= 'b)); // 'c < 'b < 'a);
+            means: ( !('b <= 'c) && !('a <= 'b)); // 'c < 'b < 'a);
             a' = 'c;
             b' = 'b;
             c' = 'a;
@@ -213,7 +210,7 @@ Scenario: A more complex example - ThreeSort
         }
       }
     }
-    // means (a' <= b' && b' <= c');  // requires theory of comparisons
+    // means: (a' <= b' && b' <= c');  // requires theory of comparisons
 
     } // end class
     """
@@ -239,7 +236,7 @@ Scenario: An if-then-statement may not define value names
         b' = 'a;
       }
     }
-    means(a' = 'b && b' = 'a);
+    means: a' = 'b && b' = 'a;
 
     } // end class
     """

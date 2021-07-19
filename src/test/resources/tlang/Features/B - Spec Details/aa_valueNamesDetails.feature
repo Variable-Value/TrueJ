@@ -26,7 +26,7 @@ Scenario: The string of characters $T$ is not allowed in identifiers
       a' = 'b;
       b' = startingA';
     }
-    means(a' = 'b && b' = 'a);
+    means: a' = 'b && b' = 'a;
 
     } // end class
     """
@@ -50,7 +50,7 @@ Scenario: The string of characters $T$ is not allowed in identifiers
     starting' = starting'$T$;
     a' = starting';
   }
-  means(a' = 'b && b' = 'a);
+  means: a' = 'b && b' = 'a;
 
   } // end class
   """
@@ -74,7 +74,7 @@ Scenario: The string of characters $T$ is not allowed in identifiers
       a$T$' = 'b;
       b' = startingA';
     }
-    means(a$T$' = 'b && b' = 'a$T$);
+    means: a$T$' = 'b && b' = 'a$T$;
 
     } // end class
     """
@@ -84,8 +84,8 @@ Scenario: The string of characters $T$ is not allowed in identifiers
     Context Check error at line 3:4 for <'a$T$>: $T$ is reserved for T language internal use only
     Context Check error at line 6:19 for <'a$T$>: $T$ is reserved for T language internal use only
     Context Check error at line 7:2 for <a$T$'>: $T$ is reserved for T language internal use only
-    Context Check error at line 10:6 for <a$T$'>: $T$ is reserved for T language internal use only
-    Context Check error at line 10:25 for <'a$T$>: $T$ is reserved for T language internal use only
+    Context Check error at line 10:7 for <a$T$'>: $T$ is reserved for T language internal use only
+    Context Check error at line 10:26 for <'a$T$>: $T$ is reserved for T language internal use only
 
     """
 
@@ -108,7 +108,7 @@ Scenario: A Type name cannot be decorated when it is declared
     a' = 'b;
     b' = starting';
   }
-  means(a' = 'b && b' = 'a);
+  means: a' = 'b && b' = 'a;
 
   } // end class
   """
@@ -144,9 +144,9 @@ Scenario: Initial values of a variable must be correctly decorated
       int startingA' = a'current; // invalid because the initial value of a is 'a
       b' = startingA';
       a' = 'a;
-      means(startingA' = 'a && a' = 'b && b' = startingA');
+      means: startingA' = 'a && a' = 'b && b' = startingA';
     }
-    means(a' = 'b && b' = 'a);
+    means: a' = 'b && b' = 'a;
 
     } // end class
 
@@ -166,9 +166,9 @@ Scenario: Initial values of a variable must be correctly decorated
       int startingA' = 'a;
       'a = 'b; // cannot change initial value 'a because fields already have a value
       b' = startingA';
-      means(startingA' = 'a && a' = 'b && b' = startingA');
+      means: startingA' = 'a && a' = 'b && b' = startingA';
     }
-    means(a' = 'b && b' = 'a);
+    means: a' = 'b && b' = 'a;
 
     } // end class
 
@@ -196,9 +196,9 @@ Scenario: Initial values of a variable must be correctly decorated
   #    int startingA' = 'a;
   #    a' = 'b;
   #    b'last = startingA';
-  #    means(startingA' = 'a && a' = 'b && b'last = startingA');
+  #    means: startingA' = 'a && a' = 'b && b'last = startingA';
   #  }
-  #  means(a' = 'b && b'last = 'a);
+  #  means: a' = 'b && b'last = 'a;
   #
   #  } // end class
   #
@@ -231,7 +231,7 @@ Example: Attempting to give two values to the value-name allTrue'temp
       allTrue'temp  = allTrue'temp  && 'b; // error here
       allTrue'      = allTrue'temp  && 'c;
     }
-    means(allTrue' = 'a && 'b && 'c);
+    means: allTrue' = 'a && 'b && 'c;
 
     } // end class
     """
@@ -251,7 +251,7 @@ Scenario: A single valid fact can be proven
       a' = 'b;
       b' = startingA';
     }
-    means( b' = 'a );
+    means:  b' = 'a;
 
     } // end class
     """
@@ -270,7 +270,7 @@ Scenario: The prover detects a single invalid fact
       a' = 'b;
       b' = a'; // should be startingA', not a', so expect an error
     }
-    means( b' = 'a );
+    means:  b' = 'a;
 
     } // end class
     """
@@ -300,12 +300,12 @@ Scenario: Priority (stikiness) of && and || translate to the Prover correctly
       a' = 'b;
       b' = a'; // should be = startingA'; so expect an error
     }
-    means( true || a' = 'b && b' = 'b );
+    means: true || a' = 'b && b' = 'b;
       /* In TrueJ, like Java, this is interpreted as
-         ( true || ( a' = 'b && b' = 'b ) ) which is always true even though b' = 'b is false
+           true || ( a' = 'b && b' = 'b ) which is always true even though b' = 'b is false
 
-         If the statement is interpreted by the prover as
-         ( ( true || a' = 'b ) && b' = 'b ) it will be false
+         If the statement were interpreted by the prover as
+         ( true || a' = 'b ) && b' = 'b it would be false
       */
 
     } // end class
@@ -334,7 +334,7 @@ Scenario: TODO: Assignment of an equality test requires the equality test to be 
 
     void test() {
       boolean fact2' = 'a = 'b;    // Parentheses required for bool assignment: fact2' = ('a = 'b)
-      means   fact2' = ('a = 'b);  // does this have to be fact2' === 'a = 'b ?
+      means:  fact2' = ('a = 'b);  // does this have to be fact2' === 'a = 'b ?
     }
 
     } // end class
@@ -353,9 +353,9 @@ Scenario: TODO: Assignment of an equality test requires the equality test to be 
 
     void test() {
       boolean fact2' = ('a = 'b);
-      means   fact2' === 'a = 'b;  // Use this one
-      means   fact2' = ('a = 'b);  //   or this one
-      means   fact2' = 'a = 'b;    // would be parsed as (fact' = 'a) & ('a = 'b),
+      means:  fact2' === 'a = 'b;  // Use this one
+      means:  fact2' = ('a = 'b);  //   or this one
+      means:  fact2' = 'a = 'b;    // would be parsed as (fact' = 'a) & ('a = 'b),
                                    //   so one of the above is required
     }
 
@@ -395,16 +395,16 @@ Scenario: The scope of value names
       a'start = 'a;
       a' = 'b;
       b' = a'start;
-      means(a'start = 'a && a' = 'b && b' = a'start);
+      means: a'start = 'a && a' = 'b && b' = a'start;
     }
-    means(a'start = 'a && a' = 'b && b' = a'start);
+    means: a'start = 'a && a' = 'b && b' = a'start;
 
     void swap2() {
       a'start = 'a;
       a' = 'b;
       b' = a'start;
-      means(a'start = 'a && a' = 'b && b' = a'start);
-      final means(b' = a'start);
+      means: a'start = 'a && a' = 'b && b' = a'start;
+      final means: b' = a'start;
     }
 
     } // end class
@@ -412,9 +412,9 @@ Scenario: The scope of value names
     """
     Then the following are in the error messages
     """
-    11:6 for <a'start>: Mid-decorated value names are not allowed in a final means-statement
-    11:38 for <a'start>: Mid-decorated value names are not allowed in a final means-statement
-    18:19 for <a'start>: Mid-decorated value names are not allowed in a final means-statement
+    11:7 for <a'start>: Mid-decorated value names are not allowed in a final means-statement
+    11:39 for <a'start>: Mid-decorated value names are not allowed in a final means-statement
+    18:20 for <a'start>: Mid-decorated value names are not allowed in a final means-statement
     """
 
 Scenario: TODO: Back translation of comments requires absence of reserved characters
@@ -446,7 +446,7 @@ Scenario: TODO: Back translation of comments requires absence of reserved charac
     #      a' = 'b;
     #      b' = startingA';
     #    }
-    #    means(a' = 'b && b' = 'a);
+    #    means: a' = 'b && b' = 'a;
     #
     #    } // end class
     #    """
