@@ -46,7 +46,8 @@
 %   limit         - the formula was too complicated for the prover to solve
 
 runProver(Formula, Result)
-:- Limit = 7
+:- Limit = 8
+% , nl, print('***** FORMULA: '), print(Formula), nl
  , retractall(limit(_))
  , retractall(with_limit) % with_limit marks that a consistent result is
         % actually ambiguous because a depth limit was reached.
@@ -116,7 +117,7 @@ runProver(Formula, Result)
 % TODO: add a parameter to return a result of either: inconsistent, consistent,
 %       or ambiguous at the specified depth check.
 inconsistent(Fml,Limit, FmlTxt)
- :- mydebug(['Beginning ',Fml])
+ :- mydebug(['Beginning ',Fml]), mydebug(['Text: ', FmlTxt])
   , retractall(limit(_))
   , retractall(with_limit) % with_limit marks that a consistent result is
          % actually ambiguous because a depth limit was reached.
@@ -319,12 +320,20 @@ inconsistent((A;B),UnExp,Lits,FreeVar,Guarded, DepthLeft)
   %   needs to keep any unification from branch to branch. This is not true with
   %   guards, so we preserve the original Guarded.
   , copy_term(Guarded,OldGuarded)
-  , inconsistent(A,UnExp,Lits,FreeVar,Guarded, DepthLeft)
-  , \+ reached_limit
-  , mydebug(['OR arg1 inconsistent: ',A,'Arg2:',B,'Guarded:',OldGuarded])
-  , inconsistent(B,UnExp,Lits,FreeVar,OldGuarded, DepthLeft) % Guarded to OldGuarded
-  , \+ reached_limit
-  , mydebug(['OR arg2 inconsistent: ',B])
+  , ( inconsistent(A,UnExp,Lits,FreeVar,Guarded, DepthLeft)
+     -> mydebug(['Inconsistent OR branch 1:', A, ' Guarded: ', OldGuarded])
+      ; ( reached_limit -> dbend(ThisLevel, ['OR branch 1 reached limit: ', A])
+                         ; dbend(ThisLevel, ['OR branch 1 was consistent: ', A])
+        )
+        , fail
+    )
+  , ( inconsistent(B,UnExp,Lits,FreeVar,OldGuarded, DepthLeft)
+     -> mydebug(['Inconsistent OR branch 2:', B])
+      ; ( reached_limit -> dbend(ThisLevel, ['OR branch 2 reached limit: ', B])
+                         ; dbend(ThisLevel, ['OR branch 2 was consistent', B])
+        )
+        , fail
+    )
   , dbend(ThisLevel, ['OR completed',(A;B)])
   .
 
@@ -346,14 +355,12 @@ inconsistent(all(X,Fml),UnExp,Lits,FreeV,Guarded, DepthLeft)
 %
 inconsistent(all(X,Fml,LastVar),UnExp,Lits,FreeV,Guarded, DepthLeft)
  :- !, \+ reached_limit
-   , ( Lits=[lt(A0,B0)] ,  var(A0) , var(B0) , \+ (A0 = a0 , B0 = b0)
-      -> mydebug(['in ALL Lits, vars unified 0:',Fml,' = ',Fml,  'with Lits: ',Lits,' FreeV: ',FreeV])
-       ; true
-     )
   , ( var(LastVar) % if last expansion of this all() has not yet been used
        -> ( findNext(UnExp,[all(X,Fml,LastVar)],UnExpOut,UnusedAllToAppend,Next)
            -> append(UnExpOut,UnusedAllToAppend,NewUnExp)
-            , mydebug(['Unused All, going to Next:',Next,'UnExp:',NewUnExp,'Lits:',Lits,'FreeV:',FreeV,'Guarded:',Guarded,'DepthLeft:',DepthLeft])
+            , mydebug(['Unused All, going to Next:', Next, 'UnExp:',NewUnExp, 'Lits:',Lits
+                      , 'FreeV:',FreeV,'Guarded:',Guarded,'DepthLeft:',DepthLeft
+                      ])
             , inconsistent(Next,NewUnExp,Lits,FreeV,Guarded, DepthLeft)
           ; mydebug(['ALL fail:',all(X,Fml,LastVar),'Lits:', Lits,'UnExp:', UnExp])
             , fail
@@ -363,20 +370,24 @@ inconsistent(all(X,Fml,LastVar),UnExp,Lits,FreeV,Guarded, DepthLeft)
           , mydebug(['in ALL 1 from:',Fml,' with Lits: ',Lits])
           , length(FreeV,Length), limit(Limit)
           , ( Length < Limit -> true
-            ; mydebug(['Limit reached ',Length,' limit: ',Limit])
+            ; mydebug(['Limit reached in ALL 1, Length: ',Length,' limit: ',Limit])
               , assert(reached_limit), assert(with_limit)
               , fail
             )
           , mydebug(['in ALL 2:',Fml,' with Lits: ',Lits]) % ,'                 FreeV: ',FreeV])
-         , ( Lits=[lt(A1,B1)] ,  var(A1) , var(B1) , \+ (A1 = a1 , B1 = b1)
-            -> mydebug(['in ALL Lits, vars unified 1:',Fml,' = ',Fml,  'with Lits: ',Lits,' FreeV: ',FreeV])
-             ; true
-           )
-         , copy_term((X,Fml,FreeV),(X1,Fml1,FreeV))
-         , ( Lits=[lt(A2,B2)] ,  var(A2) , var(B2) , \+ (A2 = a2 , B2 = b2)
-            -> mydebug(['in ALL Lits, vars unified 2:',Fml,'to:',Fml1,' with Lits: ',Lits,' FreeV: ',FreeV])
-             ; true
-           )
+          , ( Lits=[lt(A1,B1)] ,  var(A1) , var(B1) , \+ (A1 = a1 , B1 = b1)
+             -> mydebug(['in ALL Lits, vars unified 1:',Fml,' = ',Fml
+                        ,' with Lits: ',Lits,' FreeV: ',FreeV
+                        ])
+              ; true
+            )
+          , copy_term((X,Fml,FreeV),(X1,Fml1,FreeV))
+          , ( Lits=[lt(A2,B2)] ,  var(A2) , var(B2) , \+ (A2 = a2 , B2 = b2)
+             -> mydebug(['in ALL Lits, vars unified 2:',Fml,'to:',Fml1
+                        ,' with Lits: ',Lits,' FreeV: ',FreeV
+                        ])
+              ; true
+            )
           , mydebug(['in ALL 3 from:',Fml,'to:',Fml1,' with Lits: ',Lits]) % ,' FreeV: ',FreeV])
           , append(UnExp,[all(X,Fml,X1)],UnExp1) % X1 is the latest var used
           , mydebug(['Now check inconsistent for fml: ',Fml1,' with Lits: ',Lits,'UnExp:',UnExp1])
@@ -454,7 +465,7 @@ inconsistent(-(A=B),UnExp,Lits,FreeV,Guarded, DepthLeft)
     ; mydebug(['Checking neg DepthLeft:',DepthLeft,'for',-(A=B)])
       , ( DepthLeft > 0 -> true
         ; maxLimit(ContinueLimit)
-          , mydebug(['Maximum depth reached. ',ContinueLimit,'continuations left.'])
+          , mydebug(['Maximum depth reached in NOT EQUAL. ',ContinueLimit,' continuations left.'])
           , assert(reached_limit), assert(with_limit)
           , fail
         )
@@ -485,6 +496,9 @@ inconsistent(-Lit,UnExp,Lits,FreeV,Guarded, DepthLeft)
   , Lit \= (_=_), Lit \= all(_,_,_), Lit \= true %  , Functor \= '=', Functor \= 'all'
   , mydebug(['Predicate1: ',-Lit,'Lits:',Lits])
   , gnzArgs(Lit,NewLit,Functor,Args,VarArgs)
+  , mydebug(['Negative Lit after gnz:',-Lit, 'NewLit:',-NewLit
+            ,'functor:',Functor, 'Args:',Args,'VarArgs:',VarArgs
+            ])
   , !
   , ( member(NewLit,Lits) % Note sign change. Retries all Lits on backtrack.
       , mydebug(['Args:',Args,'VarArgs:',VarArgs])
@@ -504,7 +518,7 @@ inconsistent(-Lit,UnExp,Lits,FreeV,Guarded, DepthLeft)
 %% choose above or just the inconsistent following
       , mydebug(['ArgDisjunct:',ArgDisjunct,'Lits:',Lits])
       , inconsistent(ArgDisjunct,UnExp,[-Lit|Lits],FreeV,Guarded, DepthLeft)
-    ; mydebug(['No match, Proceeding to UnExp: ',UnExp,'with Lits:',[-Lit|Lits]])
+    ; mydebug(['No match for negative literal, Proceeding to UnExp: ',UnExp,'with Lits:',[-Lit|Lits]])
       , [Next | RestUnExp] = UnExp % note fails if UnExp = [] % TODO: consider checking member(-Lit,Lits)
       , inconsistent(Next,RestUnExp,[-Lit|Lits],FreeV,Guarded, DepthLeft)
     )
@@ -541,7 +555,7 @@ inconsistent((A=B),UnExp,Lits,FreeV,Guarded, DepthLeft)
     ; mydebug(['Checking pos DepthLeft:',DepthLeft,'for',(A=B)])
       , ( DepthLeft > 0 -> true
         ; maxLimit(ContinueLimit)
-          , mydebug(['Maximum depth reached. ',ContinueLimit,'continuations left.'])
+          , mydebug(['Maximum depth reached in EQUAL. ',ContinueLimit,'continuations left.'])
           , assert(reached_limit), assert(with_limit)
           , fail
         )
@@ -593,7 +607,7 @@ inconsistent(Lit,UnExp,Lits,FreeV,Guarded, DepthLeft)
 %        )
 %% choose above or just the inconsistent following
       , inconsistent(ArgDisjunct,UnExp,[Lit|Lits],FreeV,Guarded, DepthLeft)
-    ; mydebug(['No match, Proceeding to UnExp: ',UnExp,'with Lits:',[Lit|Lits]])
+    ; mydebug(['No match for positive literal, Proceeding to UnExp: ',UnExp,'with Lits:',[Lit|Lits]])
       , ( Lit=lt(A1,B1) ,  var(A1) , var(B1) , \+ (A1 = a1 , B1 = b1)
           -> mydebug(['in Lit check, vars unified 0:',Lit,'with Lits: ',Lits,' FreeV: ',FreeV])
            ; true
@@ -605,7 +619,7 @@ inconsistent(Lit,UnExp,Lits,FreeV,Guarded, DepthLeft)
 
 inconsistent(Lit,_,Lits,_,_,_)
  :- \+ reached_limit
-  , Lit \= (_=_), Lit \= -(_=_)
+  , Lit \= (_=_), Lit \= -(_=_), Lit \= all(_,_,_)
   , (Lit = -Neg; -Lit = Neg)
      -> member(Neg,Lits)
   .
@@ -628,7 +642,7 @@ inconsistent(Lit,[Next|UnExp],Lits,FreeV,Guarded, DepthLeft)
               , retract(maxLimit(ContinuationLimit)), assert(maxLimit(NewContinuationLimit))
               , NewDepthLeft = Limit
               , retractall(reached_limit) % we keep with_limit
-              , mydebug(['Continuing after reaching limit. ',NewContinuationLimit,' continuations left.'])
+              , mydebug(['Continuing after reaching limit at LITERAL 3. ',NewContinuationLimit,' continuations left.'])
             ; mydebug(['No continuations left at Lit: ',Lit])
               , fail
           )
@@ -640,7 +654,7 @@ inconsistent(Lit,[Next|UnExp],Lits,FreeV,Guarded, DepthLeft)
   , inconsistent(Next,UnExp,NewLits,FreeV,Guarded, NewDepthLeft)
   .
 
-%% Generalize a structures arguments to variables
+%% Generalize a structure's arguments to variables
 gnzArgs(LitWithArgs,LitWithVars,Functor,Args,Vars)
  :- (atom(LitWithArgs) ; var(LitWithArgs))
    -> LitWithVars=LitWithArgs, Functor=LitWithArgs, Args=[], Vars=[]
