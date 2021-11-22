@@ -10,19 +10,21 @@ Feature: Equivalence & True     (Tests for the eLeanTaP system)
 
     The input language for the logic uses a common set of logical operators:
 
-      equivalence ===                     inequivalence =#=
-      negation    -
-      implication ==>                     consequence   <==
-      and         /\                      or          \/
-      equality    (a=b)                   inequality    (a#=b)
-      predicates  p(a) /\ q(b)            functionals   (f(a) = g(b))
-      for all     all(X,p(X))             there exists  ex(X,p(X))
-                  all(X, range-of-X, body)              ex (X, range-of-X, body)
+        equivalence  ===                       inequivalence  =#=
+        negation     -
+        implication  ==>                       consequence    <==
+        and          /\                        or             \/
+        equality     (a=b)                     inequality     (a#=b)
+        predicates   p(a) /\ q(b)              functionals    (f(a) = g(b))
+        for all      all(X,p(X))               there exists   ex(X,p(X))
+                     all(X, range-of-X, p(X))                 ex (X, range-of-X, p(X))
 
-      Operators must be separated by whitespace, e.g.,
+    Operators must be separated by whitespace, except for the negation, equality, and inequality signs, e.g.,
 
       write a /\ -b
       not   a/\-b
+
+    and equality/inequality must be immediately enclosed in parentheses.
 
     This file provides a sort of definition of "true" and examples and tests of
     logical equivalence. The other language elements are presented in separate
@@ -51,8 +53,8 @@ Background: The theorem prover is loaded into a tuProlog engine
 
 Scenario: Example of a simple non-theorem
 
-    If an arbitrary formula has no support for either truth or falsity, then it
-    cannot be proven.
+  If an arbitrary formula has no support for either truth or falsity, then it
+  cannot be proven.
 
     A proposition all by itself, is not necessarily false, it is just that its
     statement as a truth is unsupported.
