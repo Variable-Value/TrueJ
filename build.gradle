@@ -135,7 +135,9 @@ task TestProverFeatures() {
             args = [ '--plugin', 'progress'
                    , '--plugin', 'html:build/reports/tests/cucumber/ProverFeatures.html'
                    //, '--glue',   ''
+                   //, '--tags', "@testthis"
                    , 'src/test/resources/ProofTestFeatures'
+                   //, 'src/test/resources/ProofTestFeatures/pl1ha_eTLeanTaP_predicate-calculus.feature'
                    ]
         }
     }
