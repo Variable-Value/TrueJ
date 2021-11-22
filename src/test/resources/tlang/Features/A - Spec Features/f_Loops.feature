@@ -54,18 +54,17 @@ Example: A simple loop to multiply by adding
   int 'product;
 
   void multiplyByAdding() {
-    product'current = 0; // "product-naught" is the value name at the beginning of each iteration
-    int 'i = 0;
+    product'current = 0;
 
-    loop (product'current --> product, 'i --> i)
+    loop (int 'i = 0) (product <-- product'current, i <-- 'i) {
       invar: i <= n  &  product = m * i;
       var: n - i > 0;
-    while ('i < n) {
-      product = product'current + m; // "product" is the value name at the end of each iteration
-      i = 'i + 1;
-    }
+      while (i < n) {
+        product = product'current + m;
+        i = 'i + 1;
+      }
     means: ~(i < n) & i <= n & product = m * i;
-
+    }
     means: product = m * n;
   }
 
@@ -77,7 +76,7 @@ Example: An explanation of the above code
 
   Some loops are simpler, but the example that we gave requires a complete explanation of the
   workings of a loop. First we review the parts of a loop that are familiar from other procedural
-  languages:.
+  languages:
 
   - The _body_ is the code that is repeatedly executed. in our example that is
     >
@@ -93,7 +92,7 @@ Example: An explanation of the above code
     example, we are using the `while` clause, which starts another iteration through the code in the
     body as long as the condition is true:
     >
-          while ('i < n)
+          while (i < n)
 
     which would stop when `'i >= n`.
 
@@ -124,7 +123,7 @@ Example: An explanation of the above code
   - The _value name shift_ is the change that is made by the body from the starting value name of
     modified variables to their ending value names:
     >
-          (product'current --> product, 'i --> i)
+          (product <-- product'current, i <-- 'i)
 
     We call the value names that are available before the looping begins the "unshifted" form and
     the value names that are available in the code after the looping ends the "shifted" form.
