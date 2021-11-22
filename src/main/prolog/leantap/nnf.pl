@@ -26,7 +26,7 @@
 
 
 
-% nnfdebug(A) :- !. % comment out this line to enable nnfdebug messages
+nnfdebug(A) :- !. % comment out this line to enable nnfdebug messages
 nnfdebug(A) :- mydebug(A).
 
 
@@ -153,8 +153,8 @@ nnf(Fml,FreeV,NNF,Paths)
       ; Fml = -(A ==> B)         -> Fml1 =  A /\ -B
       ; Fml =  (A =#= B)         -> Fml1 = -(A === B)
       ; Fml = -(A =#= B)         -> Fml1 =  (A === B)
-      ; Fml =  (A === B)         -> Fml1 = (A /\  B) \/ (-A /\ -B) % or ( A \/ -B) /\ (-A \/  B)
-      ; Fml = -(A === B)         -> Fml1 = (A /\ -B) \/ (-A /\  B) % or ( A \/  B) /\ (-A \/ -B)
+      ; Fml =  (A === B)         -> Fml1 =  ( A ==> B) /\  (B ==> A)
+      ; Fml = -(A === B)         -> Fml1 = -( A ==> B) \/ -(B ==> A)
       )
   , !
   , dbbegin(ThisLevel, ['nnf:', Fml])
@@ -185,7 +185,7 @@ nnf(ex(X,Fml),FreeV,NNF,Paths)
   , nnfdebug(        ['  to:', NNF])
   .
 
-nnf(A /\ B,FreeV,(NNF2,NNF1),Paths)
+nnf(A /\ B,FreeV,NNF,Paths)
  :- !
   , dbbegin(ThisLevel, ['AND:', A /\ B])
   , nnfdebug(['using A/\B part A:', A,'from',A /\ B])
@@ -193,12 +193,9 @@ nnf(A /\ B,FreeV,(NNF2,NNF1),Paths)
   , nnfdebug(['using A/\B part B:', B,'from',A /\ B])
   , nnf(B,FreeV,NNF2,Paths2)
   , Paths is Paths1 * Paths2
-% My tests for efficiency cannot justify the following commented section
-%     , (Paths1 > Paths2 -> NNF = (NNF2,NNF1) % postpone disjunctions
-%                         ; NNF = (NNF1,NNF2)
-%       )
-  , dbend(ThisLevel, ['From:', A /\ B])
-  , nnfdebug(        ['  to:', (NNF2,NNF1)])
+  , NNF = (NNF1,NNF2)
+  , dbend(ThisLevel, ['From Conjunct:', A /\ B])
+  , nnfdebug(        ['           to:', NNF])
   .
 
 nnf(A \/ B,FreeV,NNF,Paths)
