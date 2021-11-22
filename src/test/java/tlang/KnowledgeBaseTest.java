@@ -70,4 +70,39 @@ public void spike_Deque_array() throws Exception {
   org.junit.Assert.assertEquals(2, da[2].intValue());
 }
 
+/** SPIKE: Insure that regular expression will split Unix lines into array */
+//@Ignore
+@Test
+public void spike_eolSplitForUnix() throws Exception {
+  String lines = "aaa\nbbb\nccc";
+  String[] lineArray = lines.split("\\r?\\n");
+  //System.out.println("0: "+ lineArray[0] + " 1: "+ lineArray[1] + " 2: "+ lineArray[2]);
+  assertEquals("aaa",lineArray[0]);
+  assertEquals("bbb",lineArray[1]);
+  assertEquals("ccc",lineArray[2]);
+}
+
+/** SPIKE: Insure that regular expression will split Windows lines into array */
+//@Ignore
+@Test
+public void spike_eolSplitForWindows() throws Exception {
+  String lines = "aaa\r\nbbb\r\nccc";
+  String[] lineArray = lines.split("\\r?\\n");
+  //System.out.println("0: "+ lineArray[0] + " 1: "+ lineArray[1] + " 2: "+ lineArray[2]);
+  assertEquals("aaa",lineArray[0]);
+  assertEquals("bbb",lineArray[1]);
+  assertEquals("ccc",lineArray[2]);
+}
+
+/** SPIKE: Insure that split does not create extra line */
+//@Ignore
+@Test
+public void spike_eolSplitNoExtraLine() throws Exception {
+  String lines = "aaa\r\nbbb\r\nccc\r\n";
+  String[] lineArray = lines.split("\\r?\\n");
+  //System.out.println("0: "+ lineArray[0] + " 1: "+ lineArray[1] + " 2: "+ lineArray[2]);
+  assertEquals(3, lineArray.length);
+}
+
+
 }
