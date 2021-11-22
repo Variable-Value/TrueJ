@@ -9,23 +9,27 @@ db_start_debugging
  :- asserta(debug_on)
   , retractall(db_level(_))
   , assertz(db_level(0))
+%  , tell(stdout)
   .
 
 
+%TODO - internally use concatenation instead of print
+%       and loop to prefix the message with the correct number of dashes
+%       then print the result here
 mydebug(A) :- ( debug_on -> printdebuglevel, mydebug_helper(A)
                           ; true
               )
             .
 
-mydebug_helper(A)     :- var(A), !, write_term(v(A),numbervars(false)).
+mydebug_helper(A)     :- var(A), !, print(v(A)).
 mydebug_helper(A)     :- atom(A),!, print(A)                          .
-mydebug_helper([])    :-         !, print('[]')                       .  
-mydebug_helper([A|B]) :-         !, print('['), mydebug_nostart([A|B]).     % Kludge '] for syntax highlighting 
-mydebug_helper(A)     :-         !, write_term(A,numbervars(false))  .
+mydebug_helper([])    :-         !, print('[]')                       .
+mydebug_helper([A|B]) :-         !, print('['), mydebug_nostart([A|B]).     % Kludge '] for syntax highlighting
+mydebug_helper(A)     :-         !, print(A)  .
 
 mydebug_nostart([A|B])
  :- mydebug_helper(A)
-  , ( var(B) -> print(','),write_term(v(B),numbervars(false)),print(']')
+  , ( var(B) -> print(','),print(v(B)),print(']')
     ; B = [] -> print(']')
     ; print(','), mydebug_nostart(B)
     )
