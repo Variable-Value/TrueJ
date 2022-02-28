@@ -421,13 +421,13 @@ t_defaultValue
 // STATEMENTS / BLOCKS
 
 t_block
-  : openBrace='{'  t_blockStatement*  (t_markedFinalMeans)? closeBrace='}'
+  : openBrace='{'  t_blockStatement* closeBrace='}'
   ;
 
 t_blockStatement
   : t_localVariableDeclaration ';'
-  | t_typeDeclaration
   | t_statement
+  | t_typeDeclaration
   ;
 
 t_localVariableDeclaration
@@ -712,24 +712,11 @@ t_arguments
   ;
 
 t_finalMeans
-  : t_markedFinalMeans
-  | t_genericFinalMeans
-  ;
-
-t_markedFinalMeans
-  : FINAL t_genericFinalMeans
-  ;
-
-/**
- * The final means which collects both marked and unmarked final means. Therefore this can be used
- * by the parser to mark both as "final".
- */
-t_genericFinalMeans
   : t_means
   ;
 
 t_means
-  : MEANS ':' t_expression ';'
+  : (FINAL)? MEANS ':' t_expression ';'
   ;
 
 t_given
