@@ -86,7 +86,12 @@ public StepDefinitions() throws IOException {
 
 @Given("^decorated final value names are required$")
 public static void decorated_final_value_names_are_required() throws Throwable {
-  TCompiler.isRequiringDecoratedFinalValue = true;
+  TCompiler.setSwitchToFinalDecoration();
+}
+
+@Given("^ensure decorated final value names are no longer required$")
+public static void ensure_decorated_final_value_names_are_no_longer_required() throws Throwable {
+  TCompiler.setSwitchOffForFinalDecoration();
 }
 
 @Given("^[Aa] valid compile unit is$")
@@ -112,19 +117,13 @@ public void a_compile_unit_that_parses_is(String truejCode) {
   parse("", tCode);
   checkForErrors();
 
-  TCompiler.isRequiringDecoratedFinalValue = false;
+  TCompiler.resetFinalDecorationToOpen();
+  TCompiler.setSwitchOffForFinalDecoration();
 }
 
 @Then("^[Ww]e display all the error messages for inspection$")
 public void we_display_all_the_error_messages_for_inspection() {
   assertTrue("Here are the error messages:\n"+ errs.toString(), false);
-}
-
-@Then("^the following are in the error messages$")
-public void the_following_are_in_the_error_messages(String errorsToCheckFor) throws Throwable {
-  String[] requiredErrors = errorsToCheckFor.split("\\r?\\n");
-  for (String err : requiredErrors)
-    an_error_message_contains__(err);
 }
 
 @Then("^[Tt]he error messages are$")
@@ -142,13 +141,7 @@ public void the_error_messages_contain(String uniquePartOfErrMsgs) {
   var errLines = errs.errLines();
   int numberExpected = expectedList.length;
   int numberActual = errLines.size();
-  if (numberExpected != numberActual)
-    assertTrue("Different number of messages in expected (" + numberExpected +") "
-                + "and actual ("+ numberActual +")."
-                + "\nExpected \n"+ uniquePartOfErrMsgs
-                + "\nActual "+ errs.toString()
-                , false);
-  for (int i = 0; i < numberExpected; i++) {
+  for (int i = 0; i < Math.min(numberExpected, numberActual); i++) {
     if ( ! errLines.get(i).contains(expectedList[i]) )
       assertTrue("An expected message was not contained in the corresponding actual message."
                    + "\nExpected: "+ expectedList[i]
@@ -157,23 +150,14 @@ public void the_error_messages_contain(String uniquePartOfErrMsgs) {
                    + "\n\nThe " + numberActual +" actual messages from "+ errs.toString()
                   , false);
   }
-}
-
-/**
- * There is an error message containing the given string. Assumes a compile unit has already been
- * processed, probably by <code>an_invalid_run_unit_is(String tCode)</code>
- */
-@Then("^an error message contains$")
-public void an_error_message_contains(String uniquePartOfErr) {
-  an_error_message_contains__(uniquePartOfErr);
-}
-
-/** There is an error message containing the given string. Assumes a compile unit has already
- * been processed, probably by <code>an_invalid_run_unit_is(String tCode)</code> */
-@Then("^an error message contains \"([^\"]*)\"$")
-public void an_error_message_contains__(String uniquePartOfErr) {
-  if ( ! findMsg(uniquePartOfErr))
-    reportMissingMsg(uniquePartOfErr);
+  if (numberExpected != numberActual) {
+    var cause = (numberExpected < numberActual) ? "actual" : "expected";
+    assertTrue("Extra "+ cause +" messages. Expected (" + numberExpected +") "
+        + "and actual ("+ numberActual +")."
+        + "\n\nExpected \n"+ uniquePartOfErrMsgs
+        + "\n\nActual "+ errs.toString()
+        , false);
+  }
 }
 
 /** There is a single error message containing the given string. Assumes a compile unit has already
@@ -190,8 +174,7 @@ public void the_only_error_message_contains__(String uniquePartOfErr) {
   if (errs.errCount() != 1)
     reportNotSingleMsg(uniquePartOfErr);
 
-  if ( ! findMsg(uniquePartOfErr))
-    reportMissingMsg(uniquePartOfErr);
+  the_error_messages_contain(uniquePartOfErr);
 }
 
 @Then("^[Tt]he parse tree is$")
@@ -300,7 +283,8 @@ void runAllSteps(String tSourceCode) throws IOException, InterruptedException {
   attemptCompile(javaCodeFromT);
   attemptProofs();
 
-  TCompiler.isRequiringDecoratedFinalValue = false;
+  TCompiler.resetFinalDecorationToOpen();
+  TCompiler.setSwitchOffForFinalDecoration();
 }
 
 private void attemptProofs() {
@@ -346,24 +330,6 @@ private void reportNotSingleMsg(String keyPartOfErr) {
               + "\nHere are the error messages:\n"+ errs.toString()
             , false
             );
-}
-
-/**
- * Search the collection of messages that have been issued for a particular
- * string of characters.
- *
- * @param uniquePartOfMsg The important part of the error message
- * @return true if some information or error msg contains the uniquePartOfErr
- */
-private boolean findMsg(String uniquePartOfMsg) {
-  boolean foundMsg = false; // so far
-  for (String line : errs.lines()) {
-      if (line.contains(uniquePartOfMsg)) {
-        foundMsg = true;
-        break;
-      }
-  }
-  return foundMsg;
 }
 
 private void parse(String name, String truejCode) throws ParseCancellationException {

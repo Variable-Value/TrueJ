@@ -3,6 +3,8 @@ import java.util.*;
 
 import alice.tuprolog.*;
 import alice.tuprolog.event.*;
+import alice.tuprolog.lib.InvalidObjectIdException;
+import alice.tuprolog.lib.OOLibrary;
 import io.cucumber.java.PendingException;
 import io.cucumber.java.Before;
 import io.cucumber.java.DataTableType;
@@ -10,6 +12,7 @@ import io.cucumber.java.en.*;
 import io.cucumber.junit.Cucumber;
 import tlang.KnowledgeBase;
 import tlang.KnowledgeBase.ProofResult;
+import tlang.KnowledgeBase.SolverInTestMode;
 //import io.org.junit.Assert;
 import org.hamcrest.core.CombinableMatcher;
 
@@ -23,7 +26,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @SuppressWarnings({"javadoc", "unused", "null", "static-method"})
 public class StepDefinitions_eTLeanTaP {
 
-private int freeVarDepth = 7; // limit before backtracking
+private int freeVarDepth = 40; // limit before backtracking
 /** Print debugging information from Prolog prover. */
 /*package*/ static boolean debugging = false;
 private boolean needsETLeanTapTheory = true;
@@ -32,8 +35,6 @@ private static Prolog engine;
 private static Theory theory;
 
 /*package*/ static String prologStdOut = "";
-private String expectedPStdOut;
-private static String collectedErrorMsgs = "";
 
 private String relativeDir = "./";
 private Term goal;
@@ -53,7 +54,7 @@ public void the_eTLeanTap_theory_is_loaded() throws Throwable {
     setAFileTheory(new File(relativeDir +"src/main/prolog/leantap/mydebug.prolog"));
     addAFileTheory(new File(relativeDir +"src/main/prolog/leantap/nnf.pl"));
     addAFileTheory(new File(relativeDir +"src/main/prolog/leantap/etleantap.pl"));
-    addAFileTheory(new File(relativeDir +"src/main/prolog/leantap/tLangProof.prolog"));
+//    addAFileTheory(new File(relativeDir +"src/main/prolog/leantap/tLangProof.prolog"));
     needsETLeanTapTheory = false;
   }
 }
@@ -120,11 +121,26 @@ public void formula_is_underspecified(String formula) throws Throwable {
   formula_is_not_a_theorem(negation);
 }
 
-@Given("^[Tt]he conjunction of these formulas is underspecified$")
-public void the_conjunction_of_these_formulas_is_underspecified(String formulas) throws Throwable {
+@Given("^[Tt]he conjunction of these formulas is contingent$")
+public void the_conjunction_of_these_formulas_is_contingent(String formulas) throws Throwable {
   final String f1 = linesToConjuncts(formulas); //  a) /\ (b
   final String conjunction = "("+ f1 +")";               // (a) /\ (b)
   formula_is_underspecified(conjunction);
+}
+
+@Given("^[Tt]he conjunction of these formulas is underspecified$")
+public void the_conjunction_of_these_formulas_is_underspecified(String formulas) throws Throwable {
+  the_conjunction_of_these_formulas_is_contingent(formulas);
+}
+
+@Then("^[Tt]he following statement is contingent$")
+public void the_following_statement_is_contingent(String formula) throws Throwable {
+  formula_is_underspecified(formula);
+}
+
+@Then("^[Tt]he following statement is underspecified$")
+public void the_following_statement_is_underspsecified(String formula) throws Throwable {
+  formula_is_underspecified(formula);
 }
 
 private String linesToConjuncts(String formulas) {
@@ -133,17 +149,39 @@ private String linesToConjuncts(String formulas) {
 
 @Given("^[Aa]ssumptions?$")
 public void assumptions(String formulaLines) throws Throwable {
+  prologStdOut = "";
   kb = new KnowledgeBase();
-  String[] assumptions = linesToArray(formulaLines);
-  if (assumptions.length == 0)
-    fail("No assumptions were provided.");
+  if (debugging)
+    kb.testMode = SolverInTestMode.on;
 
+  String[] assumptions = linesToArray(formulaLines);
   for (String assumption : assumptions)
     kb.assumeIfConsistent(assumption);
+  if (prologStdOut != "")
+    System.out.println("PROLOG OUTPUT *************************************");
+    System.out.println(prologStdOut);
+}
+
+@Given("assumption(s) unless inconsistent")
+public void assumptions_unless_inconsistent(String formulaLines) throws Throwable {
+  prologStdOut = "";
+  kb = new KnowledgeBase();
+  if (debugging)
+    kb.testMode = SolverInTestMode.on;
+
+  String[] assumptions = linesToArray(formulaLines);
+  for (String assumption : assumptions)
+    kb.assumeUnlessInconsistent(assumption);
+  if (prologStdOut != "")
+    System.out.println("PROLOG OUTPUT *************************************");
+    System.out.println(prologStdOut);
 }
 
 @Then("^[Tt]he following theorems? holds?$")
 public void the_following_theorems_hold(String theoremLines) {
+  prologStdOut = "";
+  if (debugging)
+    kb.testMode = SolverInTestMode.on;
   String[] theorems = linesToArray(theoremLines);
   if (theorems.length == 0)
     fail("No theorems were provided.");
@@ -152,6 +190,27 @@ public void the_following_theorems_hold(String theoremLines) {
     var result = kb.prove(theorem);
     assertEquals("Result was "+ result +" for theorem <"+ theorem +">", ProofResult.provenTrue, result);
   }
+  if (prologStdOut != "")
+    System.out.println("PROLOG OUTPUT *************************************");
+    System.out.println(prologStdOut);
+}
+
+@Then("(The|the) following (is|are) not (a theorem|theorems)")
+public void the_following_theorems_are_unsupported(String theoremLines) {
+  prologStdOut = "";
+  if (debugging)
+    kb.testMode = SolverInTestMode.on;
+  String[] theorems = linesToArray(theoremLines);
+  if (theorems.length == 0)
+    fail("No theorems were provided.");
+
+  for (String theorem : theorems) {
+    var result = kb.prove(theorem);
+    assertEquals("Result was "+ result +" for theorem <"+ theorem +">", ProofResult.unsupported, result);
+  }
+  if (prologStdOut != "")
+    System.out.println("PROLOG OUTPUT *************************************");
+    System.out.println(prologStdOut);
 }
 
 String[] linesToArray(String lines) {
@@ -160,6 +219,8 @@ String[] linesToArray(String lines) {
 
 @Then("the proof of this statement reaches the depth limit")
 public void the_proof_of_this_statement_reaches_the_depth_limit(String statement) {
+  if (debugging)
+    kb.testMode = SolverInTestMode.on;
   var proofResult = kb.prove(statement);
   assertEquals("The statement <"+ statement +"> did not reach the depth limit."
               , ProofResult.reachedLimit, proofResult);
@@ -429,7 +490,9 @@ static private void ensurePrologEngine() {
                           };
     try {
       engine = new Prolog(libs);
-    } catch (InvalidLibraryException e) {
+//      OOLibrary lib = (OOLibrary)engine.getLibrary("alice.tuprolog.lib.OOLibrary");
+//      lib.register(new Struct("stdout"), System.out);
+    } catch (InvalidLibraryException e) { //(InvalidLibraryException | InvalidObjectIdException e) {
       e.printStackTrace();
     }
     engine.addOutputListener(  new OutputListener()
@@ -459,28 +522,6 @@ static private void postToStdOut(String msg, boolean... shouldPostToSysout) {
   if (useSysout) { System.out.print(msg); }
 }
 
-/* ************************************************************************************************
- * The below seems to be part of some scheme to ensure that actual messages match an expected value.
- * As of my checking, the only part used in the above code is the method endOfLineOrFile()
- *
- * This code may come from either a Cucumber, JUnit, or tuProlog source.
- **************************************************************************************************/
-private void mismatchError(String msg, int lineCount, int expPos, int actPos) throws AssertionError {
-  int bolExp = beginningOfLineOrFile(expectedPStdOut, expPos);
-  int eolExp =       endOfLineOrFile(expectedPStdOut, expPos);
-  int bolAct = beginningOfLineOrFile(prologStdOut   , actPos);
-  int eolAct =       endOfLineOrFile(prologStdOut   , actPos);
-  System.out.println("Beginning of Actual: "+ bolAct +" Position in Actual: "+ actPos +" End of Actual: "+ eolAct);
-  String newMsg = ("\n"+ msg +" at line "+ lineCount
-                  +" (expected position "+ (expPos-bolExp) +")"
-                  +" (actual position "  + (actPos-bolAct) +")"
-                  +"\n  Expected: "+ expectedPStdOut.substring(bolExp, eolExp)
-                  +"\n    Actual: "+    prologStdOut.substring(bolAct, eolAct)
-                  );
-  collectedErrorMsgs = collectedErrorMsgs + newMsg;
-
-}
-
 /** Search for beginning of current line. This will normally be the character after the most recent
  * preceding newline '\n', but it may be the beginning of the file. If we are currently sitting on
  * the end-of-line marker for a line, then we return the beginning of that line.
@@ -499,27 +540,6 @@ private int endOfLineOrFile(String lines, int posInLine) {
   final int endOfLine = lines.indexOf('\n', posInLine);
   return (endOfLine == -1) ? lines.length()
                            : endOfLine;
-}
-
-private void reportErrors() {
-  // System.out.println("<"+ collectedErrorMsgs +">");
-  throw new AssertionError(collectedErrorMsgs);
-}
-
-private boolean validPVarStart(char c) {
-  if (c == '_' || Character.isUpperCase(c))
-       return true;
-  else return false;
-}
-
-private boolean validPVarChar(char c) {
-  if (c == '_' || Character.isAlphabetic(c) || Character.isDigit(c) )
-       return true;
-  else return false;
-}
-
-private char lastChar(CharSequence chars) {
-  return chars.charAt(chars.length()-1);
 }
 
 
