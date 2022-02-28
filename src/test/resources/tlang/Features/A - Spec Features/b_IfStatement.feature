@@ -13,12 +13,12 @@ Scenario: The if-statement allows alternative definitions for values
     """
     class Rates {
 
-    double rate;
+    double 'rate;
 
     double standardRate' = 0.05;
     double discountRate' = 0.15;
 
-    boolean hasDiscount;
+    boolean 'hasDiscount;
 
     void setRate() {
       if ('hasDiscount) rate' = discountRate';
@@ -36,6 +36,7 @@ Scenario: The if-statement allows alternative definitions for values
 
     } // end class
     """
+
 
 Scenario: A valid value name has a definition in each branch of a conditional
 
@@ -72,8 +73,8 @@ Scenario: A valid value name has a definition in each branch of a conditional
     """
     class Swapper_2 {
 
-    int a;
-    int b;
+    int 'a;
+    int 'b;
 
     void validSwap() {
       if ('a = 'b) {
@@ -93,8 +94,8 @@ Scenario: A valid value name has a definition in each branch of a conditional
     """
     class Swapper_3 {
 
-    int a;
-    int b;
+    int 'a;
+    int 'b;
 
     void validSwap() {
       if ('a = 'b) {
@@ -120,13 +121,13 @@ Scenario: A valid value name has a definition in each branch of a conditional
     """
     class Rates_1X {
 
-    double rate;
-    double reportRate;
+    double 'rate;
+    double 'reportRate;
 
     double standardRate' = 0.05;
     double discountRate' = 0.15;
 
-    boolean hasDiscount;
+    boolean 'hasDiscount;
 
     void setRate() {
       rate'standard = standardRate';
@@ -144,7 +145,7 @@ Scenario: A valid value name has a definition in each branch of a conditional
 
     } // end class
     """
-    Then an error message contains
+    Then the only error message contains
       """
       rate' was not defined in the else-clause
       """
@@ -166,9 +167,9 @@ Scenario: A more complex example - ThreeSort
     """
     class Triplet {
 
-    int a;
-    int b;
-    int c;
+    int 'a;
+    int 'b;
+    int 'c;
 
     void threeSort() {
       if ('a <= 'b) {
@@ -226,8 +227,8 @@ Scenario: An if-then-statement may not define value names
     """
     class Swapper_1 {
 
-    int a;
-    int b;
+    int 'a;
+    int 'b;
 
     /** We (invalidly) attempt to avoid swapping the two values when they are equal. */
     void invalidSwap() {
@@ -240,11 +241,8 @@ Scenario: An if-then-statement may not define value names
 
     } // end class
     """
-    Then an error message contains
-      """
-      a' was not defined in the else-clause
-      """
-    And an error message contains
+    Then the error messages contain
       """
       b' was not defined in the else-clause
+      a' was not defined in the else-clause
       """

@@ -39,7 +39,7 @@ Example: The means-statement summarizes the above operational statements
     """
     class Swapper {
 
-    int a, b;
+    int 'a = 1, 'b = 2;
 
     void swap() {
       int startingA' = 'a;
@@ -178,7 +178,7 @@ Example: Reusing an "overwritten" value when its variable is still in scope
     """
     class Swapper2 {
 
-    int a, b;
+    int 'a = 1, 'b = 2;
 
     void swap() {
       a' = 'b;
@@ -205,7 +205,7 @@ Example: We cannot refer to a value whose variable is out of scope
     """
     class Swapper3 {
 
-    int a, b;
+    int 'a = 1, 'b = 2;
 
     void swap() {
       int startingA' = 'a;
@@ -219,7 +219,7 @@ Example: We cannot refer to a value whose variable is out of scope
     } // end class
     """
 
-  Then an error message contains
+  Then the only error message contains
     """
     Variable startingA has not been defined in this scope
     """
@@ -243,9 +243,9 @@ Example: Using middle-decorated value names
     """
     class AllTrue {
 
-    boolean a, b, c;
+    boolean 'a = true, 'b = true, 'c = false;
 
-    boolean allTrue;
+    boolean 'allTrue = false;
 
     void checkAll() {
       allTrue'reset = true;
@@ -284,7 +284,7 @@ Example: A means statement that is false
     """
     class Swapper4 {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap() {
       int startingA' = 'a;
@@ -296,7 +296,7 @@ Example: A means statement that is false
     } // end class
     """
 
-  Then an error message contains
+  Then the only error message contains
     """
     The code does not support the proof of the statement: b' = 'b
     """

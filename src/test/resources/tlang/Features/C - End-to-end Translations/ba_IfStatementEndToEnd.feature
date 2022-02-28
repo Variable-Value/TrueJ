@@ -23,8 +23,8 @@ Example: Trivial assignments are often ignored in generated code
     """
     class Swapper_2 {
 
-    int a;
-    int b;
+    int 'a;
+    int 'b;
 
     void validSwap() {
       if ('a = 'b) {
@@ -44,8 +44,8 @@ Example: Trivial assignments are often ignored in generated code
     """
     import tlang.runtime.*; @TType class Swapper_2 {
 
-    int a;
-    int b;
+    int /*'*/a;
+    int /*'*/b;
 
     void validSwap() { int $T$a = /*'*/a;
       if ($T$a == /*'*/b) {
@@ -70,8 +70,8 @@ Example: Value names do not need to be defined in the same order in all branches
     """
     class Swapper_3 {
 
-    int a;
-    int b;
+    int 'a;
+    int 'b;
 
     void validSwap() {
       if ('a = 'b) {
@@ -97,8 +97,8 @@ Example: Value names do not need to be defined in the same order in all branches
     """
     import tlang.runtime.*; @TType class Swapper_3 {
 
-    int a;
-    int b;
+    int /*'*/a;
+    int /*'*/b;
 
     void validSwap() { int a$T$temp2; int $T$a = /*'*/a; int a$T$temp1; int b$T$temp2; int b$T$temp1;
       if ($T$a == /*'*/b) {

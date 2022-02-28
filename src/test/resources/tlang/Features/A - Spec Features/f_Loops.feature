@@ -1,4 +1,4 @@
-@Ready
+@InProgress
 Feature: Iteration with the while statement
 
   Iterations loop through a block of code, executing it repeatedly, until a stopping condition is
@@ -30,7 +30,7 @@ Rule: The components of a loop work together
   Here, we will present a simple example. Then, below, we will use the example to explain how the
   different statements help us understand loops and write them correctly.
 
-# @InProgress
+@InProgress
 Example: A simple loop to multiply by adding
 
   The example multiplies two numbers by repeatedly adding.
@@ -48,25 +48,29 @@ Example: A simple loop to multiply by adding
   """
   class Counter {
 
-  int m = 4;
-  int n = 7;
+    int m' = 4;
+    int n' = 7;
 
-  int 'product;
+    int 'product = 0;
 
-  void multiplyByAdding() {
-    product'current = 0;
+    void multiplyByAdding() {
+      product'current = 0;
 
-    loop (int 'i = 0) (product <-- product'current, i <-- 'i) {
-      invar: i <= n  &  product = m * i;
-      var: n - i > 0;
-      while (i < n) {
-        product = product'current + m;
-        i = 'i + 1;
+      loop (product' <-- product'current, i' <-- 'i) {
+        int 'i = 0
+
+        invar: i' <= n';
+        invar: product' = m' * i';
+        var: n' - i' > 0;
+
+        while (i' < n') {
+          product' = product'current + m';
+          i' = 'i + 1;
+        }
+        means: ~(i' < n') & i' <= n' & product' = m' * i';
       }
-    means: ~(i < n) & i <= n & product = m * i;
+      means: product' = m' * n';
     }
-    means: product = m * n;
-  }
 
   }
   """
@@ -180,6 +184,7 @@ Rule: The body must change the variant in the direction of the stopping value
     but usually we can see the direction of change easily, and the compiler will generate an error
     if it cannot prove that the code causes the variant to change in the right direction.
 
+@InProgress
 Example: A variant that changes in the wrong direction
 
   When an invalid compile unit is
@@ -210,7 +215,7 @@ Example: A variant that changes in the wrong direction
   }
   """
 
-  Then an error message contains
+  Then the only error message contains
   """
   The code does not support the required change in the invariant, n - 'i > n - i
   """
@@ -255,6 +260,7 @@ Rule: The invariant is true at the end of the body
         ==>               // because 'i < n < 'i + 1 = i is impossible then n >= i
               i <= n      // first term of invariant
 
+@InProgress
 Example: A variant change that skips over the stopping value
 
   We attempt to be more efficient by adding twice in each iteration, but forget to check that we
@@ -289,7 +295,7 @@ Example: A variant change that skips over the stopping value
   }
   """
 
-  Then an error message contains
+  Then an the only error message contains
   """
   The code does not support the proof of the invariant statement: i <= n
   """
@@ -367,6 +373,7 @@ Rule: The loop variant documents how a stopping value will be reached.
   The variant is not executable code, so we do not test it to actually stop the execution of the next iteration. And sometimes the variant is indirect and less readable, like `var: i'+1 > 0`, while there is a simple and executable stop/continue test that is available, like
   `while (i' >= 0)`. The compiler checks to make sure that this loop condition stops when our variant reaches its stopping value, or, technically, that when the boolean variant expression is false it implies that the boolean loop condition is also false.
 
+@InProgress
 Example: A simple counter
 
   No one would ever need a counter this simple, but here are the bones of counting up to some number in TrueJ.
@@ -404,6 +411,7 @@ Rule:
   The code following the loop can count on the invariant being true, so it must be true before every
   test to see if the loop continues, or even if it begins.
 
+@InProgress
 Example: A missing variant defaults to the loop condition
 
   The syntax for a loop variant is such that for some loops it is identical to the loop condition;
@@ -411,6 +419,7 @@ Example: A missing variant defaults to the loop condition
 
 Rule: The invariant is true at the start of a every test for entering the loop
 
+@InProgress
 Example: The invariant is true on the first test, whether the loop is entered or not
 
   Even when the loop is never executed, we must ensure that the invariant is true.

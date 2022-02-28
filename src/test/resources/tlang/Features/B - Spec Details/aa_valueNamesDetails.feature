@@ -19,7 +19,7 @@ Scenario: The string of characters $T$ is not allowed in identifiers
     """
     class Swap$T$Error {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap() {
       int startingA' = 'a;
@@ -31,7 +31,7 @@ Scenario: The string of characters $T$ is not allowed in identifiers
     } // end class
     """
 
-  Then an error message contains
+  Then the only error message contains
   """
   error at line 1:6 for <Swap$T$Error>: $T$ is reserved for T language internal use only
   """
@@ -41,7 +41,7 @@ Scenario: The string of characters $T$ is not allowed in identifiers
   """
   class SwapError1 {
 
-  int a, b;
+  int 'a, 'b;
 
   void swap() {
     int 'starting = 'a;
@@ -55,11 +55,10 @@ Scenario: The string of characters $T$ is not allowed in identifiers
   } // end class
   """
 
-  Then the error messages are
+  Then the error messages contain
     """
-    Context Checking during testing
-    Context Check error at line 7:2 for <starting'$T$>: $T$ is reserved for T language internal use only
-    Context Check error at line 9:14 for <starting'$T$>: $T$ is reserved for T language internal use only
+    7:2 for <starting'$T$>: $T$ is reserved for T language internal use only
+    9:14 for <starting'$T$>: $T$ is reserved for T language internal use only
 
     """
 
@@ -78,30 +77,26 @@ Scenario: The string of characters $T$ is not allowed in identifiers
 
     } // end class
     """
-  Then the error messages are
+  Then the error messages contain
     """
-    Context Checking during testing
-    Context Check error at line 3:4 for <'a$T$>: $T$ is reserved for T language internal use only
-    Context Check error at line 6:19 for <'a$T$>: $T$ is reserved for T language internal use only
-    Context Check error at line 7:2 for <a$T$'>: $T$ is reserved for T language internal use only
-    Context Check error at line 10:7 for <a$T$'>: $T$ is reserved for T language internal use only
-    Context Check error at line 10:26 for <'a$T$>: $T$ is reserved for T language internal use only
-
+    line 3:4 for <'a$T$>: $T$ is reserved for T language internal use only
+    6:19 for <'a$T$>: $T$ is reserved for T language internal use only
+    7:2 for <a$T$'>: $T$ is reserved for T language internal use only
+    10:7 for <a$T$'>: $T$ is reserved for T language internal use only
+    10:26 for <'a$T$>: $T$ is reserved for T language internal use only
     """
 
 Scenario: A Type name cannot be decorated when it is declared
 
-  Declaration of classes and other types must not be decorated. All static fields must be final.
-  This is because all instances of a class can access its static fields, making a classes mutable
-  static fields a part of the state of its instances. In the future, we might make allowance for
-  mutable static fields that are irrelevant to the objects purpose, with only operational or
-  non-functional purposes, such as logging or reordering items in a list.
+  Declaration of classes and other types must not be decorated because the definition of a type
+  can never change. This error leads to a cascade of other errors as the parser attempts to locate
+  a valid starting point for processing.
 
   When an invalid compile unit is
   """
   class SwapError2' {
 
-  int a, b;
+  int 'a, 'b;
 
   void swap() {
     int starting' = 'a;
@@ -113,17 +108,22 @@ Scenario: A Type name cannot be decorated when it is declared
   } // end class
   """
 
-  Then an error message contains
+  Then the error messages contain
     """
     mismatched input 'SwapError2'' expecting UndecoratedIdentifier in rule t_classDeclaration
+    Parse error at line 5:0 for <[@14,34:37='void',<60>,5:0]>: extraneous input 'void'
+    Parse error at line 7:2 for <[@31,72:73='a'',<74>,7:2]>: extraneous input 'a''
+    Parse error at line 8:2 for <[@38,83:84='b'',<74>,8:2]>: extraneous input 'b''
+    Parse error at line 9:0 for <[@45,99:99='}',<85>,9:0]>: extraneous input '}'
+    Parse error at line 12:0 for <[@65,129:129='}',<85>,12:0]>: extraneous input '}'
     """
-    #  And the error messages are
-    #    """
-    #    Test Parse
-    #    ...
-    #
-    #    """
-
+#TODO
+#Scenario:  All static fields must be final.
+#
+#  This is because all instances of a class can access its static fields, making a classes mutable
+#  static fields a part of the state of its instances. In the future, we might make allowance for
+#  mutable static fields that are irrelevant to the objects purpose, with only operational or
+#  non-functional purposes, such as logging, or reordering items in a list.
 
 Scenario: Initial values of a variable must be correctly decorated
 
@@ -138,7 +138,7 @@ Scenario: Initial values of a variable must be correctly decorated
     """
     class SwapError3 {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap() {
       int startingA' = a'current; // invalid because the initial value of a is 'a
@@ -151,7 +151,7 @@ Scenario: Initial values of a variable must be correctly decorated
     } // end class
 
     """
-  Then an error message contains
+  Then the only error message contains
     """
     Value a'current has not been defined
     """
@@ -160,7 +160,7 @@ Scenario: Initial values of a variable must be correctly decorated
     """
     class SwapError4 {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap() {
       int startingA' = 'a;
@@ -173,7 +173,7 @@ Scenario: Initial values of a variable must be correctly decorated
     } // end class
 
     """
-  Then an error message contains
+  Then the only error message contains
     """
     The value 'a has already been defined on line 3
     """
@@ -204,7 +204,7 @@ Scenario: Initial values of a variable must be correctly decorated
   #
   #  """
   #  ### TODO: RED/GREEN TEST
-  #    Then an error message contains
+  #    Then the only error message contains
   #    """
   #    The final value of field b must be b'
   #  """
@@ -221,9 +221,9 @@ Example: Attempting to give two values to the value-name allTrue'temp
     """
     class AllTrue2 { // invalid class
 
-    boolean a, b, c;
+    boolean 'a, 'b, 'c;
 
-    boolean allTrue;
+    boolean 'allTrue;
 
     void checkAll() {
       allTrue'reset = true;
@@ -236,7 +236,7 @@ Example: Attempting to give two values to the value-name allTrue'temp
     } // end class
     """
 
-  Then an error message contains "allTrue'temp has already been defined on line 9"
+  Then the only error message contains "allTrue'temp has already been defined on line 9"
 
 Scenario: A single valid fact can be proven
 
@@ -244,7 +244,7 @@ Scenario: A single valid fact can be proven
     """
     class SwapAgain1 {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap() {
       int startingA' = 'a;
@@ -263,7 +263,7 @@ Scenario: The prover detects a single invalid fact
     """
     class SwapAgain2 {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap() {
       int startingA' = 'a;
@@ -275,7 +275,7 @@ Scenario: The prover detects a single invalid fact
     } // end class
     """
 
-  Then an error message contains
+  Then the only error message contains
     """
     The code does not support the proof of the statement: b' = 'a
     """
@@ -293,7 +293,7 @@ Scenario: Priority (stikiness) of && and || translate to the Prover correctly
     """
     class SwapAgain3 {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap() {
       int startingA' = 'a;
@@ -330,7 +330,7 @@ Scenario: TODO: Assignment of an equality test requires the equality test to be 
     """
     class assignmentVsEquality {
 
-    int a, b;
+    int 'a, 'b;
 
     void test() {
       boolean fact2' = 'a = 'b;    // Parentheses required for bool assignment: fact2' = ('a = 'b)
@@ -340,7 +340,7 @@ Scenario: TODO: Assignment of an equality test requires the equality test to be 
     } // end class
     """
 
-    Then an error message contains
+    Then the only error message contains
       """
       The right-hand side must be parenthesized to keep the assignment from looking like part of a conjunctive relational expression
       """
@@ -349,7 +349,7 @@ Scenario: TODO: Assignment of an equality test requires the equality test to be 
     """
     class assignmentVsEquality {
 
-    int a, b;
+    int 'a, 'b;
 
     void test() {
       boolean fact2' = ('a = 'b);
@@ -362,7 +362,7 @@ Scenario: TODO: Assignment of an equality test requires the equality test to be 
     } // end class
     """
 
-    Then an error message contains
+    Then the only error message contains
       """
       The code does not support the proof of the statement: fact2' = 'a = 'b
       """
@@ -389,7 +389,7 @@ Scenario: The scope of value names
     """
     class SwapError5 {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap1() {
       a'start = 'a;
@@ -404,18 +404,42 @@ Scenario: The scope of value names
       a' = 'b;
       b' = a'start;
       means: a'start = 'a && a' = 'b && b' = a'start;
-      final means: b' = a'start;
+      final means: a'start = 'a && a' = 'b && b' = a'start;
     }
 
     } // end class
 
     """
-    Then the following are in the error messages
+  Then the error messages contain
     """
-    11:7 for <a'start>: Mid-decorated value names are not allowed in a final means-statement
+    line 11:7 for <a'start>: Mid-decorated value names are not allowed in a final means-statement
     11:39 for <a'start>: Mid-decorated value names are not allowed in a final means-statement
-    18:20 for <a'start>: Mid-decorated value names are not allowed in a final means-statement
+    18:15 for <a'start>: Mid-decorated value names are not allowed in a final means-statement
+    18:47 for <a'start>: Mid-decorated value names are not allowed in a final means-statement
     """
+
+When an invalid compile unit is
+  """
+  class SwapError6 {
+
+    int 'a, 'b;
+
+    void swap1() {
+      a'start = 'a;
+      b' = a'start;
+      final means: b' = 'a;
+      b'start = 'b;
+      a' = b'start;
+    }
+  }
+  """
+Then the error messages contain
+  """
+  line 9:4 for <b'start>: All statements must come before the final means
+  9:14 for <'b>: The value name 'b is not available in this scope (perhaps it needs to be included in the means statement at line 8)
+  9:4 for <b'start>: b' received a final value at line 7, so it cannot receive a new value
+  10:9 for <b'start>: Value b'start has not been defined for the variable b that was declared at line 3
+  """
 
 Scenario: TODO: Back translation of comments requires absence of reserved characters
 
@@ -451,7 +475,7 @@ Scenario: TODO: Back translation of comments requires absence of reserved charac
     #    } // end class
     #    """
     #
-    #  Then an error message contains
+    #  Then the only error message contains
     #  """
     #  ???
     #  """

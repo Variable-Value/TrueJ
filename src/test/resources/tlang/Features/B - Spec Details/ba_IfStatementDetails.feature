@@ -26,7 +26,7 @@ Scenario: The if statement with empty branches
     """
     class EmptyBranches2 {
 
-    int a, b;
+    int 'a, 'b;
 
     void emptyBranches() {
       if (true) ;
@@ -36,7 +36,10 @@ Scenario: The if statement with empty branches
 
     } // end class
     """
-  Then an error message contains "The code does not support the proof of the statement: 'a = 'b"
+  Then the only error message contains
+    """
+    The code does not support the proof of the statement: 'a = 'b
+    """
 
 Scenario: The if statement with nested empty branches
 
@@ -60,7 +63,7 @@ Scenario: The if statement with nested empty branches
     """
     class MultipleEmptyBranches2 {
 
-    int a, b;
+    int 'a, 'b;
 
     void emptyBranches() {
       if (true)
@@ -73,7 +76,10 @@ Scenario: The if statement with nested empty branches
 
     } // end class
     """
-  Then an error message contains "The code does not support the proof of the statement: 'a != 'b"
+  Then the only error message contains
+    """
+    The code does not support the proof of the statement: 'a != 'b
+    """
 
 Scenario: The if statement with one variable
 
@@ -81,9 +87,9 @@ Scenario: The if statement with one variable
     """
     class Rates1 {
 
-    double rate;
+    double 'rate;
 
-    boolean hasDiscount;
+    boolean 'hasDiscount;
 
     void setRate() {
       if ('hasDiscount) rate' = .10;
@@ -106,7 +112,7 @@ Scenario: Two-deep if-statement
   * A valid compile unit is
     """
     class TwoDeepIfNull_1 {
-      Object a;
+      Object 'a;
 
       void testTwoDeepNull() {
         if (true) {
@@ -127,7 +133,7 @@ Scenario: Two-deep if-statement
   * A valid compile unit is
     """
     class TwoDeepIfNull_2 {
-      Object a;
+      Object 'a;
 
       void testTwoDeepNull() {
         if (true) {
@@ -153,7 +159,7 @@ Scenario: Three-deep if-statement
   * A valid compile unit is
     """
     class ThreeDeepIfNull {
-      Object a;
+      Object 'a;
 
       void testTwoDeepNull() {
         if (true) {
@@ -205,7 +211,7 @@ Scenario: A reference to a value name from inside a following branch is to the e
   """
   class UndefinedValueNameOnBranch {
 
-  int a, b;
+  int 'a, 'b;
 
   /** The conditional statement's following branch attemps to use a value name, a'temp, that was
    * defined in the initial branch */
@@ -221,7 +227,13 @@ Scenario: A reference to a value name from inside a following branch is to the e
 
   } // end class
   """
-  Then an error message contains "The value name a'temp was not defined"
+  Then the error messages contain
+    """
+    line 13:9 for <a'temp>: Value a'temp has not been defined for the variable a that was declared at line 3
+    14:2 for <}>: The value name a'temp was not defined in the else-clause
+    """
+
+
 
 Scenario: Defining a value name on all branches of a conditional
 
@@ -231,7 +243,7 @@ Scenario: Defining a value name on all branches of a conditional
   * A valid compile unit is
   """
     class valueNameOnAllPaths {
-      int a;
+      int 'a;
 
     /** Using a valid reference to an value name that was defined on all branches */
     void emptyBranches() {
@@ -254,7 +266,7 @@ Scenario: The condition is available inside the branches of an if-statement
   * A valid compile unit is
   """
   class ConditionAvailablity {
-    int a, b, c;
+    int 'a, 'b, 'c;
 
   void checkBranchConditions() {
     if ('a <= 'b ) {

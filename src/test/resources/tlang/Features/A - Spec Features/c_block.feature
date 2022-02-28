@@ -18,8 +18,8 @@ Scenario: The meaning of a block is the conjunction of the meanings of its seque
     """
     class BlockMeaning1 {
 
-    int a, b;
-    int startingA;
+    int 'a, 'b;
+    int 'startingA;
 
     void swap() {
       startingA' = 'a;
@@ -46,7 +46,7 @@ Scenario: Blocks may be nested
     """
     class BlockMeaning3 {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap() {
       int startingA' = 'a;
@@ -79,7 +79,7 @@ Scenario: A variable's scope encloses the scopes of all its values
     """
     class BlockMeaning4 {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap() {
       int startingA' = 'a;
@@ -94,7 +94,7 @@ Scenario: A variable's scope encloses the scopes of all its values
 
     } // end class
     """
-  Then an error message contains
+  Then the only error message contains
     """
     Variable startingB has not been defined in this scope
     """

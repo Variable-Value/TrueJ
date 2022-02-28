@@ -39,8 +39,11 @@ Scenario: A process's following meaning uses initial and final values
       } // end class
       """
 
-    Then an error message contains "Variable startingA already has its final value"
-    And  an error message contains "Variable b already has its final value"
+    Then an error message contains
+      """
+      Variable startingA already has its final value
+      Variable b already has its final value
+      """
 
   Scenario: A process must define a final value name for every changed value
 

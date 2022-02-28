@@ -24,8 +24,11 @@ Scenario: Final values may not be overwritten
     } // end class
     """
 
-  Then an error message contains "startingA already has its final value"
-  And  an error message contains "Variable b already has its final value"
+  Then the error messages contain
+    """
+    startingA already has its final value
+    Variable b already has its final value
+    """
 
 
 Scenario: Changed fields require a final value name
@@ -50,7 +53,7 @@ Scenario: Changed fields require a final value name
     } // end class
     """
 
-  Then an error message contains
+  Then the only error message contains
     """
     final value of variable a must be a' instead of a'temp
     """

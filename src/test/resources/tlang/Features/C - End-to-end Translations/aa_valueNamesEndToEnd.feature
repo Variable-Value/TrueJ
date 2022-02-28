@@ -31,7 +31,7 @@ Scenario: Insertion of TrueJ runtime import relative to comments
    */
   class Swapper {
 
-  int a, b;
+  int 'a, 'b;
 
   void swap() {
     int startingA' = 'a;
@@ -51,7 +51,7 @@ Scenario: Insertion of TrueJ runtime import relative to comments
      */
     @TType class Swapper {
 
-    int a, b;
+    int /*'*/a, /*'*/b;
 
     void swap() {
       int startingA/*'*/ = /*'*/a;
@@ -71,7 +71,7 @@ Scenario: Insertion of TrueJ runtime import relative to package
     package ttestclass;
     class Swapper {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap() {
       int startingA' = 'a;
@@ -89,7 +89,7 @@ Scenario: Insertion of TrueJ runtime import relative to package
     package ttestclass; import tlang.runtime.*;
     @TType class Swapper {
 
-    int a, b;
+    int /*'*/a, /*'*/b;
 
     void swap() {
       int startingA/*'*/ = /*'*/a;
@@ -109,7 +109,7 @@ Scenario: Insertion of TrueJ runtime import relative to other imports
     import tlang.runtime.* /*ORIGINAL*/;
     class Swapper {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap() {
       int startingA' = 'a;
@@ -127,7 +127,7 @@ Scenario: Insertion of TrueJ runtime import relative to other imports
     import tlang.runtime.*; import tlang.runtime.* /*ORIGINAL*/;
     @TType class Swapper {
 
-    int a, b;
+    int /*'*/a, /*'*/b;
 
     void swap() {
       int startingA/*'*/ = /*'*/a;
@@ -149,7 +149,7 @@ Scenario: Insertion of TrueJ runtime import relative to other imports and packag
     import tlang.runtime.* /*ORIGINAL*/;
     class Swapper {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap() {
       int startingA' = 'a;
@@ -185,7 +185,7 @@ Scenario: Insertion of TrueJ runtime import relative to other imports and packag
     import tlang.runtime.*; import tlang.runtime.* /*ORIGINAL*/;
     @TType class Swapper {
 
-    int a, b;
+    int /*'*/a, /*'*/b;
 
     void swap() {
       int startingA/*'*/ = /*'*/a;
@@ -294,7 +294,7 @@ Scenario: Values have names
     """
     class Swapper {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap() {
       int startingA' = 'a;
@@ -309,9 +309,9 @@ Scenario: Values have names
 
   * Note
     """
-    If there were Java error messages, we would want the line numbers in the error messages to match
-    the TrueJ language line number where the error is. In the following generated Java code you can
-    see that we avoid inserting or deleting lines to keep the TrueJ and Java line numbers
+    If there were Java error messages, we would want the line numbers in the error messages to
+    match the TrueJ language line number where the error is. In the following generated Java code
+    you can see that we avoid inserting or deleting lines to keep the TrueJ and Java line numbers
     synchronized.
     """
 
@@ -319,7 +319,7 @@ Scenario: Values have names
     """
     import tlang.runtime.*; @TType class Swapper {
 
-    int a, b;
+    int /*'*/a, /*'*/b;
 
     void swap() {
       int startingA/*'*/ = /*'*/a;
@@ -589,7 +589,7 @@ Scenario: Values have block scoping
     """
     class Swapper2 {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap() {
       a' = 'b;
@@ -603,7 +603,7 @@ Scenario: Values have block scoping
     """
     import tlang.runtime.*; @TType class Swapper2 {
 
-    int a, b;
+    int /*'*/a, /*'*/b;
 
     void swap() { int $T$a = /*'*/a;
       a/*'*/ = /*'*/b;
@@ -622,11 +622,11 @@ Scenario: Intermediate value names use middle decoration
     """
     class AllTrue {
 
-    boolean a;
-    boolean b;
-    boolean c;
+    boolean 'a;
+    boolean 'b;
+    boolean 'c;
 
-    boolean allTrue;
+    boolean 'allTrue;
 
     void checkAll() {
       allTrue'reset = true;
@@ -644,11 +644,11 @@ Scenario: Intermediate value names use middle decoration
     """
     import tlang.runtime.*; @TType class AllTrue {
 
-    boolean a;
-    boolean b;
-    boolean c;
+    boolean /*'*/a;
+    boolean /*'*/b;
+    boolean /*'*/c;
 
-    boolean allTrue;
+    boolean /*'*/allTrue;
 
     void checkAll() {
       allTrue/*'reset*/ = true;
@@ -661,6 +661,54 @@ Scenario: Intermediate value names use middle decoration
     } // end class
     """
 
+
+Scenario: Using no final decoration for a non-final field
+
+    We repeat the previous Scenario using undecorated final values, even though the fields were
+    declared as initial decorated. We use final value names in the method because the values are
+    never changed in the method.
+
+  When a valid compile unit is
+    """
+    class AllTrue {
+
+    boolean 'a;
+    boolean 'b;
+    boolean 'c;
+
+    boolean 'allTrue;
+
+    void checkAll() {
+      allTrue'reset = true;
+      allTrue'thruA = allTrue'reset && a;
+      allTrue'thruB = allTrue'thruA && b;
+      allTrue       = allTrue'thruB && c;
+    }
+    means: allTrue = (a && b && c); // equality is stickier than &&
+
+    } // end class
+    """
+
+  Then the Java operational compile unit is
+    """
+    import tlang.runtime.*; @TType class AllTrue {
+
+    boolean /*'*/a;
+    boolean /*'*/b;
+    boolean /*'*/c;
+
+    boolean /*'*/allTrue;
+
+    void checkAll() {
+      allTrue/*'reset*/ = true;
+      allTrue/*'thruA*/ = allTrue/*'reset*/ && a;
+      allTrue/*'thruB*/ = allTrue/*'thruA*/ && b;
+      allTrue       = allTrue/*'thruB*/ && c;
+    }
+    /*$T$* means: allTrue = (a && b && c); *$T$*/ // equality is stickier than &&
+
+    } // end class
+    """
 
 Scenario: Assignments with no operational effect are commented out in Java
 
@@ -712,9 +760,9 @@ Scenario: A reused value is saved immediately before it is overwritten
     """
     class Swapper2 {
 
-    int a, b;
+    int 'a, 'b;
 
-    void swap() {  // We copy 'b
+    void swap() {  // We first copy 'b, because it will be overwritten
       b'temp = 'a; // 'b is being overwritten, but we have already copied it
       a'temp = 'b; // 'b was overwritten with b'temp, so we use the copy of 'b, and we copy a'temp
       a' = b'temp; // a'temp is being overwritten, but we have already copied it
@@ -728,9 +776,9 @@ Scenario: A reused value is saved immediately before it is overwritten
     """
     import tlang.runtime.*; @TType class Swapper2 {
 
-    int a, b;
+    int /*'*/a, /*'*/b;
 
-    void swap() { int a$T$temp; int $T$b = /*'*/b;  // We copy 'b
+    void swap() { int a$T$temp; int $T$b = /*'*/b;  // We first copy 'b, because it will be overwritten
       b/*'temp*/ = /*'*/a; // 'b is being overwritten, but we have already copied it
       a/*'temp*/ = $T$b; a$T$temp = a/*'temp*/; // 'b was overwritten with b'temp, so we use the copy of 'b, and we copy a'temp
       a/*'*/ = b/*'temp*/; // a'temp is being overwritten, but we have already copied it
@@ -752,7 +800,7 @@ Scenario: Comments inside code that is commented out are adjusted
     """
     class SwapSomeMore {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap() {
       int startingA' = 'a;
@@ -774,7 +822,7 @@ Scenario: Comments inside code that is commented out are adjusted
     """
     import tlang.runtime.*; @TType class SwapSomeMore {
 
-    int a, b;
+    int /*'*/a, /*'*/b;
 
     void swap() {
       int startingA/*'*/ = /*'*/a;

@@ -83,7 +83,7 @@ Example: Using a final means-statement to show the intent of the commands in a b
     """
     class Status1 {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap() {
       int startingA' = 'a;
@@ -116,7 +116,7 @@ Example: A value-name must be referenced in a means-statement to be meaningful i
     """
     class Status2 {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap() {
       int startingA' = 'a;
@@ -130,8 +130,8 @@ Example: A value-name must be referenced in a means-statement to be meaningful i
     """
   Then the error messages contain
     """
-    9:7 for <startingA'>: The value name startingA' was eclipsed by the means statement at line 8
-    10:24 for <'a>: The value name 'a was eclipsed by the means statement at line 8
+    line 9:7 for <startingA'>: The value name startingA' is not available in this scope (perhaps it needs to be included in the means statement at line 8)
+    10:24 for <'a>: The value name 'a is not available in this scope (perhaps it needs to be included in the means statement at line 8)
     """
 
 Example: A means-statement can eclipse facts that are then unavailable in following code
@@ -139,7 +139,7 @@ Example: A means-statement can eclipse facts that are then unavailable in follow
   The compiler can also forget a fact that it needs about a value name while remembering that the
   value name exists. This happens when the programmer references some other fact about the value
   name in a means statement, but not the fact that they need in order to support following
-  statements. We show this in an example that uses
+  statements. We show this in an example that uses transitivity in the equivalence chain
 
       b' = startingA' = 'a
 
@@ -160,7 +160,7 @@ Example: A means-statement can eclipse facts that are then unavailable in follow
     """
     class Status2 {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap() {
       int startingA' = 'a;
@@ -191,13 +191,15 @@ Rule: The compiler remembers type information for a variable after a _means_-sta
 
 Example: A new value of a variable can be defined after a means-statement
 
-  References can be eclipsed by a means statement, but the type of a variable is remembered, so that new values for that variable can be defined. In this example we eclipse the only value of the variable startingB, but we are still able to define the new value startingB'.
+  References can be eclipsed by a means statement, but the type of a variable is remembered, so that
+  new values for that variable can be defined. In this example we eclipse the only value of the
+  variable startingB, but we are still able to define the new value startingB'.
 
   * a valid compile unit is
     """
     class BlockMeaning2a {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap() {
       int startingA' = 'a;
@@ -221,7 +223,7 @@ Example: The compiler remembers facts from a surrounding block once it returns t
     """
     class BlockMeaning5 {
 
-    int a, b;
+    int 'a, 'b;
 
     void swap() {
       int startingA' = 'a;
