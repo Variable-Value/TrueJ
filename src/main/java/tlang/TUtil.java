@@ -20,6 +20,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
+import static tlang.TCompiler.*;
 import static tlang.TLantlrParser.*;
 
 /**
@@ -230,22 +231,20 @@ final public static boolean isInitialDecorated(String valueName) {
   return valueName.startsWith(decoratorString); // e.g., 'abc
 }
 
-final public static boolean hasCorrectFinalDecoration(Token valueToken) {
-  return ! TCompiler.isRequiringDecoratedFinalValue && isUndecorated(valueToken)
-      || isFinalDecorated(valueToken);
-}
-
-final public static boolean hasCorrectFinalDecoration(String valueName) {
-  return ! TCompiler.isRequiringDecoratedFinalValue && isUndecorated(valueName)
-      || isFinalDecorated(valueName);
-}
-
 final public static boolean isFinalDecorated(Token valueToken) {
   return valueToken.getType() == PostValueName; // e.g., abc'
 }
 
 final public static boolean isFinalDecorated(String valueName) {
   return valueName.endsWith(decoratorString) ; // e.g., abc'
+}
+
+public static boolean isAFinalValueName(Token valueName) {
+  return isUndecorated(valueName) || isFinalDecorated(valueName);
+}
+
+public static boolean isAFinalValueName(String valueName) {
+  return isUndecorated(valueName) || isFinalDecorated(valueName);
 }
 
 public static void printMap(java.util.Map<String, String> map) {
@@ -292,7 +291,7 @@ static <T> boolean isNull(@Nullable T object) {
  */
 @SuppressWarnings({"null", "unused"})
 private static <T> @NonNull T notNull(@Nullable T item) {
-  return item;
+  return (@NonNull T)item;
 }
 
 
@@ -416,6 +415,5 @@ TCompilerCounts {
     return msg.toString();
   }
 } // end nested class TCompilerCounts
-
 
 } // end class TUtil

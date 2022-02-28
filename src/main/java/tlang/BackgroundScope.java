@@ -28,7 +28,7 @@ public BackgroundScope(String backgroundLabel, Scope topLevelScope) {
   this.topLevelScope = notNull(topLevelScope);
 }
 
-/** The parent of a BackGroundScope is not an executable, so do nothing */
+/** The parent of a BackGroundScope is not part of an executable, so do nothing */
 @Override
 public void makeNewValueNamesAvailableToParent() {
   //  do nothing
@@ -112,14 +112,16 @@ public Optional<VarInfo> getOptionalExistingVarInfo(String varName) {
 }
 
 private VarInfo shadowingInfoFor(String varName) {
-  VarInfo topLevelVarInfo = notNull(topLevelScope.getExistingVarInfo(varName));
-  VarInfo shadowingInfo = new VarInfo(topLevelVarInfo);
+  VarInfo fieldVarInfo = notNull(topLevelScope.getExistingVarInfo(varName));
+  VarInfo shadowingInfo = new VarInfo(fieldVarInfo);
+  String valueName;
   if (shadowingInfo.isFirstReferenceToUninitializedField()) {
-    String valueName = decorator + varName;
+    valueName = decorator + varName;
     shadowingInfo.defineNewValue(valueName, shadowingInfo.getLineWhereDeclared());
-    this.makeValueAvailable(valueName);
-    shadowingInfo.setCurrentValueName(valueName);
+  } else {
+    valueName = shadowingInfo.getCurrentValueName();
   }
+  this.makeValueAvailable(valueName);
   return shadowingInfo;
 }
 
@@ -170,7 +172,7 @@ private VarInfo shadowingInfoFor(String varName) {
  */
 @SuppressWarnings("null")
 private static <T> @NonNull T notNull(@Nullable T item) {
-  return item;
+  return (@NonNull T)item;
 }
 
 

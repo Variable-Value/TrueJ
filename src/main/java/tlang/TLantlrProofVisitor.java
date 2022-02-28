@@ -255,14 +255,15 @@ private boolean isBooleanIdentifier(T_identifierContext targetCtx) {
 }
 
 /**
- * Gives the predicate needed to equate the returned expression to the value-name that represents
+ * Gives the predicate needed to equate the returned expression to the value name that represents
  * the returned value, which may be either <code>return'</code> or <code>return</code>
  *
- * Note that the single quote marks "'" are part of the prolog name, not decorators.
+ * Note that the single quote marks ' are not decorators, but enclose the prolog name, and the
+ * decorator is the caret character ^.
  */
 private String returnExpression(String returnedExpression) {
   String decoratedReturn = "'" + getScopePrefix("return") + "return^'";
-  if (TCompiler.isRequiringDecoratedFinalValue)
+  if (TCompiler.isFinalDecorationRequired())
     return    parenthesize(decoratedReturn +" = "+ returnedExpression);
   else
     return    parenthesize(decoratedReturn +" = "+ returnedExpression)
@@ -751,7 +752,7 @@ private void withChildOfKb(Runnable acceptFunction) {
  */
 @SuppressWarnings("null")
 private static <T> @NonNull T notNull(@Nullable T item) {
-  return item;
+  return (@NonNull T)item;
 }
 
 } // end class

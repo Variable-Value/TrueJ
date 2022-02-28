@@ -8,6 +8,8 @@ import java.util.ArrayDeque;
 import java.util.stream.Collectors;
 import alice.tuprolog.*;
 import alice.tuprolog.event.*;
+import alice.tuprolog.lib.InvalidObjectIdException;
+import alice.tuprolog.lib.OOLibrary;
 import org.eclipse.jdt.annotation.*;
 
 
@@ -126,8 +128,8 @@ import org.eclipse.jdt.annotation.*;
 //@formatter:on
 public class KnowledgeBase {
 
-enum SolverInTestMode {on,off}
-SolverInTestMode testMode = SolverInTestMode.off;
+public enum SolverInTestMode {on,off}
+public SolverInTestMode testMode = SolverInTestMode.off;
 
 /** Is the prolog engine printing its output? */
 private static boolean isDebugging = false;
@@ -269,6 +271,27 @@ public void assume(String fact) {
   facts.push(fact);
 }
 
+/** Add a fact to the knowledge base that is expected to be consistent with the current facts. To
+ * avoid using a try statement, you can the following code instead.
+ * <pre><code>
+ *   ConsistencyResult consistency = {@link #checkForConsistency(statement)};
+ *   if (consistency = ConsistencyResult.consistent)
+ *     {@link #assume(statement)};
+ *   else
+ *     ...
+ * </code></pre>
+ *
+ * @param statement
+ * @throws InvalidConsistencyResultException
+ */
+public void assumeIfConsistent(String statement) throws InvalidConsistencyResultException {
+  ConsistencyResult consistencyResult = checkConsistency(statement);
+  if (consistencyResult == ConsistencyResult.consistent)
+    assume(statement);
+  else
+    throw new InvalidConsistencyResultException(consistencyResult, statement);
+}
+
 /** Checks whether a statement is consistent with the {@link KnowledgeBase} facts and adds it
  * to the list of facts if it returns {@link ConsistencyResult#consistent} or
  * {@link ConsistencyResult#reachedLimit}.
@@ -279,14 +302,29 @@ public void assume(String fact) {
  *    trivially inconsistent and can prove anything.
  * @param newText
  * @return a {@link ConsistencyResult}
+ * @throws InvalidConsistencyResultException
  */
-public ConsistencyResult assumeUnlessInconsistent(String newText) {
+public ConsistencyResult assumeUnlessInconsistent(String newText)
+      throws InvalidConsistencyResultException
+{
   ConsistencyResult c = checkConsistency(newText);
-  if ( c == ConsistencyResult.consistent || c == ConsistencyResult.reachedLimit) {
+  if ( c == ConsistencyResult.consistent || c == ConsistencyResult.reachedLimit)
     assume(newText);
-  }
+  else
+      throw new InvalidConsistencyResultException(c, newText);
   return c;
 }
+
+public class InvalidConsistencyResultException extends Exception {
+private ConsistencyResult consistency;
+/*getter*/ public ConsistencyResult getStatus() { return consistency; }
+
+InvalidConsistencyResultException(ConsistencyResult consistency, String msg) {
+    super("The new fact: "+ msg +"\n is not provably consistent: " + consistency);
+    this.consistency = consistency;
+  }
+}
+
 /** return the conjunction of all the current statements in the KnowledgeBase. This would be useful
  * for summarizing and reporting blocks that do not have a final means, and internally, to construct
  * the statement that is sent to the prover for checking consistency.
@@ -528,37 +566,6 @@ private void restoreState(ArrayDeque<String> deque) {
   facts = deque;
 }
 
-/** Add a fact to the knowledge base that is expected to be consistent with the current facts. To
- * avoid using a try statement, you can the following code instead.
- * <pre><code>
- *   ConsistencyResult consistency = {@link #checkForConsistency(statement)};
- *   if (consistency = ConsistencyResult.consistent)
- *     {@link #assume(statement)};
- *   else
- *     ...
- * </code></pre>
- *
- * @param statement
- * @throws InvalidConsistencyResultException
- */
-public void assumeIfConsistent(String statement) throws InvalidConsistencyResultException {
-  ConsistencyResult consistencyResult = checkConsistency(statement);
-  if (consistencyResult == ConsistencyResult.consistent)
-    assume(statement);
-  else
-    throw new InvalidConsistencyResultException(consistencyResult);
-}
-
-public class InvalidConsistencyResultException extends Exception {
-  private ConsistencyResult consistency;
-  /*getter*/ public ConsistencyResult getStatus() { return consistency; }
-
-  InvalidConsistencyResultException(ConsistencyResult consistency) {
-    super("The new fact is not provably consistent: " + consistency);
-    this.consistency = consistency;
-  }
-}
-
 /** Create a single string with all the statements from the stack conjoined. Each statement from the
  * stack is enclosed in parentheses to make sure that the whole statement associates with the AND.
  * @param stack A Deque of first-order predicate calculus statements
@@ -613,26 +620,28 @@ static private void ensurePrologEngine() {
 //                           };
     try {
       engine = new Prolog(libs);
-    } catch (InvalidLibraryException e) {
+//      OOLibrary lib = (OOLibrary)engine.getLibrary("alice.tuprolog.lib.OOLibrary");
+//      lib.register(new Struct("stdout"), System.out);
+    } catch (InvalidLibraryException e) { //(InvalidLibraryException | InvalidObjectIdException e) {
       e.printStackTrace();
     }
     engine.addOutputListener(  new OutputListener()
       { @Override
-      public void onOutput(OutputEvent e) {
+      public void onOutput(@Nullable OutputEvent e) {
           postToStdOut("\n"+ e.getMsg(), isDebugging);
         }
       }
     );
     engine.addExceptionListener(new ExceptionListener()
       { @Override
-      public void onException(ExceptionEvent e) {
+      public void onException(@Nullable ExceptionEvent e) {
           postToStdOut("\n***** EXCEPTION: "+ e.getMsg(), isDebugging);
         }
       }
     );
     engine.addWarningListener(new WarningListener()
       { @Override
-      public void onWarning(WarningEvent e) {
+      public void onWarning(@Nullable WarningEvent e) {
           postToStdOut("\n"+ e.getMsg(), isDebugging);
         }
       }
@@ -641,8 +650,9 @@ static private void ensurePrologEngine() {
 }
 
 static private void postToStdOut(String msg, boolean... shouldPostToSysout) {
+//  System.out.println("RUNNING METHOD postToStdOut( <"+ msg +">, "+ shouldPostToSysout[0] +")");
   prologStdOut = prologStdOut + msg;
-  if (shouldPostToSysout.length > 0 && shouldPostToSysout[0] == true)
+//  if (shouldPostToSysout.length > 0 && shouldPostToSysout[0] == true)
     System.out.print(msg);
 }
 
@@ -651,7 +661,7 @@ private static void setTheories() {
     setAFileTheory(new File(relativePrologDir +"mydebug.prolog"));
     addAFileTheory(new File(relativePrologDir +"nnf.pl"));
     addAFileTheory(new File(relativePrologDir +"etleantap.pl"));
-    addAFileTheory(new File(relativePrologDir +"tLangProof.prolog"));
+//    addAFileTheory(new File(relativePrologDir +"tLangProof.prolog"));
   } catch (InvalidTheoryException theoryException) {
     theoryException.printStackTrace();
   } catch (IOException io) {
@@ -685,8 +695,9 @@ private static void addATheory(Theory th, File thFile) throws InvalidTheoryExcep
     throw improveMsg(thFile, e);
   }
 }
-private static InvalidTheoryException improveMsg(File thFile, InvalidTheoryException e)
-    throws InvalidTheoryException {
+
+//TODO: Point to previous exception in the new exception
+private static InvalidTheoryException improveMsg(File thFile, InvalidTheoryException e) {
   final String msg = "at "+ thFile.getName() +" line "+ e.line +":"+ (1+e.pos) +" - "
       + e.getLocalizedMessage();
   return new InvalidTheoryException(msg);
@@ -709,8 +720,8 @@ public boolean equals(KnowledgeBase otherKB) {
   if (this.parentKB != otherKB.parentKB || this.facts.size() != otherKB.facts.size())
     return false;
 
-  String[] thisFacts = this.facts.toArray(new String[this.facts.size()]);
-  String[] otherFacts = otherKB.facts.toArray(new String[otherKB.facts.size()]);
+  String[] thisFacts = this.facts.toArray(new @NonNull String[this.facts.size()]);
+  String[] otherFacts = otherKB.facts.toArray(new @NonNull String[otherKB.facts.size()]);
   for (int i = 0; i < thisFacts.length; i++)
     if (thisFacts[i] != otherFacts[i])
       return false;

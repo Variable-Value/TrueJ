@@ -45,11 +45,11 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.antlr.v4.runtime.DiagnosticErrorListener;
 import org.antlr.v4.runtime.RuleContext;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.atn.PredictionMode;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.eclipse.jdt.annotation.NonNull;
-
 import tlang.TUtil.TCompilerCounts;
 import static tlang.TUtil.*;
 
@@ -72,8 +72,55 @@ private static List<String> javaCompilerOptions = new ArrayList<>();
 static boolean xDiagnostics                        = false;
 static boolean xJavaTestOption                     = false;
 static boolean isGeneratedFilesDirectoryRequested  = false;
-static boolean isRequiringDecoratedFinalValue       = false;
 static boolean isCompileUnitInCommandLine          = false;
+
+private static int finalDecorationSetOnLine = 0;
+  static int finalDecorationLine() { return finalDecorationSetOnLine;}
+
+private static String finalDecorationValue = "";
+  static String finalDecorationValue() {return finalDecorationValue;}
+
+private static enum FinalDecoration {Open, Required, Prohibited}
+private static FinalDecoration finalDecRequired = FinalDecoration.Open;
+// finalDecorationSetOnLine = 0   ===   finalDecRequired = Open
+
+
+  static FinalDecoration getFinalDecorationState() {return finalDecRequired;}
+  static void requireFinalDecoration(Token valueNameToken) {
+    finalDecRequired= FinalDecoration.Required;
+    finalDecorationSetOnLine = valueNameToken.getLine();
+    finalDecorationValue = valueNameToken.getText();
+  }
+  static void prohibitFinalDecoration(Token valueNameToken) {
+    finalDecRequired= FinalDecoration.Prohibited;
+    finalDecorationSetOnLine = valueNameToken.getLine();
+    finalDecorationValue = valueNameToken.getText();
+  }
+  static void resetFinalDecorationToOpen() {
+    finalDecRequired= FinalDecoration.Open;
+    finalDecorationSetOnLine = 0;
+    finalDecorationValue = "";
+  }
+  static boolean isFinalDecorationRequired()   {
+    return finalDecRequired == FinalDecoration.Required;
+  }
+  static boolean isFinalDecorationProhibited() {
+    return finalDecRequired == FinalDecoration.Prohibited;
+  }
+  static boolean isFinalDecorationOpen() {
+    return finalDecRequired == FinalDecoration.Open;
+  }
+
+private static boolean isFinalDecorationSwitchSet = false;
+
+  static boolean isSwitchSetForFinalDecoration() {return isFinalDecorationSwitchSet;}
+  static void setSwitchToFinalDecoration() {
+    isFinalDecorationSwitchSet = true;
+  }
+  static void setSwitchOffForFinalDecoration() {
+    isFinalDecorationSwitchSet = false;
+  }
+
 
 static String commandLineCompileUnit = "";
 
@@ -124,6 +171,7 @@ static TCompiler runTrueJCompiler(String[] args) throws IOException, Interrupted
 
     private void
 sequentialParse(String[] fileNames) throws IOException, InterruptedException {
+  resetFinalDecorationToOpen();
   JavaFileHandler javaCollector
     = new JavaFileHandler( generatedJavaDir, javaCompilerOptions);
   msgCollector.clear();
@@ -370,7 +418,7 @@ saveGenerated( JavaFileHandler javaCollector
               if (depth < 1)
                 throw new NumberFormatException("Positive integer required");
               msgCollector.setTraceBackSize(depth);
-            } catch (@SuppressWarnings("unused") NumberFormatException e) {
+            } catch (NumberFormatException e) {
               exitWithCommandLineFormatError(args,
                      "ERROR: Invalid traceback depth after '-traceback'"
                   + "\n " + e.getMessage() );
@@ -396,10 +444,14 @@ saveGenerated( JavaFileHandler javaCollector
               exitWithCommandLineFormatError(args,
                     "ERROR: The compile unit code is missing after '-unit'");
             break;
-          case "-decorateFinal"    : isRequiringDecoratedFinalValue = true; break;
+          case "-decorateFinal"    :
+            setSwitchToFinalDecoration();
+            break;
           case "-wg":
-          case "-Xjavatest" : xJavaTestOption               = true; break;
-          case "-Xdiagnostics"     : xDiagnostics                  = true; break;
+          case "-Xjavatest"    : xJavaTestOption = true;
+            break;
+          case "-Xdiagnostics" : xDiagnostics    = true;
+            break;
           // Java Flag options listing all flags for javac that have parameters
           //   case "-X":
           //   case "-XXXX":

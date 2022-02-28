@@ -64,8 +64,24 @@ private Set<String> valuesAvailable = new HashSet<>();
 // *** end valuesAvailable methods ***
 
 
+private boolean isInstanceScope = false;
+
+void setAsInstanceScope() {
+  isInstanceScope = true;
+}
+boolean isInstanceScope() {
+  return isInstanceScope;
+}
 
 
+private boolean isStaticScope = false;
+
+void setAsStaticScope() {
+  isStaticScope = true;
+}
+boolean isStaticScope() {
+  return isStaticScope;
+}
 
 /** Map from a variable name to its information, if the variable is declared in this scope */
 protected Map<String, @Nullable VarInfo> varToInfoMap = new HashMap<>();
@@ -101,50 +117,49 @@ public Scope(String scopeLabel, Scope parent) {
 
 /**
  * Track the information for an initialized field.
- * @return an Optional with the new field information. An empty Optional means that the field
- *         variable name already exists.
+ * Assumption: the field name does not already exist. If it does, a programmer error is thrown.
  */
-public Optional<VarInfo> declareInitializedFieldName(Token valueNameToken, String type) {
-  String valueName = notNull(valueNameToken.getText());
+public void declareInitializedFieldName
+    ( Token   valueNameToken
+    , String  valueName       // may have been modified before calling this method
+    , String  type
+    ) {
   String varName = variableName(valueName);
-  VarInfo existingVarInfo = varToInfoMap.get(varName);
-  final boolean varIsNew = (existingVarInfo == null);
-  if (varIsNew) {
-    final int declarationLine = valueNameToken.getLine();
-    VarInfo newVarInfo = new VarInfo(this, declarationLine, type, valueName);
-    varToInfoMap.put(varName, newVarInfo);
-    return notNull(Optional.of(newVarInfo));
-  } else {
-    return notNull(Optional.empty());
+  if (varToInfoMap.containsKey(varName)) {
+    programError("Attempting to declare a field name that already exists");
+  } else
+    varToInfoMap.put(varName, new VarInfo(this, valueNameToken.getLine(), type, valueName));
+}
+
+private static void programError(String message) {
+  try {
+    throw new Exception("PROGRAMMING ERROR: "+ message);
+  } catch (Exception e) {
+    e.printStackTrace();
   }
 }
 
-//TODO: REMOVE
-//void printScopesValuesAvailable() {
-//  System.out.println();
-//  System.out.println("\nMembers of Scope: "+ getLabel() +" are");
-//  for (String val:valuesAvailable)
-//    System.out.println("  "+ val);
-//  System.out.println("  ----------");
-//  for (VarInfo varInfo:varToInfoMap.values())
-//    for (String val:varInfo.definedValues())
-//      System.out.println("  "+ val);
-//  System.out.println("  ----------");
-//}
-
-
+//  VarInfo existingVarInfo = varToInfoMap.get(varName);
+//  final boolean varIsNew = (existingVarInfo == null);
+//  if (varIsNew) {
+//    final int declarationLine = valueNameToken.getLine();
+//    VarInfo newVarInfo = new VarInfo(this, declarationLine, type, valueName);
+//    varToInfoMap.put(varName, newVarInfo);
+//  } else {
+//    throw new Exception("PROGRAMMING ERROR: Attempting to delare a field name that already exists");
+//  }
 
 /** Track the information for an uninitialized field.
  * @return an Optional with the new field information. An empty Optional means that the field
  *         variable name already exists. */
-public Optional<VarInfo> declareUninitializedVariableFieldName(Token variableToken, String type) {
-  String varName = notNull(variableToken.getText());
-  String nullValueName = null;
+public Optional<VarInfo> declareUninitializedFieldName(Token variableToken, String type) {
+  String valueName = variableToken.getText();
+  String varName = variableName(valueName);
   VarInfo existingVarInfo = varToInfoMap.get(varName);
   boolean varIsNew = (existingVarInfo == null);
   if (varIsNew) {
     final int declarationLine = variableToken.getLine();
-    VarInfo newVarInfo = new VarInfo(this, declarationLine, type, nullValueName);
+    VarInfo newVarInfo = new VarInfo(this, declarationLine, type, valueName);
     varToInfoMap.put(varName, newVarInfo);
     return notNull(Optional.of(newVarInfo));
   } else {
@@ -322,7 +337,7 @@ void clear() {
  */
 @SuppressWarnings("null")
 private static <T> @NonNull T notNull(@Nullable T item) {
-  return item;
+  return (@NonNull T)item;
 }
 
   // inner
@@ -380,17 +395,20 @@ private static <T> @NonNull T notNull(@Nullable T item) {
      * a field.
      */
     public void defineNewValue(String valueName, int definitionLine) {
-      setCurrentValueName(valueName);
-      valueToLineMap.put(valueName, definitionLine);
+      if (getCurrentValueName() == "" || ! isAFinalValueName(getCurrentValueName())) {
+        setCurrentValueName(valueName);
+        valueToLineMap.put(valueName, definitionLine);
+      }
     }
 
     public void defineNewValue(Token valueNameToken) {
       defineNewValue(notNull(valueNameToken.getText()), valueNameToken.getLine());
     }
 
-    /** @param valueName
-     * @return           The line where the valueName was given a value. */
-    public Integer lineOf(String valueName) {
+    /**
+     * Returns the line number where the valueName was given a value.
+     */
+    public @Nullable Integer lineOf(String valueName) {
       return valueToLineMap.get(valueName);
     }
 
@@ -428,18 +446,32 @@ private static <T> @NonNull T notNull(@Nullable T item) {
      * collection. Because this data will never be used again the nulls do not violate any null
      * checking.
      */
-    /*TODO: Create a base object for VarInfo that does not have these objects and use a copy
-     * constructor here to go from VarInfo to the base object. This would get rid of the unwanted
-     * objects that are contained in VarInfo and still prevent a downstream program from attempting
-     * to use them.
-     */
-    @SuppressWarnings("null")
-    // null suppressed so we can use null to free up unneeded objects for garbage collection
     public void clearForCodeGen() {
     // We need valueToLineMap for setting the type for all values in prover
     //    valueToLineMap.clear();
     //    valueToLineMap   = null;
       currentValueName = "";
+    }
+
+    public String varName() {
+      return variableName(currentValueName);
+    }
+
+    void removeLineInfo(String valueName) {
+      valueToLineMap.remove(valueName);
+    }
+
+    boolean hasClassScope() {
+      return scopeWhereDeclared instanceof BackgroundScope
+          || scopeWhereDeclared.isInstanceScope()
+          || scopeWhereDeclared.isStaticScope();
+    }
+
+    static boolean hasClassScope(Scope.VarInfo varInfo) {
+      Scope scopeWhereDeclared = varInfo.getScopeWhereDeclared();
+      return scopeWhereDeclared instanceof BackgroundScope
+          || scopeWhereDeclared.isInstanceScope()
+          || scopeWhereDeclared.isStaticScope();
     }
 
     /** Free all data for garbage collection. */
@@ -452,15 +484,12 @@ private static <T> @NonNull T notNull(@Nullable T item) {
       reusedValueNames = null;
     }
 
-    public String varName() {
-      return variableName(currentValueName);
+    @Override
+    public String toString() {
+      return this.currentValueName +":"+ this.type +" in scope "+ this.scopeWhereDeclared;
     }
 
-    void removeLineInfo(String valueName) {
-      valueToLineMap.remove(valueName);
-    }
-
-  } // end inner class
+  } // end inner class VarInfo
 
 
 } // end class

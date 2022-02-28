@@ -360,7 +360,7 @@ public String toString() {
  */
 @SuppressWarnings("null")
 private static <T> @NonNull T notNull(@Nullable T item) {
-  return item;
+  return (@NonNull T)item;
 }
 
 

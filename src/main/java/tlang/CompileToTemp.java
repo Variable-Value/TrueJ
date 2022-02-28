@@ -70,7 +70,7 @@ public CompileToTemp(CollectingMsgListener msgCollector) throws IOException {
 /**
  * @param javaClassName Qualified name of the Visible Class, e.g., <pre>tryit.testit.SimpleClass</pre>
  * @param javaClassSource Full source of the compile unit, e.g., <pre>package tryit.testit; class SimpleClass {}</pre>
- * @param options
+ * @param options TrueJ options javac options
  */
 boolean compileString(String javaClassName, String javaClassSource, Iterable<String> options, StringWriter compilerOutput) {
   List<JavaSourceFromString> compilationUnits

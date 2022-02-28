@@ -64,17 +64,19 @@ visitT_classDeclaration(T_classDeclarationContext classCtx) {
   Scope localParent = currentScope;
 
   String classStaticScopeName = classCtx.UndecoratedIdentifier().getText();
-  Scope classScope= new Scope(classStaticScopeName, scopeParentLeftNullHere);
+  Scope staticScope= new Scope(classStaticScopeName, scopeParentLeftNullHere);
     /* For classes that are at the top level in their compile unit, a null parent indicates that
      * they are a top level class. For inner classes, the correct enclosing scope will be determined
      * during the ContextCheckVisitor.
      *
      * TODO: Create a test and implement the inner-class parent
      * assignment. */
-  currentScope = new Scope("this", classScope); // instance scope
+  staticScope.setAsStaticScope();
+  currentScope = new Scope("this", staticScope); // instance scope
+  currentScope.setAsInstanceScope();
   scopeMap.put(classCtx, currentScope);                                         // push
-    // note that static fields will need to be defined with
-    // currentScope.parent.declareFieldName(fieldId, idDeclarationCtx.idType)
+    // TODO: note that STATIC fields will need to be defined with
+    // classScope.declareFieldName(fieldId, idDeclarationCtx.idType)
 
   visitChildren(classCtx);
 
@@ -117,42 +119,55 @@ public Void visitT_interfaceDeclaration(T_interfaceDeclarationContext ctx) {
 @Override
 public Void visitInitializedField(InitializedFieldContext initializedCtx) {
   Token fieldId = notNull(initializedCtx.getStart());
-  var newFieldInfo = currentScope.declareInitializedFieldName(fieldId, initializedCtx.idType);
-  if ( newFieldInfo.isEmpty() ) {
+  String valueName = fieldId.getText();
+  String varName = variableName(valueName);
+  //TODO: create currentScopeNull object that generates exceptions
+  if (currentScope.isVariableDefinedInThisScope(varName)) {
     issueErrorForPreviouslyDeclared(fieldId);
   } else {
-//  if (declarationHasFinalModifier) {
-//    <check for either undecorated or final decorated>
-//    currentScope.makeValueAvailable(varOrValueName);
-//  }
-//  else {
-
-    currentScope.makeValueAvailable(fieldId.getText());
+    currentScope.declareInitializedFieldName(fieldId, valueName, initializedCtx.idType);
+    if (TUtil.isMidDecorated(valueName)) {
+      errs.collectError(program, fieldId, "The field name "+ valueName
+          + " must be changed to an initial or final value name.");
+      // kludge a valid value name in hopes of issuing additional meaningful errors
+      valueName = decoratorString + varName;
+    }
+    currentScope.makeValueAvailable(valueName);
   }
   return VOIDNULL;
 }
 
+//  var newInfo = currentScope.declareInitializedFieldName(fieldId, valueName, initializedCtx.idType);
+//  if ( newInfo.isEmpty() ) {
+//    issueErrorForPreviouslyDeclared(fieldId);
+//  } else {
+//      if (TUtil.isMidDecorated(valueName)) {
+//        errs.collectError(program, fieldId, "The field name "+ valueName
+//                                           + " must be changed to an initial or final value name.");
+//        // kludge a valid value name in hopes of issuing additional meaningful errors
+//        valueName = decoratorString + varName;
+//      }
+//      currentScope.makeValueAvailable(valueName);
+//  }
+
 @Override
 public Void visitUninitializedField(UninitializedFieldContext uninitializedCtx) {
   Token fieldId = notNull(uninitializedCtx.getStart());
-  var newFieldInfo = currentScope.declareUninitializedVariableFieldName(
-                                                                fieldId, uninitializedCtx.idType);
+  String fieldType = uninitializedCtx.idType;
+  var newFieldInfo = currentScope.declareUninitializedFieldName(fieldId, fieldType);
   if ( newFieldInfo.isEmpty() )
     issueErrorForPreviouslyDeclared(fieldId);
   else {
-    String varOrValueName = fieldId.getText();
+    String fieldValueName = fieldId.getText();
     //TODO: Add check for modifiers (perhaps a bitSet)
-//    if (declarationHasFinalModifier) {
-//      <check for either undecorated or final decorated>
-//      currentScope.makeValueAvailable(varOrValueName);
-//    }
-//    else
-    if (TUtil.isFinalDecorated(varOrValueName))
-      currentScope.makeValueAvailable(varOrValueName + decoratorString);
-    else if (TUtil.isDecorated(fieldId))
-      currentScope.makeValueAvailable(varOrValueName);
-    else // undecorated, meaning final value will be provided in initializer block or constructor
-      currentScope.makeValueAvailable(decoratorString + varOrValueName);
+    if (TUtil.isMidDecorated(fieldValueName)) {
+      errs.collectError(program, fieldId
+                        , "The field name " + fieldValueName
+                        + " must be changed to an initial or final value name.");
+      // kludge a valid value name in hopes of issuing additional meaningful errors
+      fieldValueName = decoratorString + variableName(fieldValueName);
+    }
+    currentScope.makeValueAvailable(fieldValueName);
   }
 
   return VOIDNULL;
@@ -175,7 +190,7 @@ private void issueErrorForPreviouslyDeclared(Token fieldId) {
  */
 @SuppressWarnings("null")
 private static <T> @NonNull T notNull(@Nullable T item) {
-  return item;
+  return (@NonNull T)item;
 }
 
 
