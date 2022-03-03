@@ -2,13 +2,16 @@
 Feature: Value names are decorated variable names - TrueJ 0.1
 
   TrueJ directs the programmer's attention to the changing state of the program's data as each
-  statement is executed. In procedural and object-oriented languages like Java(TM), variables hold
-  the state, but the particular state held by those variables is never made explicit. So an
-  important difference between TrueJ and Java is that we add a way for each state contained in the
-  variables to be explicitly represented. And because we want programmers to easily make the
-  transition to focusing more on the state and less on the variables that hold the state, we need to
-  resist most of the temptations to make other changes.
+  statement is executed. To do this, TrueJ provides a way for each value contained in each variable
+  to be explicitly named. In order to allow the programmer to express their thoughts about how a
+  section of code changes the state, we provide the means-statement, which gives the concrete
+  semantics of a program's execution up to that point in terms of the names of the values that it
+  has referenced and created. The correctness of the semantics is checked with a relatively
+  simple prover.
 
+  Because we want programmers to easily make the transition to focusing more on the state's values
+  and less on the variables, we need to resist the temptations to make other changes, unless they
+  directly affect the programmers ability to think clearly about the desired state.
 
 Rule: Values have names
 
@@ -71,7 +74,7 @@ Example: Notes
   value as the variable b", or "the variable a can now be substituted for the expression b in
   prior statements", the programmer can now abandon mechanical metaphors, transient truths about
   variables, and substitution of variables and expressions, and instead think about unchanging
-  truths about values, reading off the meaning of the statement "a' = 'b;" as "a-final equals
+  truths about values, reading off the meaning of the statement `a' = 'b;` as "a-final equals
   initial-b".
 
   The second comment is that TrueJ gives up Java's ability to include a side-effect-like internal
