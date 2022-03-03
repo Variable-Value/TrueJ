@@ -18,7 +18,7 @@ repositories {
 }
 
 project.ext {
-    cukeVersion = '7.2.3'
+    cukeVersion = '6.10.2'
 }
 
 dependencies { // https://mvnrepository.com/artifact/...
@@ -38,10 +38,10 @@ generateGrammarSource {
                  ]
 }
 
-//java {
-//    // withJavadocJar() // problems with Gradle 6.6
-//    // withSourcesJar() // problems with Gradle 6.6
-//}
+java {
+    // withJavadocJar() // problems with Gradle 6.6
+    // withSourcesJar() // problems with Gradle 6.6
+}
 
 //// Used with plugin 'Java'
 //tasks.withType(JavaCompile) {
@@ -76,7 +76,7 @@ task TestReadyFeatures() {
     dependsOn assemble, testClasses
     doLast {
         javaexec {
-            mainClass = "io.cucumber.core.cli.Main"
+            main = "io.cucumber.core.cli.Main"
             classpath = ( configurations.cucumberRuntime + sourceSets.main.output
                         + sourceSets.test.output )
             args = [ '--plugin', 'progress'
@@ -124,6 +124,20 @@ task TestAtTestthis() { // test Examples and Scenarios with @testthis
     }
 }
 
+task CukeHelp () {
+  dependsOn assemble, testClasses
+  doLast {
+    javaexec {
+      main = "io.cucumber.core.cli.Main"
+      classpath = ( configurations.cucumberRuntime + sourceSets.main.output
+                  + sourceSets.test.output )
+      args = [ '--help'
+             ]
+    }
+  }
+
+}
+
 task TestProverFeatures() {
     dependsOn assemble, testClasses
     doLast {
@@ -140,20 +154,6 @@ task TestProverFeatures() {
                    ]
         }
     }
-}
-
-task CukeHelp () {
-  dependsOn assemble, testClasses
-  doLast {
-    javaexec {
-      main = "io.cucumber.core.cli.Main"
-      classpath = ( configurations.cucumberRuntime + sourceSets.main.output
-                  + sourceSets.test.output )
-      args = [ '--help'
-             ]
-    }
-  }
-
 }
 
 version = '0.0.0'
