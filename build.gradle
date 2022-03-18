@@ -23,7 +23,7 @@ project.ext {
 
 dependencies { // https://mvnrepository.com/artifact/...
                 // ...org.antlr/antlr4
-  antlr              'org.antlr:antlr4:4.8-1'
+  antlr              'org.antlr:antlr4:4.9.3'
   implementation     'it.unibo.alice.tuprolog:tuprolog:3.3.0'
   implementation     'org.eclipse.jdt:org.eclipse.jdt.annotation:2.2.600'
   testImplementation 'io.cucumber:cucumber-java:'  + cukeVersion
@@ -82,7 +82,7 @@ task TestReadyFeatures() {
             args = [ '--plugin', 'progress'
                    , '--plugin', 'html:build/reports/tests/cucumber/ReadyFeatures.html'
                    , '--glue', 'tlang'
-                   , '--tags', "@Ready and not @InProcess"
+                   , '--tags', "@Ready and not @InProgress"
                    , 'src/test/resources/tlang'
                    ]
         }
@@ -93,14 +93,13 @@ task TestFeaturesInProgress() {
     dependsOn assemble, testClasses
     doLast {
         javaexec {
-            main = "io.cucumber.core.cli.Main"
+            mainClass = "io.cucumber.core.cli.Main"
             classpath = ( configurations.cucumberRuntime + sourceSets.main.output
                         + sourceSets.test.output )
             args = [ '--plugin', 'progress'
                    , '--plugin', 'html:build/reports/tests/cucumber/FeaturesInProgress.html'
                    , '--glue',   'tlang'
-                   , '--tags', "@InProgress"
-                   , '--tags', "@testthis"
+                   , '--tags', "@InProgress or @testthis"
                    , 'src/test/resources/tlang/'
                    ]
         }
@@ -111,7 +110,7 @@ task TestAtTestthis() { // test Examples and Scenarios with @testthis
     dependsOn assemble, testClasses
     doLast {
         javaexec {
-            main = "io.cucumber.core.cli.Main"
+            mainClass = "io.cucumber.core.cli.Main"
             classpath = ( configurations.cucumberRuntime + sourceSets.main.output
                         + sourceSets.test.output )
             args = [ '--plugin', 'progress'
@@ -128,7 +127,7 @@ task TestProverFeatures() {
     dependsOn assemble, testClasses
     doLast {
         javaexec {
-            main = "io.cucumber.core.cli.Main"
+            mainClass = "io.cucumber.core.cli.Main"
             classpath = ( configurations.cucumberRuntime + sourceSets.main.output
                         + sourceSets.test.output )
             args = [ '--plugin', 'progress'
@@ -146,7 +145,7 @@ task CukeHelp () {
   dependsOn assemble, testClasses
   doLast {
     javaexec {
-      main = "io.cucumber.core.cli.Main"
+      mainClass = "io.cucumber.core.cli.Main"
       classpath = ( configurations.cucumberRuntime + sourceSets.main.output
                   + sourceSets.test.output )
       args = [ '--help'
