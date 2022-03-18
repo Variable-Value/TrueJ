@@ -137,19 +137,6 @@ public Void visitInitializedField(InitializedFieldContext initializedCtx) {
   return VOIDNULL;
 }
 
-//  var newInfo = currentScope.declareInitializedFieldName(fieldId, valueName, initializedCtx.idType);
-//  if ( newInfo.isEmpty() ) {
-//    issueErrorForPreviouslyDeclared(fieldId);
-//  } else {
-//      if (TUtil.isMidDecorated(valueName)) {
-//        errs.collectError(program, fieldId, "The field name "+ valueName
-//                                           + " must be changed to an initial or final value name.");
-//        // kludge a valid value name in hopes of issuing additional meaningful errors
-//        valueName = decoratorString + varName;
-//      }
-//      currentScope.makeValueAvailable(valueName);
-//  }
-
 @Override
 public Void visitUninitializedField(UninitializedFieldContext uninitializedCtx) {
   Token fieldId = notNull(uninitializedCtx.getStart());
