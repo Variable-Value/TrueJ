@@ -197,7 +197,7 @@ Example: Notes
   multiple values to corresponding variables in a single assignment statement.
   For example,
 
-    a, b := b, a;
+      a, b := b, a;
 
   which also requires a hidden copying of values.
   * end note
