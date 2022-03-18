@@ -1,9 +1,10 @@
 @Ready
 Feature: Final value names may be left undecorated (TrueJ 0.1)
 
-  Inthis feature we introduce a simpler notation, allowing either a' or a to represent the final
-  value of the variable a in executable code. This makes it clear that there are no _naked_
-  variable names at all. In an object's field declarations, either
+  In this feature we introduce a simpler notation, allowing either `aName'` or `aName` as value
+  names to represent the final value of the variable named `aName`. This makes it clear that there
+  are no _naked_ variable names at all. Value names are built on variable names, but all names are
+  value names. In an object's field declarations, either
 
       int a;
 
@@ -19,7 +20,8 @@ Feature: Final value names may be left undecorated (TrueJ 0.1)
       int b' = 5; // the value of variable b cannot change
       int b = 5;  // equivalent to b' = 5
 
-  Occasionally, we wish to declare an immutable field whose value is decided later in an initializer or constructor. In that case we declare it as mutable but with the `final` modifier:
+  Occasionally, we wish to declare an immutable field whose value is decided later in an
+  initializer or constructor. In that case we declare it as mutable but with the `final` modifier:
 
       final int 'a;
 
@@ -33,12 +35,14 @@ Feature: Final value names may be left undecorated (TrueJ 0.1)
 
       int b;
 
-  generates an error message.
+  generates an error message. Instead, it must be coded as
+
+      int b';
 
   Using the undecorated form of value names for final values rather than the more explicit
-  post-decorated names makes the code look less cluttered for readability, but runs the risk of
-  having beginners and programmers that primarily work in other procedural languages misinterpret
-  an undecorated final value name for a variable name; for example, the code
+  post-decorated names makes the code look less cluttered, increasing readability, but runs the
+  risk of having beginners and programmers that primarily work in other procedural languages
+  misinterpret an undecorated final value name for a variable name; for example, the code
 
       i = 0;
 
@@ -148,13 +152,13 @@ Example: The identical program gives no error when final decoration is required
     """
 
 
-Rule: The scope of a value name ends with the scope of its variable
+Rule: Variable scope does not interfere with final value name decoration
 
-  If there is no interrupting means statement, the scope of a value name starts at its definition
-  and ends at the end of the block where the variable was declared. The way in which a means
-  statement may or may not make the meaning of the value inaccessable is discussed later.
+  The scope of a value name starts at its definition and ends at the end of the block where the
+  variable was declared. Here we establish that different forms of final decoration are independent
+  of that scope.
 
-Example: We reference a field's initial value after overwriting it
+Example: We reference a field's initial value after overwriting it with undecorated finals
 
   * A valid compile unit is
     """
@@ -187,7 +191,7 @@ Example: We reference a field's initial value after overwriting it while using f
     } // end class
     """
 
-Example: A local variable is referenced outside of the block where its variable was declared
+Example: Scope errors are identified with either decorated or undecorated finals
 
   When an invalid compile unit is
     """
@@ -235,45 +239,9 @@ Example: A local variable is referenced outside of the block where its variable 
     line 10:7 for <startingA'>: Variable startingA has not been defined in this scope
     """
 
-Rule: A final value defined with one decoration cannot be used with the other
+Rule: The first definition of a final value sets the required form for all final value names
 
-Example: A simple incorrect final value decoration
-
-  When an invalid compile unit is
-    """
-    class FinalDecorationError1 {
-
-    int 'a;
-
-    void decorationErr() {
-      int aa = 'a;
-      int b = aa';
-    }
-
-    }
-    """
-  Then the error messages contain
-    """
-    line 7:10 for <aa'>: A different decoration for final values was used in line 6 for the final value name aa
-    """
-
- When an invalid compile unit is
-    """
-    class FinalDecorationError1 {
-
-    int 'a;
-
-    void decorationErr() {
-      int aa' = 'a;
-      int b' = aa;
-    }
-
-    }
-    """
-  Then the error messages contain
-    """
-    line 7:11 for <aa>: A different final decoration aa' was used at line 6
-    """
+Example: Simple incorrect final value decorations with fields and local variables
 
   When an invalid compile unit is
     """
@@ -580,12 +548,6 @@ Example: Assorted final value name problems
     15:23 for <b>: A different decoration for final values was used in line 7 for the final value name allTrue'
     15:28 for <c>: A different decoration for final values was used in line 7 for the final value name allTrue'
     """
-
-
-Rule: Intermediate values cannot be defined for a final field
-
-  Use a version of the above allTrue example.
-
 
 
 Rule: An intial-decorated field may be final-decorated in a methods first reference to it

@@ -1,5 +1,4 @@
 @Ready
-@InProgress
 Feature: A value name is used to declare a field (TrueJ 0.1)
 
   All fields must be given a value either in an initialization, in an initializer block, or in
@@ -19,23 +18,24 @@ Feature: A value name is used to declare a field (TrueJ 0.1)
       int a';
 
   declares the variable as final, with its value to be provided before the end of object
-  construction.
+  construction. However one form, decorated or undecorated, must be chosen for all fields and local
+  variables and used for the entire class.
 
       int 'a = 2; // the value of the variable a is 2, but it can change
 
       int 'a;     // the value of the variable a is unknown, but it can change
 
       int b' = 5; // final value, so variable b cannot be modified
-      int b = 5;  // equivalent to b' = 5
+      int b = 5;  // equivalent to b' = 5, but choose one and stick with it
 
       int c;      // the value of variable c cannot change once the value is provided;
       or          // and that final value must be provided
-      int c';     // during construction
+      int c';     // in an initialization block or a constructor
 
   Using the undecorated form of value names for final values, rather than the explicit
-  post-decorated names, makes the code look less cluttered for readability, but runs the risk of
-  having beginners, and programmers that primarily work in other procedural languages, misinterpret
-  an undecorated final value name for a variable name; for example, the code
+  post-decorated names, makes the code look less cluttered for readability, but beginners, and
+  programmers that primarily work in other procedural languages, might misinterpret an undecorated
+  final value name for a variable name; for example, the code
 
       i = 0;
 
@@ -43,9 +43,9 @@ Feature: A value name is used to declare a field (TrueJ 0.1)
   name for a final value of `0`, that holds for the rest of the scope of the variable `i`. If the
   programmer tries to reuse a value name that they mistake for a variable name, the compiler will
   issue an error, but these errors might be frustrating to the programmer until they reorient their
-  thinking. The important thing to remember is that in TrueJ, the variable name is never used except
-  as a part of a value name, so if you start to think its a variable name, it is really the name of
-  a value that never changes: the variable's final value.
+  thinking. The important thing to remember is that in TrueJ, the variable name is never used
+  except as a part of a value name, so if you start to think its a variable name, it is really the
+  name of a value that never changes: the variable's final value.
 
   For beginners, and programmers that primarily work in other procedural languages, there is a
   command-line flag that they may find useful, `-decorateFinal`, to force use of final decoration
@@ -58,7 +58,6 @@ Feature: A value name is used to declare a field (TrueJ 0.1)
 
 Rule: Final values can be assigned to an undecorated value name
 
-@InProgress
 Example: Using undedorated final value names in executable code
 
   We use the undecorated names `startingA`, `a`, and `b` in the swap() method.
@@ -67,8 +66,7 @@ Example: Using undedorated final value names in executable code
     """
     class Swapper {
 
-    int 'a;
-    int 'b;
+    int 'a = 0, 'b;
 
     void swap() {
       int startingA = 'a;
@@ -81,7 +79,6 @@ Example: Using undedorated final value names in executable code
     } // end class
     """
 
-@InProgress
 Example: But decoration of the names can be forced with an option
 
   We use the same program as above, but with the command line option `-decorateFinal` to generate
@@ -124,8 +121,10 @@ Example: But decoration of the names can be forced with an option
 
 Rule: The scope of a value name ends with the scope of its variable
 
-@InProgress
-Example: Using a value name that has been overwritten with another value
+Example: Using a value name for a value that is no longer available in the variable
+
+  If a value name is referenced later in the code, its value is copied just before the variable
+  receives a new value.
 
   * A valid compile unit is
     """
@@ -141,28 +140,9 @@ Example: Using a value name that has been overwritten with another value
     } // end class
     """
 
-  Given decorated final value names are required
+Example: Referencing a value name for a variable that is out of scope
 
-  Then an invalid compile unit is
-    """
-    class Swapper2_error {
-
-    int 'a, 'b;
-
-    void swap() {
-      a = 'b;
-      b = 'a;   // OK to use value 'a because the variable a is still in scope
-    }
-
-    } // end class
-    """
-  And the error messages contain
-    """
-    line 6:2 for <a>: This name must be decorated because of the command line option -decorateFinal
-    7:2 for <b>: This name must be decorated because of the command line option -decorateFinal
-    """
-
-  When an invalid compile unit is
+    When an invalid compile unit is
     """
     class Swapper3 {
 
@@ -185,30 +165,10 @@ Example: Using a value name that has been overwritten with another value
     line 10:7 for <startingA>: Variable startingA has not been defined in this scope
     """
 
-  Given decorated final value names are required
-  When an invalid compile unit is
-    """
-    class Swapper3 {
 
-    int 'a, 'b;
+Rule: All final value names must use the same form of final decoration
 
-    void swap() {
-      int startingA' = 'a;
-      a' = 'b;
-      b' = startingA';
-    }
-    means: startingA' = 'a && a' = 'b && b' = startingA';
-       // startingA value is out of scope here, outside the method's block,
-       // because its variable startingA is declared inside the block
-
-    } // end class
-    """
-  Then the error messages contain
-    """
-    line 10:7 for <startingA'>: Variable startingA has not been defined in this scope
-    """
-
-Scenario: A final value defined with one decoration cannot be used with the other
+Example: A local variable sets the form by using an undecorated final value name
 
   When an invalid compile unit is
     """
@@ -232,6 +192,8 @@ Scenario: A final value defined with one decoration cannot be used with the othe
     line 11:7 for <a'>: A different decoration for final values was used in line 6 for the final value name startingA
     """
 
+Example: A local variable sets the form by using an decorated final value name
+
   When an invalid compile unit is
     """
     class DecorationErr2 {
@@ -253,6 +215,8 @@ Scenario: A final value defined with one decoration cannot be used with the othe
     line 8:7 for <startingA>: A different final decoration startingA' was used at line 6
     9:28 for <a>: A different decoration for final values was used in line 6 for the final value name startingA'
     """
+
+Example: A field sets the form by using a decorated final value name
 
   When an invalid compile unit is
     """
@@ -276,6 +240,8 @@ Scenario: A final value defined with one decoration cannot be used with the othe
     line 8:7 for <startingB>: A different decoration for final values was used in line 4 for the final value name startingA'
     10:33 for <startingB>: A different decoration for final values was used in line 4 for the final value name startingA'
     """
+
+Example: A field sets the form by using an undecorated final value name
 
   When An invalid compile unit is
     """
@@ -303,28 +269,7 @@ Scenario: A final value defined with one decoration cannot be used with the othe
     9:2 for <c>: The value c has already been defined on line 3
     """
 
-    When An invalid compile unit is
-    """
-    class RedefinitionErr2 {
-
-    int 'a, 'b;
-
-    void swap() {
-      int starting = 'b;
-      a = starting;
-      starting' = 'a;
-      b = starting';
-      means: starting = 'a && a = 'b && b = starting;
-    }
-    means: a = 'b && b = 'a;
-
-    } // end class
-    """
-    Then the error messages contain
-    """
-    line 8:2 for <starting'>: starting received a final value at line 6, so it cannot receive a new value
-    9:6 for <starting'>: A different decoration for final values was used in line 6 for the final value name starting
-    """
+Example: The form of the decoration of final variables is set in one branch of a conditional
 
   When An invalid compile unit is
     """
@@ -342,7 +287,7 @@ Scenario: A final value defined with one decoration cannot be used with the othe
         a' = a'temp2;
         b' = b'temp2;
       } else {
-        a'temp2 = 'b; // note the different order of assignment here to the variables a and b
+        a'temp2 = 'b;
         a'temp1 = a'temp2;
         b'temp2 = 'a;
         b'temp1 = b'temp2;
