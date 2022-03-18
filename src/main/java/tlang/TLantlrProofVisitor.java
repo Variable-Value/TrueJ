@@ -137,16 +137,17 @@ public Void visitT_PreValueName(T_PreValueNameContext valueNameCtx) {
   return null;
 }
 
-/** Translate a mid-decorated value name to its Prolog form and substitute it in place. The
- * character <code>^</code> is substituted for the decorator, a scope name is prefixed using a dot
+/**
+ * Translate a mid-decorated value name to its Prolog form and substitute it in place. The character
+ * <code>^</code> is substituted for the decorator, a scope name is prefixed, followed by a dot
  * separator, and the whole name is enclosed in single quotes. For example, <code>abc'xyx</code> is
  * transformed to <code>'abc^xyz'</code> and if the variable <code>abc</code> is an instance field,
  * the final transformation will be <code>'this.abc^xyz'</code>. Value names for local variables
  * that are at the top level of an executable component, e.g., a method, are not prefixed with a
  * scope.
- * @param  valueNameCtx The parse tree, which is the single, leaf, node for the mid-decorated value
- *                        name that contains the value-name token.
- * @return              null */
+ *
+ * @param valueNameCtx The parse tree's leaf node context for the mid-decorated value-name token.
+ */
 @Override
 public Void visitT_MidValueName(T_MidValueNameContext valueNameCtx) {
   final String valueName = rewriter.source(valueNameCtx);         // example : varName'xxx
