@@ -200,8 +200,8 @@ Optional<VarInfo> declareNewVariable(Token varOrValueName, String type
   }
 }
 
-boolean scopeIsStillInExecutable() {
-  return ! (this instanceof BackgroundScope);
+static boolean scopeIsStillInExecutable(Scope s) {
+  return ! (s instanceof BackgroundScope);
 }
 
 /* Notes on getConflictingVarDeclarationInfo and getVarReferenceInfo

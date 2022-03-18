@@ -233,7 +233,7 @@ private void checkFollowingBranch(
   elseScope.setCollectionsToEmpty();
 }
 
-/** Issue and error message for any names that were defined in the first branch and not also defined
+/** Issue error message for any names that were defined in the first branch and not also defined
  * in the following branch */
 private void issueMissingValueNameMessages(IfStmtContext ctx, Set<String> undefinedNames) {
   for (String valueName : undefinedNames) {
@@ -712,7 +712,7 @@ private void checkAssignment(T_identifierContext ctx) {
       InitialConditionalBranchScope firstScope = getEnclosingInitialScope(valueNameToken);
       checkForPriorDefinitionOfValueName(valueNameToken, varInfo);
       String valName1 = valueName(valueNameToken); // workingValueName(valueNameToken);
-      setDeligationObligationForEnclosingScopes(firstScope, valName1, varInfo.getCurrentValueName());
+      firstScope.setDeligationObligationForEnclosingScopes(valName1, varInfo.getCurrentValueName());
       //checkForCorrectDecorationOfAssignment(valueNameToken);
       defineTheValueNameRegardlessOfErrors(valueNameToken, varInfo);
       break;
@@ -746,61 +746,11 @@ private void checkForCorrectDecorationOfAssignment(final Token valueNameToken) {
     checkWrongFinalDecoration(valueNameToken);
 }
 
-/** Conditional statement handling of valueNames gets complicated. We create a new valueName anytime
- * we assign a value to a variable, and that valueName is used later in the code to represent the
- * value. If the assignment is in a branch of a conditional statement, we must therefore make the
- * valueName available to statements that follow the conditional, but that implies that all paths
- * through the conditional must assign a value to the valueName. So if we assign a value to a new
- * valueName inside any branch of a conditional statement, then all the branches of that conditional
- * are obligated to assign a value to that same valueName; therefore, we will encounter the new
- * valueName first in the initial branch. The "obligation" for all the following branches of the
- * conditional statement is recorded as a "delegation" in the <code>delegatedValueNames</code> set
- * of the corresponding initial branch.
- * <p>
- * This kind of obligation can be created in the initial branch even when the assignment to a new
- * valueName happens in a nested conditional statement. So when we assign to a new valueName in an
- * initial branch, we need to check <em>enclosing</em> scopes and set the delegation in every
- * enclosing <code>InitialConditionalBranchScope</code> until we run out of enclosing scopes in the
- * executable, or until we find an enclosing {@link FollowingConditionalBranchScope}. We can stop at
- * a following scope because its corresponding initial scope will have already created the
- * delegation/obligation in its enclosing scopes, as we just described.
- * <p>
- * So, often, we will be left sitting at an enclosing following scope, and in that case it turns out
- * there will be more to do. This is because nested conditional statements under following branches
- * can fulfill that branch's obligations. To see this, let's start with the
- * <code>delegatedValueNames</code> set from the initial branch. Each corresponding following branch
- * gets a copy of that set, which it calls <code>obligatedValueNames</code>, and it records meeting
- * its obligations by removing valueNames from its copy of the set. When an assignment is made in
- * the following branch to a valueName, it fulfills the obligation for that valueName; however, this
- * obligation may also be fulfilled by a nested conditional statement in our following branch with
- * the assignment in all of its branches. So, when we are searching upwards from an initial branch
- * assignment, the assignment may be to a valueName fulfilling an obligation of a following branch.
- * Therefore, we remove the valueName from the <code>obligatedValueNames</code> of the following
- * branch where the search stops.
- * @param firstScope the starting scope for the upward search of enclosing scopes
- * @param valueName  the valueName that was assigned a value inside an initial branch of a
- *                    conditional statement
- * @param currentValueName */
-public void setDeligationObligationForEnclosingScopes(InitialConditionalBranchScope firstScope,
-                                                      String valueName, String currentValueName) {
-  Scope s;
-  for (s = firstScope; notAnEnclosingFollowingScope(s); s = s.getParent())
-    if (s instanceof InitialConditionalBranchScope)
-      ((InitialConditionalBranchScope)s).delegateInScope(valueName, currentValueName);
-
-  if (s instanceof FollowingConditionalBranchScope)
-    ((FollowingConditionalBranchScope)s).removeAnyObligationOnValueName(valueName);
-}
-
-boolean notAnEnclosingFollowingScope(Scope s) {
-  return ! (s instanceof FollowingConditionalBranchScope) && s.scopeIsStillInExecutable();
-}
-
 /** Search up through ancestor scopes to find the nearest one that is a
  * {@link FollowingConditionalBranchScope}.
  * <p>
- * @precondition There is an enclosing following scope, possibly the currentScope. Will generate a
- *               runtime cast error if there is not one.
+ * @precondition There is an enclosing following scope, possibly the currentScope. If there is not
+ *               one, generates a runtime cast error.
  * @return closest following scope ancestor */
 private FollowingConditionalBranchScope getEnclosingFollowingScope(Token valueNameToken) {
   Scope trialScope = currentScope;
