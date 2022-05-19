@@ -82,7 +82,7 @@ task TestReadyFeatures() {
             args = [ '--plugin', 'progress'
                    , '--plugin', 'html:build/reports/tests/cucumber/ReadyFeatures.html'
                    , '--glue', 'tlang'
-                   , '--tags', "@Ready and not @InProgress"
+                   , '--tags', "@Ready and not @InProgress and not @testthis"
                    , 'src/test/resources/tlang'
                    ]
         }
