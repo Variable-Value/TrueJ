@@ -20,10 +20,10 @@ Feature: Status Statements for Executable code
   changes to data that the code causes, and the claims of both kinds of statements are verified by
   the compiler. However, the means-statement also claims that its meaning is sufficient for all the
   following code. The means-statement is used in a block of code to summarize those facts of _all_
-  preceding code that is needed in _any_ of the following code in the block, allowing the programmer
-  to state consequential facts and omit details about how these facts were established. And if a
-  means-statement omits any fact about the data that is needed by that following code, the compiler
-  generates an error.
+  preceding code that is needed in _any_ of the following code inside the same block, allowing
+  the programmer to state consequential facts and omit details about how these facts were
+  established. And if a means-statement omits any fact about the data that is needed by that
+  following code, the compiler generates an error.
 
 Rule: A means-statement or lemma summarizes the preceding executable code
 
@@ -46,21 +46,9 @@ Example: Using a lemma or a means-statement to restate the meaning of preceding 
     } // end class
     """
 
-Rule: The means-statement can be used to safely forget details of calculations
+Example: An error because a lemma must follow from the preceding code
 
-  The _means_-statement is used to summarize, refactor, or reformulate the meaning of all the
-  preceding statements of the code block and its enclosing blocks. At that point in the code, the
-  _means_-statement completely replaces the meaning of the preceding code. The compiler
-  will only accept _means_-statements that are logically entailed by the meaning of the statements
-  that it summarizes. Thus, a programmer reading the block of code can use the means statement to
-  understand the intent of all preceding statements. Also, in order to understand the overall
-  meaning of a block, the programmer can start reading at the bottommost means statement. If a
-  programmer places a means-statement at the very end of a complicated block of code, we can see
-  what the block accomplishes just by reading that _means_-statement, without reading the code.
-
-Example: Using a final means-statement to show the intent of the commands in a block
-
-  * a valid compile unit is
+  When an invalid compile unit is
     """
     class Status1 {
 
@@ -69,8 +57,68 @@ Example: Using a final means-statement to show the intent of the commands in a b
     void swap() {
       int startingA' = 'a;
       a' = 'b;
+      lemma: a' = 'b & b' = 'a;
       b' = startingA';
-      means: a' = 'b & b' = 'a;
+    }
+
+    } // end class
+    """
+  Then the error messages contain
+    """
+    The code does not support the proof of the statement: b' = 'a
+    """
+
+
+Rule: The means-statement can be used to safely forget details of calculations
+
+  The _means_-statement is used to summarize, refactor, or reformulate the meaning of all the
+  preceding statements of the code block and its enclosing blocks. At the point that it is coded, the
+  _means_-statement completely replaces the meaning of the preceding code. But the _means_-statement
+  can't introduce anything that is new; the compiler
+  will only accept _means_-statements that are logically entailed by the meaning of the statements
+  that it summarizes. Thus, a programmer reading the block of code can use the means statement to
+  understand the intent of all preceding statements. Also, in order to understand the overall
+  meaning of a block, the programmer can start reading at the bottommost means statement. If a
+  programmer places a means-statement at the very end of a complicated block of code, we can see
+  what the block accomplishes just by reading that _means_-statement, without reading the code.
+
+Example: Using a means-statement to forget code that has served its purpose
+
+  * a valid compile unit is
+    """
+    class Status1 {
+
+    int 'a, 'b;
+    boolean 'isSwapped = false;
+
+    void swap() {
+      int startingA' = 'a;
+      a' = 'b;
+      b' = startingA';
+      means: a' = 'b & b' = 'a; // we no longer need startingA' and the fact that startingA' = 'a
+      isSwapped' = true;
+    }
+
+    } // end class
+    """
+
+
+Example: Using a final means-statement to show the intent of the commands in a block
+
+  * a valid compile unit is
+    """
+    class Status2 {
+
+    int 'a, 'b;
+    boolean 'isSwapped = false;
+
+    void swap() {
+      { int startingA' = 'a;
+        a' = 'b;
+        b' = startingA';
+        means: a' = 'b & b' = 'a; // summarizes the effect of the block
+      }
+      isSwapped' = true;
     }
 
     } // end class
@@ -95,7 +143,7 @@ Example: A value-name must be referenced in a means-statement to be meaningful i
 
   When an invalid compile unit is
     """
-    class Status2 {
+    class Status3 {
 
     int 'a, 'b;
 
@@ -128,9 +176,9 @@ Example: A means-statement can eclipse facts that are then unavailable in follow
 
       b' = 'a
 
-  but the proof fails because the compiler has forgotten the last part of the chained equality
+  but the proof fails because the compiler has forgotten the first part of the chained equality
 
-      startingA' = 'a
+      b' = startingA'
 
   Rather than give a more complicated example where this happens, here we force the
   compiler to remember the existence of `b'` with the silly statement:
@@ -164,16 +212,16 @@ Example: A means-statement can eclipse facts that are then unavailable in follow
 
 Rule: The compiler remembers type information for a variable after a _means_-statement
 
-  TODO: Create code to show success and falure because it remembers the type of a variable.
+  TODO: Create code to show success and failure because it remembers the type of a variable.
 
-  Because the scope of a variable reaches to the end of the block, new values can be assigned to it
-  after a _means_-statement. To ensure that those values have the correct type, the type of the
-  variable is remembered after a _means_-statement.
+  Because the scope of a _variable_ reaches to the end of the block, new values can be assigned to
+  the variable after a _means_-statement. To ensure that those values have the correct type, the
+  type of the variable is remembered after a _means_-statement.
 
-Example: A new value of a variable can be defined after a means-statement
+Example: A new value for a variable can be defined after a means-statement
 
   References can be eclipsed by a means statement, but the type of a variable is remembered, so that
-  new values for that variable can be defined. In this example we eclipse the only value of the
+  new values for that variable can be defined. In this example we eclipse the initial value of the
   variable startingB, but we are still able to define the new value startingB'.
 
   * a valid compile unit is
@@ -196,7 +244,37 @@ Example: A new value of a variable can be defined after a means-statement
     } // end class
     """
 
-Example: The compiler remembers facts from a surrounding block once it returns to that block
+Example: A previously declared variable cannot be redeclared after a means statement
+
+  When an invalid compile unit is
+
+    """
+    class BlockMeaning2a {
+
+    int 'a, 'b;
+
+    void swap() {
+      int startingA' = 'a;
+      int 'startingB = 'b + 'a;
+      int tempB' = 'b;
+      means: startingA' = 'a & tempB' = 'b; // <==== start reading here, eclipsing 'startingB
+      int startingB' = 'b;                       // a new value for variable startingB
+      a' = startingB';
+      b' = startingA';
+      means: a' = 'b & b' = 'a;
+    }
+
+    } // end class
+    """
+  Then the error messages contain
+    """
+    for <startingB'>: Attempted to declare variable startingB, but it was already declared at line 7
+    """
+
+
+Rule: The compiler remembers facts from a surrounding block once it returns to that block
+
+Example: Reusing a fact from before an enclosed block
 
   The _means_-statement only eclipses facts and value names within the current scope.
 
@@ -208,11 +286,13 @@ Example: The compiler remembers facts from a surrounding block once it returns t
 
     void swap() {
       int startingA' = 'a;
+
       { int startingB' = 'b;
         a' = startingB';
         means: a' = 'b;
       }
-      b' = startingA';
+
+      b' = startingA'; // the compiler remembers startingA' = 'a from before the block
       means: a' = 'b & b' = 'a;
     }
 
