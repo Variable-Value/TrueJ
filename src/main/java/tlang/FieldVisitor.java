@@ -32,24 +32,6 @@ CollectingMsgListener errs;
 /** Map from the parse context (ctx) for the code of a scope to the corresponding Scope object. */
 protected Map<RuleContext, Scope> scopeMap;
 
-/**
- * A gimmick for avoiding Eclipse <code>null</code> warnings when using ANTLR visitors. The ANTLR
- * generated superclass <code>TLantlrBaseVisitor&lt;T></code> has the formal type parameter
- * <code>T</code> which Eclipse type checking interprets as <code>@NonNull T</code>. ANTLR uses this
- * <code>T</code> as the return type of on all the visit methods to allow returning, for instance,
- * the type of the expression it has parsed. The convention for not returning anything is to use
- * an actual type parameter of <code>Void</code>. So this subclass extends the base class as
- * <code>TLantlrBaseVisitor&lt;Void></code>, and the actual type parameter becomes
- * <code>@NonNull Void</code> for Eclipse type checking.  Therefore all the overridden visit methods
- * in this subclass must have <code>@NonNull Void</code> as the return type. But on the other hand
- * the value returned for a <code>Void</code> type must be <code>null</code>. So we cast the
- * <code>null</code> to <code>(@NonNull Void)null</code>, and "encapsulate" this nonsense in the
- * constant <code>VOIDNULL</code>.
- */
-@SuppressWarnings("null")
-private static final Void VOIDNULL = (@NonNull Void)null;
-
-
 public FieldVisitor(String program, CollectingMsgListener msgListener, Map<RuleContext, Scope> scopeMap) {
   this.program = program;
   this.errs = msgListener;

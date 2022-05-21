@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.eclipse.jdt.annotation.Nullable;
 
 import static tlang.TLantlrParser.*;
+import static tlang.TUtil.*;
 
 abstract class RewriteVisitor extends TLantlrBaseVisitor<Void> {
 
@@ -65,7 +66,7 @@ visitT_constructorDeclaration(T_constructorDeclarationContext ctx) {
 visitT_initializer(T_initializerContext ctx) {
   final T_blockContext bodyCtx = ctx.t_block();
   executableVisit(ctx, bodyCtx);
-  return null;
+  return VOIDNULL;
 }
 
 /**
@@ -78,7 +79,7 @@ visitT_initializer(T_initializerContext ctx) {
 visitT_methodDeclaration(T_methodDeclarationContext ctx) {
   final T_methodBodyContext bodyCtx = ctx.t_methodBody();
   executableVisit(ctx, bodyCtx);
-  return null;
+  return VOIDNULL;
 }
 
 /**
@@ -88,7 +89,7 @@ visitT_methodDeclaration(T_methodDeclarationContext ctx) {
 @Override public Void
 visitT_block(T_blockContext ctx) {
   withChildScopeForCtx(ctx, () -> visitChildren(ctx));
-  return null;
+  return VOIDNULL;
 }
 
 
@@ -100,7 +101,7 @@ visitT_block(T_blockContext ctx) {
  */
 protected Void typeVisit(ParserRuleContext ctx) {
   withChildScopeForCtx(ctx, () -> visitChildren(ctx));
-  return null;
+  return VOIDNULL;
 }
 
 protected void executableVisit(ParserRuleContext ctx, ParserRuleContext bodyCtx) {
