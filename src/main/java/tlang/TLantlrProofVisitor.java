@@ -24,6 +24,7 @@ import tlang.TLantlrParser.T_parExpressionContext;
 import tlang.TLantlrParser.T_primaryContext;
 import tlang.TLantlrParser.T_statementContext;
 import tlang.TLantlrParser.T_typeDeclarationContext;
+
 import static tlang.TUtil.*;
 import static tlang.TLantlrParser.*;
 import static tlang.KnowledgeBase.*;
@@ -111,12 +112,12 @@ public static String getProlog() {
  * decoration into the same class and near one another.
  * @param  ctx The parse tree, which is the single, leaf, node for the undecorated value name that
  *               contains the value-name token.
- * @return     null */
+ */
 @Override
 public
         Void visitT_UndecoratedIdentifier(T_UndecoratedIdentifierContext ctx)
 {
-  return null;
+  return VOIDNULL;
 }
 
 /** Translate a pre-decorated value name to its Prolog form and substitute it in place. The
@@ -127,14 +128,14 @@ public
  * at the top level of an executable component, e.g., a method, are not prefixed with a scope.
  * @param  valueNameCtx The parse tree, which is the single, leaf, node for the pre-decorated value
  *                        name that contains the value-name token.
- * @return              null */
+ */
 @Override
 public Void visitT_PreValueName(T_PreValueNameContext valueNameCtx) {
   final String variableName = rewriter.source(valueNameCtx).substring(1); // e.g., 'xxx -> xxx
   final String scopePrefix = getScopePrefix(variableName);
   final String prologName = "'" + scopePrefix + "^" + variableName + "'"; // e.g., 'this.^xxx'
   rewriter.substituteText(valueNameCtx, prologName);
-  return null;
+  return VOIDNULL;
 }
 
 /**
@@ -155,7 +156,7 @@ public Void visitT_MidValueName(T_MidValueNameContext valueNameCtx) {
   final String prologName = "'" + getScopePrefix(n[0]) + n[0] + "^" + n[1] + "'";
                         // 'this.varName^xxx'
   rewriter.substituteText(valueNameCtx, prologName);
-  return null;
+  return VOIDNULL;
 }
 
 /** Translate a post-decorated value name to its Prolog form, in place. The character <code>^</code>
@@ -168,21 +169,21 @@ public Void visitT_MidValueName(T_MidValueNameContext valueNameCtx) {
  * {@inheritDoc}
  * @param  valueNameCtx The parse tree, which is the single, leaf, node for the post-decorated value
  *                        name that contains the value-name token.
- * @return              null */
+ */
 @Override
 public Void visitT_PostValueName(T_PostValueNameContext valueNameCtx) {
   final String valueName = rewriter.source(valueNameCtx);
   final String variableName = valueName.substring(0, valueName.length() - 1);
   rewriter.substituteText(valueNameCtx, "'" + getScopePrefix(variableName) + variableName + "^'");
     // "'" is part of the prolog name, not a decorator
-  return null;
+  return VOIDNULL;
 }
 
 /** Translate a Java literal into the corresponding prover literal.
  * <p>
  * For the <code>FloatingPointLiteral</code>, change something like .25 to 0.25, with a leading
  * zero. (Deransart, et al., p.236)
- * @return null required by implementation */
+ */
 @Override
 public Void visitT_literal(T_literalContext literalCtx) {
   visitChildren(literalCtx);
@@ -195,12 +196,10 @@ public Void visitT_literal(T_literalContext literalCtx) {
   }
   // TODO: change 123E-4 to 0.0123 and .2E12 to 200000000000
 
-  return null;
+  return VOIDNULL;
 }
 
-/**
- * <p>
- * {@inheritDoc} */
+/** {@inheritDoc} */
 @Override
 public Void visitInitializedVariable(InitializedVariableContext ctx) {
   visitChildren(ctx);
@@ -208,7 +207,7 @@ public Void visitInitializedVariable(InitializedVariableContext ctx) {
   String translatedOp = needsEquivalenceForBooleanTarget(ctx) ? " === " : " = ";
   rewriter.replace(ctx.op, translatedOp);
   kb.assume(rewriter.source(ctx));
-  return null;
+  return VOIDNULL;
 }
 
 /** Submit the assignment to the prover. TODO: provide the useful type information for the new value
@@ -226,7 +225,7 @@ public Void visitAssignStmt(AssignStmtContext ctx) {
   String src = parenthesize(rhs + op + lhs);
   rewriter.substituteText(ctx, src);
   kb.assume(src);
-  return null;
+  return VOIDNULL;
 }
 
 private boolean needsEquivalenceForBooleanTarget(InitializedVariableContext ctx) {
@@ -252,7 +251,7 @@ private boolean isBooleanIdentifier(T_identifierContext targetCtx) {
   String expression = ctx.t_expression().getText();
   String returnTranslation = ctx.t_expression().isEmpty() ? "true" : returnExpression(expression);
   rewriter.substituteText(ctx, returnTranslation);
-  return null;
+  return VOIDNULL;
 }
 
 /**
@@ -273,21 +272,21 @@ private String returnExpression(String returnedExpression) {
 
 @Override public Void visitEmptyStmt(TLantlrParser.EmptyStmtContext ctx) {
   rewriter.substituteText(ctx, "true");
-  return null;
+  return VOIDNULL;
 }
 
 @Override public Void visitMultiplicativeExpr(TLantlrParser.MultiplicativeExprContext ctx) {
   visitChildren(ctx);
 
   rewriter.substituteText(ctx, parenthesize(rewriter.source(ctx)));
-  return null;
+  return VOIDNULL;
 }
 
 @Override public Void visitAdditiveExpr(TLantlrParser.AdditiveExprContext ctx) {
   visitChildren(ctx);
 
   rewriter.substituteText(ctx, parenthesize(rewriter.source(ctx)));
-  return null;
+  return VOIDNULL;
 }
 
 
@@ -298,7 +297,7 @@ private String returnExpression(String returnedExpression) {
  */
 @Override public Void visitT_methodDeclaration(T_methodDeclarationContext ctx) {
   withChildOfKb( () -> {super.visitT_methodDeclaration(ctx);} );
-  return null;
+  return VOIDNULL;
 }
 
 /** Translate a block of statements into the meaning of its statements, changing the surrounding
@@ -320,9 +319,12 @@ private String returnExpression(String returnedExpression) {
     T_statementContext statement = bStCtx.t_statement();
     if (statement != null) {
       if (statementsAreActive) {
-        if (statement instanceof MeansStmtContext) {
+        if (statement instanceof MeansStmtContext meansCtx) {
           statementsAreActive = false;
-          meaning += and + rewriter.source(getExpressionCtx(statement));
+          meaning += and + rewriter.source(meansCtx.t_means().t_expression());
+        } else if (statement instanceof LemmaStmtContext lemmaCtx) {
+          statementsAreActive = false;
+          meaning += and + rewriter.source(lemmaCtx.t_lemma().t_expression());
         } else {
           meaning += and + rewriter.source(statement);
         }
@@ -358,11 +360,7 @@ private String returnExpression(String returnedExpression) {
   rewriter.substituteText(ctx, meaning);
   kb.assume(meaning);
 
-  return null;
-}
-
-private T_expressionContext getExpressionCtx(T_statementContext statement) {
-  return ((MeansStmtContext)statement).t_means().t_expression();
+  return VOIDNULL;
 }
 
 @Override public Void visitWhileStmt(TLantlrParser.WhileStmtContext ctx) {
@@ -371,7 +369,7 @@ private T_expressionContext getExpressionCtx(T_statementContext statement) {
   String condition = rewriter.source(ctx.t_parExpression());
   String body = parenthesize(rewriter.source(ctx.t_statement()));
   rewriter.substituteText(ctx, parenthesize(condition + and + body )); // rewriter.source(ctx)));
-  return null;
+  return VOIDNULL;
 }
 
 
@@ -390,7 +388,7 @@ public Void visitIfStmt(IfStmtContext ctx) {
 
   rewriter.substituteText(ctx, parenthesize(thenMeaning + or + elseMeaning));
   kb.assume(rewriter.source(ctx));
-  return null;
+  return VOIDNULL;
 }
 
 private String negate(String condition) {
@@ -417,7 +415,7 @@ private String checkBranch(String condition, T_statementContext branchCtx) {
   visitChildren(ctx);
 
   //TODO do we need this:  rewriter.substituteText(ctx, parenthesize(rewriter.source(ctx)));
-  return null;
+  return VOIDNULL;
 }
 
 
@@ -427,7 +425,7 @@ public Void visitNotExpr(NotExprContext ctx) {
   visitChildren(ctx);
 
   rewriter.replace(ctx.start, "-");
-  return null;
+  return VOIDNULL;
 }
 
 /** Parenthesize the relational expression and translate the operators to appropriate prover
@@ -438,7 +436,7 @@ public Void visitConjRelationExpr(TLantlrParser.ConjRelationExprContext ctx) {
 
   translateOps(ctx);
   rewriter.substituteText(ctx, parenthesize(rewriter.source(ctx)));
-  return null;
+  return VOIDNULL;
 }
 
 //@formatter:off
@@ -542,7 +540,7 @@ public Void visitOrExpr(OrExprContext ctx) {
   visitChildren(ctx);
 
   rewriter.replace(binaryOperatorToken(ctx), or);
-  return null;
+  return VOIDNULL;
 }
 
 /** Replace the Java AND (&) with the prover AND (/\).
@@ -553,7 +551,7 @@ public Void visitAndExpr(AndExprContext ctx) {
   visitChildren(ctx);
 
   rewriter.replace(binaryOperatorToken(ctx), and);
-  return null;
+  return VOIDNULL;
 }
 
 /** Replace the Java conditional OR (||) with the prover OR (\/).
@@ -564,7 +562,7 @@ public Void visitConditionalOrExpr(ConditionalOrExprContext ctx) {
   visitChildren(ctx);
 
   rewriter.replace(binaryOperatorToken(ctx), or);
-  return null;
+  return VOIDNULL;
 }
 
 /** Replace the Java conditional AND (&&) with the prover AND (/\).
@@ -575,7 +573,7 @@ public Void visitConditionalAndExpr(ConditionalAndExprContext ctx) {
   visitChildren(ctx);
 
   rewriter.replace(binaryOperatorToken(ctx), and);
-  return null;
+  return VOIDNULL;
 }
 
 private Token binaryOperatorToken(ParseTree pt) {
@@ -595,7 +593,7 @@ public Void visitConjunctiveBoolExpr(ConjunctiveBoolExprContext ctx) {
    * operators. See grammar for details but watch out for parentheses.
    */
   // rewriter.substituteText(ctx, "( "+rewriter.source(ctx)+" )");
-  return null;
+  return VOIDNULL;
 }
 
 
@@ -603,26 +601,45 @@ public Void visitConjunctiveBoolExpr(ConjunctiveBoolExprContext ctx) {
  * means statement to the {@link KnowledgeBase} for proof, then substitute the <code>means</code>
  * expression for all the preceding assumptions, preserving the type information for any value names
  * that occur in the <code>means</code> statement.
- * <p>
- * {@inheritDoc}
- * @return a null */
+ */
 @Override
 public Void visitT_means(T_meansContext ctx) {
   visitChildren(ctx); // rewrite code into the KnowledgeBase language
 
   T_expressionDetailContext predicate = ctx.t_expression().t_expressionDetail();
-  String meansStatementForProver = prologCode(predicate);
+  String meansStatementForProver = knowledgeBaseCode(predicate);
+
   ProofResult result = kb.substituteIfProven(meansStatementForProver);
+
   if ( result != ProofResult.provenTrue)
     result = proveEachConjunct(predicate);
   rewriter.substituteText(ctx.t_expression(), meansStatementForProver);
-  return null;
+  return VOIDNULL;
+}
+
+/** Translate the expression of the lemma into the KnowledgeBase language and submit it
+ * to the {@link KnowledgeBase} for proof, then append the <code>lemma</code>
+ * expression to the preceding assumptions for use in following proofs.
+ */
+@Override
+public Void visitT_lemma(T_lemmaContext ctx) {
+  visitChildren(ctx); // rewrite code into the KnowledgeBase language
+
+  T_expressionDetailContext predicate = ctx.t_expression().t_expressionDetail();
+  String lemmaStatementForProver = knowledgeBaseCode(predicate);
+
+  ProofResult result = kb.assumeIfProven(lemmaStatementForProver);
+
+  if ( result != ProofResult.provenTrue)
+    result = proveEachConjunct(predicate);
+  rewriter.substituteText(ctx.t_expression(), lemmaStatementForProver);
+  return VOIDNULL;
 }
 
 private ProofResult proveEachConjunct(T_expressionDetailContext conjunction) {
   conjunction = removeAnyParentheses(conjunction);
   if (isSingleConjunct(conjunction)) {
-    ProofResult result = kb.assumeIfProven(prologCode(conjunction));
+    ProofResult result = kb.assumeIfProven(knowledgeBaseCode(conjunction));
     reportAnyError(conjunction, result);
     return result;
   }
@@ -674,9 +691,10 @@ private void reportAnyError(ParserRuleContext ctx, ProofResult result) {
   errors.collectError(prover, ctx.getStart(), msg);
 }
 
-/** @param node
- * @return */
-private String prologCode(ParseTree node) {
+/**
+ * Translate additional details to the knowledge-base language.
+ */
+private String knowledgeBaseCode(ParseTree node) {
   String translated = expandForall(rewriter.source(node));
   return translated.replaceAll("//", "%");
 }
@@ -686,10 +704,10 @@ private String prologCode(ParseTree node) {
  * quantified statement) so that it will be available for use in the proof. Conjoin the "useful"
  * type constraints at the beginning of the scope of the bound variable and the "deep" constraints
  * at the end of the scope of the bound variable.
- * @param  statement the statement to be proven from a <code>means</code> statement
+ * @param  statement the statement to be proven from a status statement
  * @return           the modified statement */
 private String expandForall(String statement) {
-  // TODO Expand forall statements for Prolog by adding type information for each forall variable
+  // TODO Expand forall statements for KB by adding type information for each forall variable
   return statement;
 }
 

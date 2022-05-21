@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import tlang.Scope.VarInfo;
 import tlang.TLantlrParser.T_expressionContext;
 import tlang.TLantlrParser.T_varInvarContext;
+
 import static tlang.TUtil.*;
 import static tlang.TLantlrParser.*;
 
@@ -86,7 +87,7 @@ visitT_compilationUnit(T_compilationUnitContext ctx) {
       }
     }
   }
-  return null;
+  return VOIDNULL;
 }
 
 @Override
@@ -188,7 +189,7 @@ visitAssignStmt(AssignStmtContext ctx) {
     //       have the scope of "a". We have already taken care of fields, so it will only be needed
     //       after local variable declarations.
   }
-  return null;
+  return VOIDNULL;
 } // @formatter:on
 
 private boolean sameVariable(String varName, T_expressionContext t_expression) {
@@ -214,7 +215,7 @@ public Void visitConjRelationExpr(ConjRelationExprContext ctx) {
   if (ctx.op.getText().equals("="))
     rewriter.replace(ctx.op, "==");
 
-  return null;
+  return VOIDNULL;
 }
 
 /**
@@ -232,7 +233,7 @@ visitT_assignable(T_assignableContext ctx) {
   visitChildren(ctx);
 
   inAssignableExpression = holdInAssignableState;
-  return null;
+  return VOIDNULL;
 }
 
 /**
@@ -246,7 +247,7 @@ visitT_assignable(T_assignableContext ctx) {
  */
 @Override public Void
 visitT_UndecoratedIdentifier(T_UndecoratedIdentifierContext undecoratedCtx) {
-  return null;
+  return VOIDNULL;
 }
 
 /**
@@ -267,7 +268,7 @@ visitT_UndecoratedIdentifier(T_UndecoratedIdentifierContext undecoratedCtx) {
                              : "/*'*/"+ variableName
                              ;
   rewriter.replace(preDecoratedCtx.getStart(), preDecoratedCtx.getStop(), javaVarName);
-  return null;
+  return VOIDNULL;
 }
 
 /**
@@ -293,7 +294,7 @@ visitT_UndecoratedIdentifier(T_UndecoratedIdentifierContext undecoratedCtx) {
   else                                                                      //  or
     javaVarName = variableName +"/*"+ decoratorString+decorationText +"*/"; // id/*'xxx*/
   rewriter.replace(midNameContext.getStart(), midNameContext.getStop(), javaVarName);
-  return null;
+  return VOIDNULL;
 }
 
 /**
@@ -308,7 +309,7 @@ visitT_UndecoratedIdentifier(T_UndecoratedIdentifierContext undecoratedCtx) {
   final String id = rewriter.source(valueNameCtx);
   final String variableName = id.substring(0, id.length()-1);
   rewriter.replace(valueNameCtx.getStart(), valueNameCtx.getStop(), variableName +"/*'*/");
-  return null;
+  return VOIDNULL;
 }
 
 /**
@@ -337,19 +338,26 @@ private String newID(String id) {
 visitT_means(T_meansContext ctx) {
   commentTheCode(ctx);
   // do not visitChildren(ctx);
-  return null;
+  return VOIDNULL;
+}
+
+@Override public Void
+visitT_lemma(T_lemmaContext ctx) {
+  commentTheCode(ctx);
+  // do not visitChildren(ctx);
+  return VOIDNULL;
 }
 
 @Override public Void visitT_given(TLantlrParser.T_givenContext ctx) {
   commentTheCode(ctx);
   // do not visitChildren(ctx);
-  return null;
+  return VOIDNULL;
 }
 
 @Override public Void visitT_varInvar(TLantlrParser.T_varInvarContext ctx) {
   commentTheCode(ctx);
   // do not visitChildren(ctx);
-  return null;
+  return VOIDNULL;
 }
 
 

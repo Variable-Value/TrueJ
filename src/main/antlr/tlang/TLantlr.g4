@@ -458,6 +458,7 @@ t_statement
   | t_expression '.' 'new' t_nonWildcardTypeArguments? t_innerCreator            # CreationStmt
   | UndecoratedIdentifier ':' t_statement                                        # LabelStmt
   | t_means                                                                      # MeansStmt
+  | t_lemma                                                                      # LemmaStmt
   | t_given                                                                      # GivenStmt
   | t_ERROR                                                                      # ERROR_STMT
   ;
@@ -719,6 +720,10 @@ t_means
   : (FINAL)? MEANS ':' t_expression ';'
   ;
 
+t_lemma
+  : LEMMA ':' t_expression ';'
+  ;
+
 t_given
   : GIVEN ':' t_expression ';'
   ;
@@ -791,6 +796,7 @@ INSTANCEOF    : 'instanceof';
 INT           : 'int';
 INTERFACE     : 'interface';
 INVARIANT     : 'invar';
+LEMMA         : 'lemma';
 LONG          : 'long';
 LOOP          : 'loop';
 MEANS         : 'means';

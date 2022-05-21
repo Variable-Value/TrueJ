@@ -13,8 +13,8 @@ Feature: Status Statements for Executable code
   summarizing, or clarifying the preceding code in a way that the compiler can verify; the _lemma_,
   playing a supporting role for the means-statement; and the _conjecture_, providing runtime
   verification of facts when the compiler is unable to verify them. This feature only covers the use
-  of these statements in a section of executable code. In another feature we cover the use of such
-  statements to constrain or summarize the resting state of an object.
+  of these statements in a section of executable code. In another feature we cover the use of those
+  statements that constrain or summarize the resting state of an object.
 
   Both the lemma and the means-statement summarize the meaning of the preceding code, that is the
   changes to data that the code causes, and the claims of both kinds of statements are verified by
