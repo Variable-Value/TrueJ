@@ -111,11 +111,11 @@ Scenario: A Type name cannot be decorated when it is declared
   Then the error messages contain
     """
     mismatched input 'SwapError2'' expecting UndecoratedIdentifier in rule t_classDeclaration
-    Parse error at line 5:0 for <[@14,34:37='void',<60>,5:0]>: extraneous input 'void'
-    Parse error at line 7:2 for <[@31,72:73='a'',<74>,7:2]>: extraneous input 'a''
-    Parse error at line 8:2 for <[@38,83:84='b'',<74>,8:2]>: extraneous input 'b''
-    Parse error at line 9:0 for <[@45,99:99='}',<85>,9:0]>: extraneous input '}'
-    Parse error at line 12:0 for <[@65,129:129='}',<85>,12:0]>: extraneous input '}'
+    Parse error at line 5:0 for <[@14,34:37='void',<61>,5:0]>: extraneous input 'void'
+    Parse error at line 7:2 for <[@31,72:73='a'',<75>,7:2]>: extraneous input 'a''
+    Parse error at line 8:2 for <[@38,83:84='b'',<75>,8:2]>: extraneous input 'b''
+    Parse error at line 9:0 for <[@45,99:99='}',<86>,9:0]>: extraneous input '}'
+    Parse error at line 12:0 for <[@65,129:129='}',<86>,12:0]>: extraneous input '}'
     """
 #TODO
 #Scenario:  All static fields must be final.
