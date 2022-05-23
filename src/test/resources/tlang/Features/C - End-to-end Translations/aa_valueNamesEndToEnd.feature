@@ -16,13 +16,13 @@ Feature: Value names - end to end test (TrueJ 0.1)
 
 Scenario: Insertion of TrueJ runtime import relative to comments
 
-    The tlang.runtime import is inserted before any class JavaDoc, being careful
-    to preserve line numbers to help associate Java compile errors with the
-    original TrueJ code. The @TType annotation is inserted after the
-    JavaDoc, before and on the same line as the class keyword.
+  The tlang.runtime import is inserted before any class JavaDoc, being careful
+  to preserve line numbers to help associate Java compile errors with the
+  original TrueJ code. The @TType annotation is inserted after the
+  JavaDoc, before and on the same line as the class keyword.
 
-    We avoid creating new lines when translating in order to help programmers (or a future version
-    of TrueJ) identify the TrueJ code resposible for generating Java compiler error messages.
+  We avoid creating new lines when translating in order to help programmers (or a future version
+  of TrueJ) identify the TrueJ code resposible for generating Java compiler error messages.
 
   When a valid compile unit is
   """
@@ -281,10 +281,10 @@ Scenario: Insertion of TrueJ runtime import relative to other imports and packag
 
 Scenario: Values have names
 
-    Decorators that modify a variable name into a value name are surrounded by
-    comments in the generated Java code. Also, non-Java statements like the
-    means-statement are embedded in special comments. One principle we follow is
-    that the TrueJ code can be reconstructed from the generated Java.
+  Decorators that modify a variable name into a value name are surrounded by
+  comments in the generated Java code. Also, non-Java statements like the
+  means-statement are embedded in special comments. One principle we follow is
+  that the TrueJ code can be reconstructed from the generated Java.
 
   # The following do not yet test qualified names; when we get to that, we can
   # model the TrueJ code for the syntax on the code in
@@ -489,25 +489,25 @@ Scenario: Values have names
   #    """
 
 # Prolog code that may be needed later
-* Note
-  """
-  Here is a note to the programmer that can be removed later:
-
-  The Prolog sub_atom can be used to deconstruct the information in the name of
-  a value if it is needed, for instance, to construct error messages. As an
-  example, here is the way to find the variable name from a simple value name
-  like a^, ^a, or a^temp.
-
-  atom_name(Val,Var)
-   :- sub_atom(Val, Pre, 1, Post, '^')
-    , ( Pre = 0 -> sub_atom(Val, 1, Post, 0, Var) % for pre-decorated
-                 ; sub_atom(Val, 0, Pre , _, Var) % for mid- or post-decorated
-      )
-    .
-
-  Similar code can isolate the value name from the contextual information in the
-  Prolog name, such as a method name and line and character counts.
-  """
+#* Note
+#  """
+#  Here is a note to the programmer that can be removed later:
+#
+#  The Prolog sub_atom can be used to deconstruct the information in the name of
+#  a value if it is needed, for instance, to construct error messages. As an
+#  example, here is the way to find the variable name from a simple value name
+#  like a^, ^a, or a^temp.
+#
+#  atom_name(Val,Var)
+#   :- sub_atom(Val, Pre, 1, Post, '^')
+#    , ( Pre = 0 -> sub_atom(Val, 1, Post, 0, Var) % for pre-decorated
+#                 ; sub_atom(Val, 0, Pre , _, Var) % for mid- or post-decorated
+#      )
+#    .
+#
+#  Similar code can isolate the value name from the contextual information in the
+#  Prolog name, such as a method name and line and character counts.
+#  """
   # The assert-statements for the final conjuncts in a means-statement are not
   # necessary. Some other asserts are not necessary because they occur in previous
   # code or asserts. For now, we will leave them in. Later, we will need to define
@@ -615,8 +615,8 @@ Scenario: Values have block scoping
 
 Scenario: Intermediate value names use middle decoration
 
-    The whole decorator that is used to transform a variable name into a value name is commented out
-    in the generated code.
+  The whole decorator that is used to transform a variable name into a value name is commented out
+  in the generated code.
 
   When a valid compile unit is
     """
@@ -664,9 +664,9 @@ Scenario: Intermediate value names use middle decoration
 
 Scenario: Using no final decoration for a non-final field
 
-    We repeat the previous Scenario using undecorated final values, even though the fields were
-    declared as initial decorated. We use final value names in the method because the values are
-    never changed in the method.
+  We repeat the previous Scenario using undecorated final values, even though the fields were
+  declared as initial decorated. We use final value names in the method because the values are
+  never changed in the method.
 
   When a valid compile unit is
     """
@@ -790,11 +790,11 @@ Scenario: A reused value is saved immediately before it is overwritten
 
 Scenario: Comments inside code that is commented out are adjusted
 
-    For comments that will end up nested inside the comments that the compiler
-    generates, "(*$T$*" is substituted for "/*" and "*$T$*)" is substituted for
-    "*/". This will allow reconstruction of the TrueJ from the generated
-    Java by simply doing the reverse any time those odd strings of characters
-    are found.
+  For comments that will end up nested inside the comments that the compiler
+  generates, "(*$T$*" is substituted for "/*" and "*$T$*)" is substituted for
+  "*/". This will allow reconstruction of the TrueJ from the generated
+  Java by simply doing the reverse any time those odd strings of characters
+  are found.
 
   When a valid compile unit is
     """
