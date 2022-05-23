@@ -1,3 +1,4 @@
+@testthis
 @Ready
 Feature: Value names are decorated variable names - TrueJ 0.1
 
@@ -81,9 +82,9 @@ Example: Notes
   assignment inside an arbitrary expression in exchange for unifying the syntax of three uses of
   equality:
 
-    - equality resulting from an assigment statement
-    - equality tests in conditional expressions
-    - equality in claims about program state
+  - equality resulting from an assigment statement
+  - equality tests in conditional expressions
+  - equality in claims about program state
 
   They all use the single equal sign '='. It will have to be emphasized to new programmers that
   the new value name must be on the left-hand side of an assigment, and no new value names may
@@ -304,7 +305,6 @@ Example: A means statement that is false
     The code does not support the proof of the statement: b' = 'b
     """
 
-
 Example: Notes
 
   <h3>Previous Research</h3>
@@ -332,21 +332,23 @@ Example: Notes
   logic statements are only needed in TrueJ when the facts that are stated by the operations need to
   be clarified, summarized, or restated as new concepts.
 
-  Auxiliary variables, also called history variables or fixed variables, were introduced by Clint
-  (???) and have become a standard part of proving program correctness (Hoare, 1969; Gries, 19??;
-  Dijkstra, ????). The value of an auxiliary variable never changes; therefore, in our terminology,
-  auxiliary variables are value names that are lexically independent of the variables that hold, or
-  once held, the value. Alternatively, the value names of TrueJ could be considered to be a
-  convention for naming and using auxiliary variables. However, previous work has only used
-  auxiliary variables in comments and proofs of correctness, whereas value names are included as
-  part of the TrueJ syntax and, as well as aiding in proofs, are used to draw the attention of the
-  programmer to changes in state as part of the normal coding process.
+  Rigid variables, also called fixed variables, hold the initial value of changable variables for
+  use in proofs and have become a standard part of proving program correctness (Hoare, 1969; Gries,
+  19??; Schneider, 19??; Gries, 19??; Dijkstra, ????). A separate name for the initial values of
+  variables is needed because specifications and other predicates describe the relationship between
+  the initial and later states of the program's data. Whereas the common practice for rigid
+  variables is to use a capitalized form of the variable that originally held the value of the rigid
+  variable, initial values in TrueJ use predecorated forms of the variable names. However, previous
+  work has only used rigid variables in comments and accompanying proofs of correctness, whereas
+  value names are included as part of the TrueJ syntax for both operational code and logic, and are
+  used to draw the attention of the programmer to changes in state as part of the normal coding
+  process.
 
   Decorated variables have been used to identify a particular value of the variable by almost every
   computer scientist who has struggled with program semantics (and long before that by
   mathematicians and physicists describing change). A post-decorated variable name has been used to
   denote the initial value of a variable by some and the final value by others, leaving the other
-  value to be denoted by the variable name without any decoration. The Eifel language () also
+  value to be denoted by the variable name without any decoration. The Eifel language (19??) also
   includes a syntax for the initial value of a variable in post-conditions of methods. This
   overloaded use of one name for both a variable and one of its values causes no problems when
   describing a single state of the program. In order to describe states across multiple points in
@@ -367,9 +369,9 @@ Example: Notes
   Single assignment languages identify the concepts of variable and value by requiring a new
   variable name at each assignment (Tesler and Enea, 1968), whereas TrueJ requires a new value name
   to be associated with a variable at each assignment. Some single assignment languages allow
-  statements to be entered in any order, since unique variable names can be used to sort statements
-  into a correct execution order, but TrueJ requires the programmer to specify the execution order
-  and merely checks that no names are used out of order.
+  statements to be entered in any order, since the unique variable names can be used to sort
+  statements into a correct execution order, but TrueJ requires the programmer to specify the
+  execution order and merely checks that no names are used out of order.
 
   The static single assignment (SSA) intermediate representation for languages assigns a modified
   variable name to every unique value of a variable. It is used in compiler writing (Rosen, et. al,
@@ -379,7 +381,16 @@ Example: Notes
   Eric Hehner showed that programs are predicates (Hehner, 19??; Hoare and Hanna, 19??; Hoare,
   19??). TrueJ explores this idea with a first-order predicate logic that uses only value names,
   abandoning the complications of programming variables that can change value in the middle of
-  solving a problem.
+  solving a problem. Hehner (??? part I) uses a syntax for initial and and final decoration of
+  variables similar to TrueJ, but with the apostrophes over the variable names. This is a naming
+  convention that is not congenial to the current convention of code as ASCII text, but he avoids
+  using it in code by defining the standard operations that we see in computer code as equivalent to
+  predicates over these values. His focus is on showing that the code we normally see in computer
+  programs can be defined in a form of predicate logic, so that there is truly no difference between
+  computer programs and predicate logic, with no need for syllogisms that show how to work in both
+  languages at once. TrueJ carries this thinking a step further by making every operational code
+  statement into an explicit predicate logic statement over the values names, so that the steps of
+  proofs are written in the code.
 
   Hoare logic and the "programs are predicates" approach provides a firm mathematical foundation for
   understanding programming variables. The tradition in this type of mathematical analysis is to use
@@ -392,10 +403,10 @@ Example: Notes
   explore more features of TrueJ, we will require the programmer to name the initial and final
   values for variables that change within a method or programming construct, and there is a sense in
   which this use of TrueJ's value names are simply a way of solving the equations for sequential
-  composition that are given by Hehner and Hoare, which is as we expect since its all just
-  mathematics. We merely wish to pose the empirical hypothesis that TrueJ's notation will help the
-  programmer see what is true about the state as the program executes, that is, see what the program
-  means.
+  composition that are given by Hehner and Hoare. And this is exactly what we expect it to be as its
+  all just mathematics. We merely wish to pose the empirical hypothesis that TrueJ's notation will
+  help the programmer see what is true about the state as the program executes, that is, see what
+  the program means.
 
 
   <h3>Conclusion</h3>
@@ -431,10 +442,10 @@ Example: Notes
 
   <h3>References</h3>
 
+    David Chisnall. 2018. C Is Not a Low-level Language. Queue Vol. 16, No. 2, April, 2018.
+    DOI: https://doi.org/10.1145/3212477.3212479
 
-    David Chisnall. 2018. C Is Not a Low-level Language. Queue Vol. 16, No. 2, April, 2018. DOI: https://doi.org/10.1145/3212477.3212479
-
-    Gries, ...
+    David Gries and Fred B. Schneider, A Logical Approach to Discrete Math, Springer-Verlog, 1993.
 
     Hehner, A Practical Theory of Programming, 1984.
 
@@ -449,10 +460,9 @@ Example: Notes
     C. A. R. Hoare, "Proof of a program: Find", Communications of the ACM, Vol.
     14, No. 1, Jan., 1971.
 
-    W. D. Maurer. 1977. "The modification index method of generating
-    verification conditions". In Proceedings of the 15th annual Southeast
-    regional conference (ACM-SE 15). ACM, New York, NY, USA, 426-440.
-    DOI=http://dx.doi.org/10.1145/1795396.1795456
+    W. D. Maurer. 1977. "The modification index method of generating verification conditions". In
+    Proceedings of the 15th annual Southeast regional conference (ACM-SE 15). ACM, New York, NY,
+    USA, 426-440. DOI=http://dx.doi.org/10.1145/1795396.1795456
 
     Susan Owicki and David Gries, "An axiomatic proof technique for parallel
     programs I", Acta Informatica, Vol. 6, pp. 319-340, 1976.
