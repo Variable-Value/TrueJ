@@ -1,4 +1,3 @@
-@testthis
 @Ready
 Feature: Value names are decorated variable names - TrueJ 0.1
 

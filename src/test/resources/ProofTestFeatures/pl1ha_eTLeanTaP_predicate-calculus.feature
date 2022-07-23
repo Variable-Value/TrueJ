@@ -492,7 +492,7 @@ Rule: The prover may be able to halt after exploring only a finite portion of an
 
 ###########################################
 #            WORKING HERE                 #
-@testthis
+#@testthis
 #                                         #
 ###########################################
 
