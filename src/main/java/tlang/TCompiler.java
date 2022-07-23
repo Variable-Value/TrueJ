@@ -355,7 +355,7 @@ saveGenerated( JavaFileHandler javaCollector
              ) {
   if (msgCollector.hasNoErrs()) {
     String javaCodeFromT
-        = TLantlrRewriteVisitor.treeToJava(tree, tokens, scopeMap);
+        = TLantlrJavaRewriter.treeToJava(tree, tokens, scopeMap);
     final String topTypeName = semanticCheckResults.getTopTypeName();
     final String packageName = semanticCheckResults.getPackageName();
     try {

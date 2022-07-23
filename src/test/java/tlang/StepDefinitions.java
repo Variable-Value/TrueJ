@@ -370,7 +370,7 @@ private void attemptJavaCodeGeneration() {
     return;
 
   errs.newSource("Generate Java code");
-  javaCodeFromT = TLantlrRewriteVisitor.treeToJava(tree, tokens, scopeMap);
+  javaCodeFromT = TLantlrJavaRewriter.treeToJava(tree, tokens, scopeMap);
 }
 
 private void

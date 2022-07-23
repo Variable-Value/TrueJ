@@ -111,11 +111,11 @@ public void captureConflictingEndingValueNames() {
     VarInfo varInfo = notNull(getExistingVarInfo(var));
     String currentValueName = varInfo.getCurrentValueName();
     if ( ! endingValueName.equals(currentValueName) ) {
-      if (endingValueName != TLantlrRewriteVisitor.$T$)
+      if (endingValueName != TLantlrJavaRewriter.$T$)
         varInfo.reusedValueNames.add(endingValueName);
       varInfo.reusedValueNames.add(currentValueName);
-      varToEndingValueName.put(var, TLantlrRewriteVisitor.$T$);
-      varInfo.setCurrentValueName(TLantlrRewriteVisitor.$T$);
+      varToEndingValueName.put(var, TLantlrJavaRewriter.$T$);
+      varInfo.setCurrentValueName(TLantlrJavaRewriter.$T$);
     }
   }
 }
