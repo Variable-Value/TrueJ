@@ -1,47 +1,51 @@
 #  TODO: Add tests for the lemma first, then means-statemt.
 #  TODO: Add tests for the given statement.
 #  TODO: Add tests for the conjecture.
-@testthis
 @Ready
 Feature: Status Statements for Executable code
 
-  TrueJ provides several statements that declare the state of the program's data at that point. We
-  use the terminology _status statements_ to distinguish them from command statements. These status
-  statements show that change made by commands as the relationship between the object's state at the
-  beginning of those commands' execution and the state at the end. The three status statements that
-  capture these changes are the means-statement, carrying the bulk of the load for specifying,
-  summarizing, or clarifying the preceding code in a way that the compiler can verify; the _lemma_,
-  playing a supporting role for the means-statement; and the _conjecture_, providing runtime
-  verification of facts when the compiler is unable to verify them. This feature only covers the use
-  of these statements in a section of executable code. In another feature we cover the use of those
-  statements that constrain or summarize the resting state of an object.
-
-  Both the lemma and the means-statement summarize the meaning of the preceding code, that is the
-  changes to data that the code causes, and the claims of both kinds of statements are verified by
-  the compiler. However, the means-statement also claims that its meaning is sufficient for all the
-  following code. The means-statement is used in a block of code to summarize those facts of _all_
-  preceding code that is needed in _any_ of the following code inside the same block, allowing
-  the programmer to state consequential facts and omit details about how these facts were
-  established. And if a means-statement omits any fact about the data that is needed by that
-  following code, the compiler generates an error.
+  TrueJ provides three status statements, the _lemma_, the _means_, and the _conjecture_, that
+  declare the state of the program's data at a moment in the code's execution (corresponding to a
+  point in the code's progress down the page). The _lemma_ and _means_ statements both summarize the
+  facts from the preceding code, but the _means_-statement, in addition, asserts _everything_ we need
+  to know about the preceding code that is needed in _any_ of the following code, giving us a way to
+  ignore
+  complications such as temporary variables or poorly named library functions going forward.
+  The _lemma_ and _means_ statements give a way for the programmer to make the program more readable
+  and are also verified by the compiler.
+  If the compiler is struggling to find a proof of a _lemma_ or _means_ statement, the programmer
+  can usually help it by providing additional _lemma_ statements, which are likely to also increase
+  another programmer's comprehension of the program. The _conjecture_ is much like the
+  _lemma_; however, it is checked at runtime instead of compile time, providing a way to verify code
+  facts when the programmer is unable to find a way to help the compiler verify them. TrueJ
+  discourages the casual use of the _conjecture_ for sloppy code. This document only
+  covers the use of these statements in a section of executable code. In another feature we cover
+  constraining and summarizing the resting state of an object.
 
 Rule: A means-statement or lemma summarizes the preceding executable code
 
-Example: Using a lemma or a means-statement to restate the meaning of preceding commands
+@testthis
+Example: Using a lemma to restate the meaning of preceding commands
+
+  In the following rather confused code, note that the lemma omits information about the temporary
+  variable _startingA'_, but that information is still available for use in the following code.
 
   * a valid compile unit is
     """
     class Status1 {
 
-    int 'a, 'b;
+    int 'a = 2, 'b = 3, 'c = 1;
 
-    void swap() {
+    void threeSwap() {
       int startingA' = 'a;
-      a' = 'b;
-      lemma: startingA' = 'a & a' = 'b;
+      a' = 'c;
+      c'temp = startingA';
+      lemma: a' = 'c & c'temp = 'a;
+
+      c'= 'b;
       b' = startingA';
-      means: a' = 'b & b' = 'a;
     }
+    means: a' = 'c & b' = 'a & c' = 'b;
 
     } // end class
     """
@@ -299,7 +303,7 @@ Example: Reusing a fact from before an enclosed block
     } // end class
     """
 
-# @InProgress
+@InProgress
 Rule: Object fields that are modified must have a final value for security
 
   Because the _means_-statement is expected to summarize the code above it, a security review should
