@@ -323,7 +323,6 @@ private String returnExpression(String returnedExpression) {
           statementsAreActive = false;
           meaning += and + rewriter.source(meansCtx.t_means().t_expression());
         } else if (statement instanceof LemmaStmtContext lemmaCtx) {
-          statementsAreActive = false;
           meaning += and + rewriter.source(lemmaCtx.t_lemma().t_expression());
         } else {
           meaning += and + rewriter.source(statement);
@@ -364,6 +363,7 @@ private String returnExpression(String returnedExpression) {
 }
 
 @Override public Void visitWhileStmt(TLantlrParser.WhileStmtContext ctx) {
+  WhileStatementMgr.validateWhile(ctx, this); //  .validateWhile(ctx, this);
   visitChildren(ctx);
 
   String condition = rewriter.source(ctx.t_parExpression());
@@ -611,8 +611,9 @@ public Void visitT_means(T_meansContext ctx) {
 
   ProofResult result = kb.substituteIfProven(meansStatementForProver);
 
-  if ( result != ProofResult.provenTrue)
+  if ( result != ProofResult.provenTrue) {
     result = proveEachConjunct(predicate);
+  }
   rewriter.substituteText(ctx.t_expression(), meansStatementForProver);
   return VOIDNULL;
 }
@@ -630,8 +631,9 @@ public Void visitT_lemma(T_lemmaContext ctx) {
 
   ProofResult result = kb.assumeIfProven(lemmaStatementForProver);
 
-  if ( result != ProofResult.provenTrue)
+  if ( result != ProofResult.provenTrue) {
     result = proveEachConjunct(predicate);
+  }
   rewriter.substituteText(ctx.t_expression(), lemmaStatementForProver);
   return VOIDNULL;
 }

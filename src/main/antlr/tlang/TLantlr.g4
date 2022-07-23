@@ -440,10 +440,10 @@ t_statement
   | ASSERT t_expression (':' t_expression)? ';'                                  # AssertStmt
   | 'if' t_parExpression t_statement ('else' t_statement)?                       # IfStmt
   | 'for' '(' t_forControl ')' t_statement                                       # ForStmt
-  | 'loop' ('(' t_identifier_shift? ')')? t_varInvar?
-                               'while' t_parExpression t_statement               # WhileStmt
-  | 'loop' ('(' t_identifier_shift? ')')? t_varInvar?
-                               'do' t_statement 'while' t_parExpression ';'      # DoStmt
+  | t_beginningControl? t_identifier_shifts?
+        'while' t_parExpression t_statement t_endingControl?                     # WhileStmt
+  | t_identifier_shifts?
+        'do' t_statement t_varInvar? 'while' t_parExpression ';'                 # DoStmt
   | 'try' t_block (t_catchClause+ t_finallyBlock? | t_finallyBlock)              # TryStmt
   | 'try' t_resourceSpecification t_block t_catchClause* t_finallyBlock?         # TryStmt
   | 'switch' t_parExpression '{' t_switchBlockStatementGroup* t_switchLabel* '}' # SwitchStmt
@@ -463,6 +463,14 @@ t_statement
   | t_ERROR                                                                      # ERROR_STMT
   ;
 
+t_beginningControl
+  : t_varInvar
+  ;
+
+t_endingControl
+  : t_varInvar
+  ;
+
 t_varInvar
   : t_variant t_invariant?
   | t_invariant t_variant?
@@ -476,10 +484,12 @@ t_variant
   : 'var' ':' t_expression ';'
   ;
 
-t_identifier_shift
-  : ','? t_identifier '-->' t_identifier
-    (',' t_identifier '-->' t_identifier )?
-    ','?
+t_identifier_shifts
+  :'(' ','? t_identifier_shift (',' t_identifier_shift)* ','? ')'
+  ;
+
+t_identifier_shift  // from --> to
+  : t_identifier '-->' t_identifier
   ;
 
 /**
@@ -571,7 +581,7 @@ t_expressionDetail // in order of most sticky to least sticky
   | t_expressionDetail '.' 'this'                                              # DotThisExpr
   | t_expressionDetail '.' 'new' t_nonWildcardTypeArguments? t_innerCreator    # DotNewExpr
   | t_expressionDetail '.' 'super' t_superSuffix                               # DotSuperExpr
-  | t_expressionDetail '.' t_explicitGenericInvocation                         # DotExplicitGenericExpr
+  | t_expressionDetail '.' t_explicitGenericInvocation                         # DotExplGenericExpr
   | t_expressionDetail '[' t_expressionDetail ']'                              # ArrayExpr
   | t_expressionDetail '(' (t_expressionDetail (',' t_expressionDetail)*)? ')' # FuncCallExpr
   | 'new' t_creator                                                            # NewExpr
@@ -583,14 +593,13 @@ t_expressionDetail // in order of most sticky to least sticky
   | t_expressionDetail ('+'|'-') t_expressionDetail                            # AdditiveExpr
   | t_expressionDetail ('<' '<' | '>' '>' '>' | '>' '>') t_expressionDetail    # ShiftExpr
   | t_expressionDetail op=('<'|'<='|'='|'>='|'>'|'!=') t_expressionDetail      # ConjRelationExpr
-                                // = is not assignment in expressions
+      // Unlike C and Java, = is not assignment when it occurs in expressions
       // Allowed conjunctive chains:
       //   A sequence of =
-      //   A sequence of = with a single embedded !=, which implies !=
-      //   A sequence of intermixed =, > and >=, which implies >= (or > if one is present)
-      //   A sequence of intermixed =, < and <=, which implies <= (or < if one is present)
+      //   A sequence of = with a single embedded !=, which implies != for all on the two sides
+      //   A sequence of intermixed, conjunctive =, >, or >=
+      //   A sequence of intermixed, conjunctive =, <, or <=
       //   Other sequences are prohibited, such as a >= b <= c,
-      //                          which would mean a and c >= b
   | t_expressionDetail 'instanceof' t_type                                     # InstanceOfExpr
   | t_expressionDetail '&' t_expressionDetail                                  # AndExpr
   | t_expressionDetail '^' t_expressionDetail                                  # ExclusiveOrExpr
@@ -600,12 +609,11 @@ t_expressionDetail // in order of most sticky to least sticky
   | t_expressionDetail '?' t_expressionDetail ':' t_expressionDetail           # ConditionalExpr
   | t_expressionDetail op=('<==' | '===' | '=!='| '==>') t_expressionDetail    # ConjunctiveBoolExpr
       // Allowed conjunctive chains:
-      //   A sequence of ===
-      //   A sequence of === with a single embedded =!=, which implies =!=
-      //   A sequence of intermixed === and ==>, which implies ==>
-      //   A sequence of intermixed === and <==, which implies <==
+      //   A sequence of conjunctive ===
+      //   A sequence of conjunctive === with a single embedded =!=
+      //   A sequence of intermixed, conjunctive === and ==>
+      //   A sequence of intermixed, conjunctive === and <==
       //   Other sequences are prohibited, such as A ==> B =!= C <== D,
-      //                             which implies (A =!= D) | (A === false)
 
   | ('sum' | 'prod' | 'forall' | 'forsome' | 'set' | 'list' | 'bag')
     t_quantifiedExpression                                                     # QuantifierExpr
@@ -825,7 +833,7 @@ VOID          : 'void';
 VOLATILE      : 'volatile';
 WHILE         : 'while';
 
-SHIFTER: '-->';
+SHIFTER       : '-->';
 
 // §3.10.3 Boolean Literals
 

@@ -9,28 +9,33 @@ Feature: Iteration with the while statement
 
   The idea of doing something over and over seems quite simple. However, it turns out that it is
   very easy to make small mistakes with large consequences when we try to automate a repetition that
-  is just a little complex. Have we gathered everything we need before we start? Are we clear on the
-  details of what we are trying to accomplish? How do we make sure that we don't stop too soon or
-  too late, or never! Once we make sure that we haven't made one of these simple mistakes, the loop
-  turns out to be quite complex.
+  is just a little complex. Are we clear on the details of what we are trying to accomplish?
+  How exactly do these tiny repeated steps accumulate into that large accomplishment? Have we
+  gathered everything we need before we start? How do we make sure that we don't stop too soon or
+  too late -- or never! Once we take on the job of making sure that all these details are alligned,
+  the loop turns out to be quite complex.
 
-  We will attempt to simplify our work by adding some thinking aids to the syntax of the loop:
+  TrueJ attemps to make loops easier to understand by providing new syntax for the loop:
 
-  - The usual parts of a loop in procedural programming languages
+  - The usual parts of a loop in procedural programming languages:
     * the _body_ - the code that we execute over and over
     * the _loop condition_ - an executable test for when to keep going and when to stop
-  - New non-executable statements to help us think clearly about loops
-    * the _meaning of the loop_ as a whole
-    * the _invariant_ - the piece of the meaning of the loop that applies to one iteration
-    * the _variant_ - a way of looking at the loop condition that helps us make sure we eventually
-      reach the stopping condition
+
+  - New non-executable statements to help us think clearly about loops:
+    * the _meaning of the loop_ as a whole (what it accomplishes)
+    * the _invariant_ - facts that are available to use at the start of every iteration
+    * the _variant_ - a countdown test that helps us make sure that the loop condition eventually
+      reaches the stopping condition
+    * the shift - the starting and result value names that the loop uses
+
+    * (each of these new statements are optional in some situations)
 
 Rule: The components of a loop work together
 
   Here, we will present a simple example. Then, below, we will use the example to explain how the
-  different statements help us understand loops and write them correctly.
+  different syntax elementsn help us understand loops and write them correctly.
 
-@InProgress
+@testthis
 Example: A simple loop to multiply by adding
 
   The example multiplies two numbers by repeatedly adding.
@@ -39,38 +44,37 @@ Example: A simple loop to multiply by adding
   more explicit, but more cluttered, post-decorated names; for example,  we use `i` instead of `i'`
   to refer to the final value that the variable `i` will have at the end of the method. The
   advantages and disadvantages of this notation are explained in the feature
-  `aa_valueNamesDetails_finalDecoration.feature`. The important thing to remember is that in TrueJ,
-  the variable name is never used except as a part of a value name, so if it looks like a variable
-  name it is really the name of a value that never changes, the final value that the variable holds
-  at the end of a method.
+  `aa_valueNamesDetails_finalDecoration.feature`. The important thing to remember in TrueJ is that,
+  if it's assigned a value, it's a value name that keeps the same value for its whole scope.
 
   * a valid compile unit is
   """
   class Counter {
 
-    int m' = 4;
-    int n' = 7;
+    int m = 4;
+    int n = 7;
 
     int 'product = 0;
 
     void multiplyByAdding() {
       product'current = 0;
 
-      loop (product' <-- product'current, i' <-- 'i) {
-        int 'i = 0
+      int 'i = 0;
 
-        invar: i' <= n';
-        invar: product' = m' * i';
-        var: n' - i' > 0;
+      var:   'i <  n;                   // use starting value names
+      invar: 'i <= n & product'current = m * 'i;
 
-        while (i' < n') {
-          product' = product'current + m';
-          i' = 'i + 1;
-        }
-        means: ~(i' < n') & i' <= n' & product' = m' * i';
+      (product'current --> product, 'i --> i)
+      while ('i != n) {
+        product = product'current + m;
+        i = 'i + 1;
       }
-      means: product' = m' * n';
+      var: i < n;                       // use ending value names
+      invar: i <= n & product = m * i;
+      means: ! (i != n)                 // negation of stopping condition
+           & i <= n & product = m * i;  // invariant
     }
+    means: product = m * n;
 
   }
   """
@@ -78,8 +82,8 @@ Example: A simple loop to multiply by adding
 # @InProgress
 Example: An explanation of the above code
 
-  Some loops are simpler, but the example that we gave requires a complete explanation of the
-  workings of a loop. First we review the parts of a loop that are familiar from other procedural
+  Many loops are even simpler, but we wish to give a complete explanation of the syntax
+  of a loop. First we review the parts of a loop that are familiar from other procedural
   languages:
 
   - The _body_ is the code that is repeatedly executed. in our example that is
@@ -140,11 +144,17 @@ Example: An explanation of the above code
 
     We write the condition test in terms of the unshifted value names because it is tested before each iteration and also because if it's meaning is used inside the body, it is needed in the unshifted form.
 
-  - The _invariant_ is a status statement that is always true immediately before the condition is
-    tested in its unshifted form, but is stated in the shifted form of the value names, e.g.,
-    `product` instead of `'product`:
+  - An _invariant_ statement must always be true immediately before the
+    condition is tested in its unshifted form, which means that it must also be true at the end of the
+    loop body. Here we provide both forms of the invariant statement, but only one is required, and
+    in certain situations, neither. Multiple invariant statements may be specififed in a row to form
+    a single invariant. The invariant staements that come before the while
+    statement are coded using the starting form of the value names while those after the while
+    statemeht are coded in the ending form of the value names, e.g., `product` instead of
+    `'product`:
     >
-          invar: i <= n  &  product = m * i;
+          invar: i <= n;
+          invar: product = m * i;
 
     This particular invariant consists of something that we might call one iteration's slice of the
     goal, `product = m * i`, and another bit of code, `i <= n`, to keep us from making a mistake
@@ -153,11 +163,12 @@ Example: An explanation of the above code
     If we were to attempt to prove that our loop reached our goal by using mathematical induction,
     we might invent our invariant to use in the induction step.
 
-  - It isn't clear that any facts about program values can be assigned to a loop statement that
-    never stops, so we insist that we must be able to understand why it eventually stops. To do this
-    we use a _variant_ statement that relies on the fact that there are only a finite number of
-    integers between any two integers. The variant is a statement using the shifted form of the
-    value names, but with a very restricted syntax, consisting of an integer expression, a direction in which it always changes, and a constant stopping value:
+  - If a loop statement never stops, we can't state any facts about program values, so we insist
+    that we must be able to understand why the loop eventually stops. To do this we use a _variant_
+    statement that relies on the fact that there are only a finite number of integers between any
+    two integers. The variant is a statement using the shifted form of the value names, but with a
+    very restricted syntax, consisting of an integer expression, a direction in which it always
+    changes, and a constant stopping value:
     >
           var: n - i > 0;
 
