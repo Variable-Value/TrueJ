@@ -131,6 +131,19 @@ public class KnowledgeBase {
 public enum SolverInTestMode {on,off}
 public SolverInTestMode testMode = SolverInTestMode.off;
 
+
+/** the facts known by the KnowledgeBase. These must all be consistent with one another. The facts
+ * are kept in a queue data structure in the hope that the most recently entered fact will be the
+ * one most important in proving a new fact.
+ */
+private ArrayDeque<String> facts = null;
+
+  boolean hasNoFacts() { return facts == null || facts.isEmpty(); }
+  boolean hasFacts()   { return ! hasNoFacts(); }
+  ArrayDeque<String> getFacts() { return facts; }
+
+
+
 /** Is the prolog engine printing its output? */
 private static boolean isDebugging = false;
 private static Prolog engine = createPrologEngine();
@@ -196,15 +209,6 @@ private final KnowledgeBase parentKB;
   boolean hasParent() { return parentKB != null; }
   boolean isTopLevelKB() { return ! hasParent(); }
 
-/** the facts known by the KnowledgeBase. These must all be consistent with one another. The facts
- * are kept in a queue data structure in the hope that the most recently entered fact will be the
- * one most important in proving a new fact.
- */
-private ArrayDeque<String> facts = null;
-
-  boolean hasNoFacts() { return facts == null || facts.isEmpty(); }
-  boolean hasFacts()   { return ! hasNoFacts(); }
-
 
 
 /** Creates an empty top-level KnowledgeBase that is ready to accept facts.
@@ -255,17 +259,19 @@ public void assumeType(String variableType, String valueName) {
   // add these new facts to the type facts
 }
 
-/** Add information that cannot possibly be inconsistent with prior facts to the
- * <code>KnowledgeBase</code>. Use the method {@link #assumeIfConsistent(String)} if a check for consistency
- * with the <code>KnowledgeBase</code> could possibly be needed. {@link #assume(String)} is useful
- * for TrueJ <code>given</code> statements or executable code. This is safe for <code>given</code>
- * statements because they checked every place the method is used, and safe for executable code
- * because it establishes facts about new states, which can not conflict with existing states.
+/**
+ * Add a fact that cannot possibly be inconsistent with prior facts to the
+ * <code>KnowledgeBase</code>. Use the method {@link #assumeIfConsistent(String)} if a check for
+ * consistency with the <code>KnowledgeBase</code> could possibly be needed. {@link #assume(String)}
+ * is useful for TrueJ <code>given</code> statements or executable code. This is safe for
+ * <code>given</code> statements because they checked every place the method is used, safe for lemma
+ * Statements that have just been proven to be a consequence of preceding statements, and safe for
+ * executable code because it establishes facts about new states, which can not conflict with
+ * existing states.
  * <p>
  * For efficiency this method could be used to add a fact that is known to be consistent with the
  * the existing knowledge base in some other way, but if a mistake is made, the
  * <code>KnowledgeBase</code> would be corrupted.
- * @param fact
  */
 public void assume(String fact) {
   facts.push(fact);
@@ -447,7 +453,7 @@ public ProofResult substituteIfProven(String newFact) {
  * @return a {@link ConsistencyResult}
  */
 public ConsistencyResult checkConsistency(String statement) {
-  String testString = parens(statement) + and + conjoinedFacts();
+  String testString = parenthesized(statement) + and + conjoinedFacts();
   SolveInfo solutionInfo = checkForConsistency(testString);
   return prologConsistencyResult(solutionInfo);
   }
@@ -566,15 +572,21 @@ private void restoreState(ArrayDeque<String> deque) {
   facts = deque;
 }
 
-/** Create a single string with all the statements from the stack conjoined. Each statement from the
- * stack is enclosed in parentheses to make sure that the whole statement associates with the AND.
+/**
+ * Create a single string with all the statements from the knowledgebase stack conjoined. Each
+ * statement from the stack is enclosed in parentheses to make sure that the whole statement
+ * associates with the AND.
  * @param stack A Deque of first-order predicate calculus statements
  * @return The stack of statements as one big AND statement
  */
+//TODO:
 String conjoinedFacts() {
   final String andWithParens = ") "+and+" (";
+  @SuppressWarnings("null")
   String theseFacts = hasFacts()
-                        ? parens(facts.stream().collect(Collectors.joining(andWithParens)))
+                        //TODO: facts.stream().map(fact -> parenthesized(fact))
+                        //                    .Collectors.joining(" ,");
+                        ? parenthesized(facts.stream().collect(Collectors.joining(andWithParens)))
                         : "true";
   String contextFacts = hasParent() ? parentKB.conjoinedFacts() : "true";
   return theseFacts + and + contextFacts;
@@ -590,7 +602,8 @@ String conjoinedFacts() {
   // TODO: explore if method is ever used when stack.isEmpty(). Why would that be?
 }
 
-private String parens(String s) {
+/** The parenthesized string argument. */
+private static String parenthesized(String s) {
   return "("+ s +")";
 }
 
