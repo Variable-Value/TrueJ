@@ -297,12 +297,12 @@ static <T> boolean isNull(@Nullable T object) {
 }
 
 /**
- * Juggle the status of an object from @Nullable to @NonNull for an object that is known to be
+ * Juggle the type of an object from @Nullable to @NonNull for an object that is known to be
  * non-null. The programmer must ensure that the object is guaranteed by other code to be non-null.
- * It is much safer to check for <code>null</code> and throw an exception if you made a mistake.
- * But if you are confident, using this is more elegant than a
- * <code>@SuppressWarnings("null")</code> on a whole method. And since this method is private and
- * doesn't do anything, it compiles away to almost nothing.
+ * Instead of using this method, it is much safer to check for <code>null</code> and throw an
+ * exception if you made a mistake. But if you are confident, using this is more elegant than a
+ * <code>@SuppressWarnings("null")</code> on a whole method. Since this method is private and
+ * does not affect runtime state, it compiles away to almost nothing.
  * <p>
  * If this method is copied into a class, then, since it is private and doesn't do anything,
  * it compiles away to almost nothing in that class.
