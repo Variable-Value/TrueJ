@@ -16,7 +16,7 @@ import static tlang.TLantlrParser.*;
 /**
  * Translate TrueJ to Java
  */
-public class TLantlrRewriteVisitor extends RewriteVisitor {
+public class TLantlrJavaRewriter extends RewriteVisitor {
 
 /**
  * Are we creating a new value name? For instance, in the assignment <code>x'[0] = 'x[0] + 1</code>
@@ -30,7 +30,7 @@ boolean inAssignableExpression = false;
  * compiler and TrueJ system to use for implemention. */
 public static final String $T$ = "$T$";
 
-public TLantlrRewriteVisitor( TokenStream             tokenStream
+public TLantlrJavaRewriter( TokenStream             tokenStream
                             , Map<RuleContext, Scope> ctxToScope
                             ) {
   super(tokenStream, ctxToScope);
@@ -40,7 +40,7 @@ static public String treeToJava( ParseTree parseTree
                                , TokenStream tokenStream
                                , Map<RuleContext, Scope> ctxToScope
                                ) {
-  TLantlrRewriteVisitor visitor = new TLantlrRewriteVisitor(tokenStream, ctxToScope);
+  TLantlrJavaRewriter visitor = new TLantlrJavaRewriter(tokenStream, ctxToScope);
   visitor.visit(parseTree);
   return visitor.getJava();
 }
@@ -355,6 +355,12 @@ visitT_lemma(T_lemmaContext ctx) {
 }
 
 @Override public Void visitT_varInvar(TLantlrParser.T_varInvarContext ctx) {
+  commentTheCode(ctx);
+  // do not visitChildren(ctx);
+  return VOIDNULL;
+}
+
+@Override public Void visitT_identifier_shifts(TLantlrParser.T_identifier_shiftsContext ctx) {
   commentTheCode(ctx);
   // do not visitChildren(ctx);
   return VOIDNULL;

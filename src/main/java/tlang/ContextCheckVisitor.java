@@ -27,7 +27,7 @@ import static tlang.TUtil.*;
  */
 public class ContextCheckVisitor extends TLantlrBaseVisitor<Void> {
 
-private static final String $T$ = TLantlrRewriteVisitor.$T$;
+private static final String $T$ = TLantlrJavaRewriter.$T$;
 private static final String invalidCharsMsg
       = $T$ +" is reserved for T language internal use only";
 
