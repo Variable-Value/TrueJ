@@ -79,7 +79,6 @@ Example: A simple loop to multiply by adding
   }
   """
 
-# @InProgress
 Example: An explanation of the above code
 
   Many loops are even simpler, but we wish to give a complete explanation of the syntax
@@ -195,7 +194,6 @@ Rule: The body must change the variant in the direction of the stopping value
     but usually we can see the direction of change easily, and the compiler will generate an error
     if it cannot prove that the code causes the variant to change in the right direction.
 
-@InProgress
 Example: A variant that changes in the wrong direction
 
   When an invalid compile unit is
@@ -211,14 +209,14 @@ Example: A variant that changes in the wrong direction
     product'current = 0; // "product-naught" will be the value name at the beginning of each iteration
     int 'i = 0;
 
-    loop (product'current --> product, 'i --> i)
-      invar: i <= n  &  product = m * i;
-      var: n - i > 0;
+    invar: i <= n  &  product = m * i;
+    var: n - i > 0;
+    (product'current --> product, 'i --> i)
     while ('i < n) {
       product = product'current + m; // "product" will be the value name at the end of each iteration
       i = 'i - 1;
     }
-    means: ~(i < n) & i <= n & product = m * i;
+    means: !(i < n) & i <= n & product = m * i;
 
     means: product = m * n;
   }
@@ -290,15 +288,15 @@ Example: A variant change that skips over the stopping value
     product'current = 0;
     int 'i = 0;
 
-    loop (product'current --> product, 'i --> i)
-      invar: i <= n  &  product = m * i;
-      var: n - i > 0;
+    invar: i <= n  &  product = m * i;
+    var: n - i > 0;
+    (product'current --> product, 'i --> i)
     while ('i < n) {
       product'intermediate = product'current + m;
       product = product'intermediate + m;
       i = 'i + 2;
     }
-    means: ~(i < n) & i <= n & product = m * i;
+    means: !(i < n) & i <= n & product = m * i;
 
     means: product = m * n;
   }
@@ -306,7 +304,7 @@ Example: A variant change that skips over the stopping value
   }
   """
 
-  Then an the only error message contains
+  Then the only error message contains
   """
   The code does not support the proof of the invariant statement: i <= n
   """
@@ -384,10 +382,14 @@ Rule: The loop variant documents how a stopping value will be reached.
   The variant is not executable code, so we do not test it to actually stop the execution of the next iteration. And sometimes the variant is indirect and less readable, like `var: i'+1 > 0`, while there is a simple and executable stop/continue test that is available, like
   `while (i' >= 0)`. The compiler checks to make sure that this loop condition stops when our variant reaches its stopping value, or, technically, that when the boolean variant expression is false it implies that the boolean loop condition is also false.
 
-@InProgress
 Example: A simple counter
 
-  No one would ever need a counter this simple, but here are the bones of counting up to some number in TrueJ.
+  The invariant and the negation of the loop condition combine to show the exact value of the counter i.
+  >
+        'i <= 1000
+      & 'i >= 1000
+      ==>
+        'i =  1000
 
   * a valid compile unit is
   """
@@ -396,13 +398,13 @@ Example: A simple counter
 
     void countUpTo1000() {
 
-      loop ('i --> i)
-        invar: i <= 1000;
-        var: 1000 - i > 0;
+      invar: 'i <= 1000;
+      var: 1000 - 'i > 0;
+      ('i --> i)
       while ('i < 1000) {
         i = 'i + 1;
       }
-      means: ~(i < 1000) & i <= 1000;
+      means: !(i < 1000) & i <= 1000;
     }
     means: i = 1000;
 
@@ -422,7 +424,6 @@ Rule:
   The code following the loop can count on the invariant being true, so it must be true before every
   test to see if the loop continues, or even if it begins.
 
-@InProgress
 Example: A missing variant defaults to the loop condition
 
   The syntax for a loop variant is such that for some loops it is identical to the loop condition;
@@ -430,41 +431,42 @@ Example: A missing variant defaults to the loop condition
 
 Rule: The invariant is true at the start of a every test for entering the loop
 
-@InProgress
 Example: The invariant is true on the first test, whether the loop is entered or not
 
   Even when the loop is never executed, we must ensure that the invariant is true.
 
-  * a compile unit that parses is
-    """
-    class NullLoop {
-
-    void nullCountWithLoopingGoto() {
-      int n' = 0;
-      int 'count = 0;
-
-      condition loopInv(j, m) ( j = sum(int i : upto(0, m) : 1 ) );
-
-      LoopStart: // ('count --> count')
-        means: loopInv('count, n');
-        variant 'count < n'; // 'count + epsilon' <= count'  (where epsilon' > 0)
-
-        if ('count < n')
-          goto LoopEnd;
-
-        count' = 'count + 1;
-        m' = 'm + 1;
-        means: 'count + 1 <= count'
-            & loopInv(count', n');
-
-        goto LoopStart (count' --> 'count);
-        LoopEnd: ;
-      }
-      means: count' = 0;
-    }
-
-    }
-    """
+#  * a compile unit that parses is
+#    """
+#    class NullLoop {
+#
+#    void nullCountWithLoopingGoto() {
+#      int n' = 0;
+#      int 'count = 0;
+#
+#      condition loopInv(j, m) ( j = sum(int i : upto(0, m) : 1 ) );
+#      condition loopVar('count, count', n') ((n' - 'count) - (n' - count') >= 1 );
+#
+#      LoopStart: // ('count --> count')
+#        means: loopInv('count, n');
+#        variant 'count < n'; // 'count + epsilon' <= count'  (where epsilon' > 0)
+#
+#        if ('count < n')
+#          goto LoopEnd;
+#
+#        count' = 'count + 1;
+#        m' = 'm + 1;
+#        means: 'count + 1 <= count'
+#            & loopInv(count', n');
+#            & loopVar('count, count', n')
+#
+#        goto LoopStart // (count' --> 'count);
+#        LoopEnd: ;
+#      }
+#      means: count' = 0;
+#    }
+#
+#    }
+#    """
 
   * a valid compile unit is
     """
@@ -473,9 +475,11 @@ Example: The invariant is true on the first test, whether the loop is entered or
 
       void nullLoop() {
         int 'count = 0;
-        while ('count < n') { // ('count --> count')
-          invar 'count = sum(int i : upto(0, n') : 1 );
-          variant 'count < n';
+
+        invar: 'count = sum(int i : upto(0, n') : 1 );
+        var: 'count < n';
+        ('count --> count')
+        while ('count < n') {
 
           count' = 'count + 1;
         }
@@ -495,9 +499,10 @@ Example: The invariant is true on the first test, whether the loop is entered or
 
       int 'product = 1;
       int 'i = 0;
+
+      var: 'i < n';
+      invar: 'product = m' * 'i;     // (2)
       while ('i != n') {                  // (1)
-        variant 'i < n';
-        invariant 'product = m' * 'i;     // (2)
 
         product' = 'product + m';
         // means: product' = m' * 'i + m';
@@ -535,7 +540,7 @@ Example: The invariant is true on the first test, whether the loop is entered or
 #        ('productSoFar --> productSoFar')
 #        while ('i < multiplier') {
 #          invar i' >= multiplier' & 'productSoFar = multiplicand' * 'i;
-#          variant multiplier' - i’ > 0;
+#          var: multiplier' - i’ > 0;
 #
 #          productSoFar'inLoop = 'productSoFar + multiplicand';
 #          means: productSoFar'inLoop = multiplicand' * ('i+1);
@@ -561,7 +566,7 @@ Example: The invariant is true on the first test, whether the loop is entered or
 #      while ('i != multiplier')
 #        'productSoFar --> productSoFar';
 #        invar 'productSoFar = multiplicand' * 'i;
-#        variant multiplier' - i’ > 0;
+#        var: multiplier' - i’ > 0;
 #      {
 #        productSoFar'inLoop = 'productSoFar + multiplicand';
 #        means: productSoFar'inLoop = multiplicand' * ('i+1);
