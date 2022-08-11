@@ -36,6 +36,76 @@ Rule: The components of a loop work together
   different syntax elementsn help us understand loops and write them correctly.
 
 @testthis
+Example: Searching for the smallest positive integer with a property
+
+  This is one of the simplest examples that uses the full possible syntax of a while
+  statement: we search upward until we find the first positive integer _i_ such that the square of
+  _(i + 3)_ is greater than 1000. A little algebra could be used to find the answer, but the program
+  can serve as a prototype for more complicated problems.
+
+  Here are the three properties that we want for our result _i_:
+
+  - _i_ is a positive integer
+
+  >
+      i > 0
+
+  - _(i + 3)_ squared is greater than 1000
+
+  >
+      (i + 3)*(i + 3) > 1000
+
+  - The formula is less than or equal to 1000 for every positive integer less than _i_
+
+  >
+      forall(int j : 0 < j < i : (j + 3)*(j + 3) <= 1000)
+
+  So we will have a final means of
+
+  >
+        i > 0
+      & (i + 3)*(i + 3) > 1000
+      & forall(int j : 0 < j < i : (j + 3)(j + 3) <= 1000)
+
+  The explanation of each line is given below the program.
+
+  * a valid compile unit is
+  """
+  class LeastIntegerIterationExample {
+
+    int 'n = 1;
+
+    /**
+      * Set _n_ to the least positive integer _i_ such that _(i + 3)_ squared is greater than 1000.
+      */
+    void leastGreaterThan() {
+
+      int 'i = 1;
+
+      // 1000 can act as a sentinal to ensure that we eventually stop so we use it in the variant
+      lemma: (1000 +3)*(1000 +3) > 1000 ;
+
+      while (('i +3)*('i +3) <= 1000) {
+        var:   'i <= 1000;
+        invar:  'i > 0 & forall(int j : 0 < j < 'i : (j + 3)*(j + 3) <= 1000 );
+
+        i = 'i + 1;
+
+        invar: i > 0 & forall(int j : 0 < j < i :  (j + 3)*(j + 3) <= 1000 );
+      }
+      means: ! ((i +3)*(i +3) <= 1000)       // negation of the ending form of the looping condition
+           & i > 0 & forall(int j : 0 < j < i : (j + 3)*(j + 3) <= 1000) // ending form of invariant
+           ;
+      n = i;
+    }
+    means: n > 0
+         & (n + 3)*(n + 3) > 1000
+         & forall(int j : 0 < j < n : (n + 3)*(n + 3) <= 1000)
+         ;
+  }
+  """
+
+# TODO: We should use this as an example where we don't need a variant.
 Example: A simple loop to multiply by adding
 
   The example multiplies two numbers by repeatedly adding.
@@ -64,14 +134,14 @@ Example: A simple loop to multiply by adding
       var:   'i <  n;                   // use starting value names
       invar: 'i <= n & product'current = m * 'i;
 
-      (product'current --> product, 'i --> i)
-      while ('i != n) {
+      while ('i < n) {
         product = product'current + m;
         i = 'i + 1;
       }
       var: i < n;                       // use ending value names
       invar: i <= n & product = m * i;
-      means: ! (i != n)                 // negation of stopping condition
+
+      means: ! (i >= n)                 // negation of stopping condition
            & i <= n & product = m * i;  // invariant
     }
     means: product = m * n;
