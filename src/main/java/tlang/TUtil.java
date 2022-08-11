@@ -19,7 +19,7 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-
+import tlang.TLantlrParser.T_identifierContext;
 import static tlang.TCompiler.*;
 import static tlang.TLantlrParser.*;
 
@@ -60,10 +60,7 @@ final static List<Integer> decoratedTokenTypes
 
 /**
  * Read file as a token stream.
- * @param fileToParse
- * @param msgCollector
  * @return CommonTokenStream built from file input
- * @throws IOException
  */
 public static CommonTokenStream
 fileToTokens(String fileToParse, CollectingMsgListener msgCollector)
@@ -264,12 +261,18 @@ public static boolean isAFinalValueName(String valueName) {
   return isUndecorated(valueName) || isFinalDecorated(valueName);
 }
 
+static boolean isBooleanIdentifier(T_identifierContext targetCtx, Scope curScope) {
+  String targetVarName = variableName(notNull(targetCtx.getText()));
+  String varType = notNull(curScope.getExistingVarInfo(targetVarName)).getType();
+  return varType.equals("boolean") || varType.equals("Boolean");
+}
+
+
 public static void printMap(java.util.Map<String, String> map) {
   for (java.util.Map.Entry<String, String> entry : map.entrySet()) {
     System.out.println(entry.getKey() +" --> "+ entry.getValue());
   }
 }
-
 
 boolean isMissing(Optional<?> optional) {
   return !optional.isPresent();

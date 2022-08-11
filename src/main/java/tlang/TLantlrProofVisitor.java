@@ -13,17 +13,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import tlang.KnowledgeBase.ProofResult;
 import tlang.Scope.VarInfo;
-import tlang.TLantlrParser.InitializedVariableContext;
-import tlang.TLantlrParser.MeansStmtContext;
-import tlang.TLantlrParser.T_blockStatementContext;
-import tlang.TLantlrParser.T_expressionContext;
-import tlang.TLantlrParser.T_expressionDetailContext;
-import tlang.TLantlrParser.T_localVariableDeclarationContext;
-import tlang.TLantlrParser.T_methodDeclarationContext;
-import tlang.TLantlrParser.T_parExpressionContext;
-import tlang.TLantlrParser.T_primaryContext;
-import tlang.TLantlrParser.T_statementContext;
-import tlang.TLantlrParser.T_typeDeclarationContext;
+import tlang.TLantlrParser.*;
 
 import static tlang.TUtil.*;
 import static tlang.TLantlrParser.*;
@@ -218,26 +208,24 @@ public Void visitInitializedVariable(InitializedVariableContext ctx) {
 public Void visitAssignStmt(AssignStmtContext ctx) {
   visitChildren(ctx);
 
-  String rhs = rewriter.source(ctx.t_assignable());
-  String op = isBooleanIdentifier(ctx.t_assignable().t_identifier())
-              ? "===" : " = ";
-  String lhs = parenthesize(rewriter.source(ctx.t_expression()));
-  String src = parenthesize(rhs + op + lhs);
+  String src = transformAssignment(ctx);
   rewriter.substituteText(ctx, src);
   kb.assume(src);
   return VOIDNULL;
 }
 
-private boolean needsEquivalenceForBooleanTarget(InitializedVariableContext ctx) {
-  var targetCtx = ctx.t_initializedVariableDeclaratorId().t_idDeclaration().t_identifier();
-  return isBooleanIdentifier(targetCtx);
+private String transformAssignment(AssignStmtContext ctx) {
+  T_assignableContext lhs = ctx.t_assignment().t_assignable();
+  String op = isBooleanIdentifier(lhs.t_identifier(), notNull(currentScope))
+              ? "===" : " = ";
+  T_expressionContext rhs = ctx.t_assignment().t_expression();
+  String src = parenthesize(rewriter.source(lhs) + op + parenthesize(rewriter.source(rhs)));
+  return src;
 }
 
-private boolean isBooleanIdentifier(T_identifierContext targetCtx) {
-  String targetVarName = TUtil.variableName(notNull(targetCtx.getText()));
-  Scope curScope = notNull(currentScope);
-  String varType = notNull(curScope.getExistingVarInfo(targetVarName)).getType();
-  return varType.equals("boolean") || varType.equals("Boolean");
+private boolean needsEquivalenceForBooleanTarget(InitializedVariableContext ctx) {
+  var targetCtx = ctx.t_initializedVariableDeclaratorId().t_idDeclaration().t_identifier();
+  return isBooleanIdentifier(targetCtx, notNull(currentScope));
 }
 
 /**
@@ -362,13 +350,13 @@ private String returnExpression(String returnedExpression) {
   return VOIDNULL;
 }
 
-@Override public Void visitWhileStmt(TLantlrParser.WhileStmtContext ctx) {
-  WhileStatementMgr.validateWhile(ctx, this); //  .validateWhile(ctx, this);
+@Override public Void visitWhileStmt(WhileStmtContext ctx) {
+  LoopMgr.validateWhile(ctx, this); //  .validateWhile(ctx, this);
   visitChildren(ctx);
 
-  String condition = rewriter.source(ctx.t_parExpression());
-  String body = parenthesize(rewriter.source(ctx.t_statement()));
-  rewriter.substituteText(ctx, parenthesize(condition + and + body )); // rewriter.source(ctx)));
+  String condition = rewriter.source(ctx.t_condition());
+  String invariant = parenthesize(rewriter.source(ctx.t_endingInvariant()));
+  rewriter.substituteText(ctx, parenthesize(condition + and + invariant ));
   return VOIDNULL;
 }
 
@@ -453,10 +441,7 @@ public Void visitConjRelationExpr(TLantlrParser.ConjRelationExprContext ctx) {
  *   <tr><td>&gt;= <td>&gt;=
  *   <tr><td>&gt;  <td>&gt;
  * </table>
- *
- * @param ctx
- */
-//@formatter:on
+ */  //@formatter:on
 private void translateOps(ConjRelationExprContext ctx) {
   String operator = ctx.op.getText();
   if ("<=".equals(operator))
@@ -468,51 +453,53 @@ private void translateOps(ConjRelationExprContext ctx) {
 }
 
 private boolean hasBooleanTerms(T_expressionDetailContext ctx) {
-  if (ctx instanceof AndExprContext)
+  if (ctx instanceof ConditionalAndExprContext || ctx instanceof AndExprContext)
     return true;
-  if (ctx instanceof ConjRelationExprContext)
+  if (ctx instanceof ConditionalOrExprContext || ctx instanceof OrExprContext)
     return true;
-  if (ctx instanceof PrimaryExprContext)
-    return isBooleanPrimary(((PrimaryExprContext)ctx).t_primary());
   if (ctx instanceof NotExprContext)
     return true;
-//    if (ctx instanceof FuncCallExprContext) {
-//      // TODO: does this function return a boolean?
-//    }
-  if (ctx instanceof DotExprContext)
-    return isBooleanDotExpr((DotExprContext)ctx);
-  if (ctx instanceof ConditionalExprContext) {  // e(0) ? e(1) : e(2)
-    ConditionalExprContext ceCtx = (ConditionalExprContext)ctx;
-    return hasBooleanTerms(ceCtx.t_expressionDetail(1)); // ||
-                                                         // hasBooleanTerms(ceCtx.t_expressionDetail(2));
+  if (ctx instanceof ConjRelationExprContext || ctx instanceof ConjunctiveBoolExprContext)
+    return true;
+  if (ctx instanceof PrimaryExprContext peCtx)
+    return isBooleanPrimary(peCtx.t_primary());
+  if (ctx instanceof DotExprContext dotCtx)
+    return isBooleanDotExpr(dotCtx);
+  if (ctx instanceof ConditionalExprContext ceCtx) {  // expr(0) ? expr(1) : expr(2)
+    return  hasBooleanTerms(ceCtx.t_expressionDetail(1));
+      // || hasBooleanTerms(ceCtx.t_expressionDetail(2));
   }
-//    if (ctx instanceof DotExplicitGenericExprContext) { /* TODO: returns boolean? */ }
   if (ctx instanceof InstanceOfExprContext)
     return true;
-  if (ctx instanceof OrExprContext)
-    return true;
-  if (ctx instanceof ConditionalOrExprContext)
-    return true;
-  if (ctx instanceof ArrayExprContext) {
-    ArrayExprContext aeCtx = (ArrayExprContext)ctx;
+  if (ctx instanceof ArrayExprContext aeCtx) {
     if (hasBooleanTerms(aeCtx.t_expressionDetail(0)))
       return true;
   }
   if (ctx instanceof ExclusiveOrExprContext)
     return true;
-//    if (ctx instanceof NewExprContext) { /* TODO: add this; however, new Boolean(true) is deprecated */ }
-  if (ctx instanceof ConditionalAndExprContext)
-    return true;
-//    if (ctx instanceof TypeCastExprContext)  { /* TODO: check for casting boolean to Boolean (deprecated) */ }
-  if (ctx instanceof ConditionalAndExprContext)
-    return true;
+  if (ctx instanceof QuantifierExprContext quantCtx) {
+    String quantText = quantCtx.quant.getText();
+    return quantText.equals("forall") || quantText.equals("forsome");
+  }
+
+  //    if (ctx instanceof DotExplicitGenericExprContext dotExplGenrCtx) { /* TODO: returns boolean? */ }
+
+  //if (ctx instanceof FuncCallExprContext) {
+  //// TODO: does this function return a boolean?
+  //}
+
+  //    if (ctx instanceof NewExprContext) {
+  //      TODO: add this; however, new Boolean(true) is deprecated
+  //    }
+  //    if (ctx instanceof TypeCastExprContext)  { /* TODO: check for casting boolean to Boolean (deprecated) */
+
   // OTHERWISE
   return false;
 }
 
 public boolean isBooleanDotExpr(DotExprContext ctx) {
   if ("this".equals(rewriter.source(ctx.t_expressionDetail()))
-      && isBooleanIdentifier(ctx.t_identifier()))
+      && isBooleanIdentifier(ctx.t_identifier(), notNull(currentScope)))
     return true;
   // TODO: return true if other (non-this) object component identifier is boolean
   // otherwise
@@ -523,13 +510,16 @@ public boolean isBooleanDotExpr(DotExprContext ctx) {
  * as of 2019 Jan 16
  */
 public boolean isBooleanPrimary(T_primaryContext ctx) {
-  if (ctx.getChild(0) instanceof T_parExpressionContext)
-    return hasBooleanTerms(((T_parExpressionContext)ctx.getChild(0)).t_expression()
-                                                                    .t_expressionDetail());
-  if (ctx.t_identifier() != null)
-    return isBooleanIdentifier(ctx.t_identifier());
+  if (! isNull(ctx.t_parExpression()))
+    return hasBooleanTerms(ctx.t_parExpression().t_expression().t_expressionDetail());
 
-  return(ctx.getText().equals("true") || ctx.getText().equals("false"));
+  if (! isNull(ctx.t_identifier()))
+    return isBooleanIdentifier(ctx.t_identifier(), notNull(currentScope));
+
+  if (! isNull(ctx.t_literal()))
+    return true;
+
+  return false;
 }
 
 /** Replace the Java OR (|) with the prover OR (\/).
@@ -726,7 +716,7 @@ private String parenthesize(String expression) {
  * @param  variableName
  * @return              scope name followed by a dot separator */
 private String getScopePrefix(final String variableName) {
-  final Optional<VarInfo> info = currentScope.getOptionalExistingVarInfo(variableName);
+  final Optional<VarInfo> info = notNull(currentScope).getOptionalExistingVarInfo(variableName);
   return info.map(v -> v.getScopeWhereDeclared().getLabel() + ".")
              .orElse("");
 }
