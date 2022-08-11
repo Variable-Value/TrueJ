@@ -6,9 +6,10 @@ import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import tlang.Scope.VarInfo;
-import tlang.TLantlrParser.T_expressionContext;
-import tlang.TLantlrParser.T_varInvarContext;
+import tlang.TLantlrParser.*;
 
 import static tlang.TUtil.*;
 import static tlang.TLantlrParser.*;
@@ -166,20 +167,20 @@ protected void executableVisit(ParserRuleContext ctx, ParserRuleContext bodyCtx)
 visitAssignStmt(AssignStmtContext ctx) {
   // Collect pre-visit (unmodified) info
   // running example - let text for assignments statement be         a' = 'a + 1;
-  Token assignedValueToken = ctx.t_assignable().getStart();          // token for a'
+  Token assignedValueToken = ctx.t_assignment().t_assignable().getStart();          // token for a'
   String assignedValueName = assignedValueToken.getText();           // a'
   String varName = variableName(assignedValueName);                  // a
 
   VarInfo varInfo = currentScope.getExistingVarInfo(varName);        // a
-  if (  sameVariable(varName, ctx.t_expression())
-     && ! (  isReusedAfterOverwrite(ctx.t_expression().getText(), varInfo)
+  if (  sameVariable(varName, ctx.t_assignment().t_expression())
+     && ! (  isReusedAfterOverwrite(ctx.t_assignment().t_expression().getText(), varInfo)
 //          || isReusedAfterOverwrite(assignedValueName, varInfo)
           )
      ) {
     commentTheCode(ctx);                  // whole command becomes   /*$T$* a' = 'a + 1; *$T$*/
   } else {
-    visit(ctx.t_expression());                                       // becomes /*'*/a + 1
-    visit(ctx.t_assignable());                                       // becomes a/*'*/
+    visit(ctx.t_assignment().t_expression());                                       // becomes /*'*/a + 1
+    visit(ctx.t_assignment().t_assignable());                                       // becomes a/*'*/
       // (equal sign and ; are unchanged) so whole command becomes   a/*'*/ = /*'*/a + 1;
   }
   if (isReusedAfterOverwrite(assignedValueName, varInfo)) {          // a' is reused later in code
@@ -354,27 +355,27 @@ visitT_lemma(T_lemmaContext ctx) {
   return VOIDNULL;
 }
 
-@Override public Void visitT_varInvar(TLantlrParser.T_varInvarContext ctx) {
+//@Override public Void visitT_invariant(TLantlrParser.T_invariantContext ctx) {
+//  commentTheCode(ctx);
+//  // do not visitChildren(ctx);
+//  return VOIDNULL;
+//}
+
+@Override public Void visitT_variant(TLantlrParser.T_variantContext ctx) {
   commentTheCode(ctx);
   // do not visitChildren(ctx);
   return VOIDNULL;
 }
-
-@Override public Void visitT_identifier_shifts(TLantlrParser.T_identifier_shiftsContext ctx) {
-  commentTheCode(ctx);
-  // do not visitChildren(ctx);
-  return VOIDNULL;
-}
-
 
 
 // ******** Utility Functions **********
 
+@SuppressWarnings("null")
 private boolean isReusedValue(String id) {
   if (currentScope == null) // Not inside class yet
     return false;
 
-  final VarInfo varinfo = currentScope.getExistingVarInfo(variableName(id));
+  final VarInfo varinfo = notNull(currentScope).getExistingVarInfo(variableName(id));
   return isReusedAfterOverwrite(id, varinfo);
 }
 
@@ -428,5 +429,17 @@ private String uncommentTheCode(String code) {
   return code;
 }
 
+/**
+ * Juggle the type of an object from @Nullable to @NonNull for an object that is known to be
+ * non-null. The programmer must ensure that the object is guaranteed by other code to be non-null.
+ * Instead of using this method, it is much safer to check for <code>null</code> and throw an
+ * exception if you made a mistake. But if you are confident, using this is more elegant than a
+ * <code>@SuppressWarnings("null")</code> on a whole method. Since this method is private and
+ * does not affect runtime state, it compiles away to almost nothing.
+ */
+@SuppressWarnings("null")
+private static <T> @NonNull T notNull(@Nullable T item) {
+  return (@NonNull T)item;
+}
 
 } // class TLantlrRewriteVisitor

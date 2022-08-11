@@ -3,16 +3,10 @@ package tlang;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.RuleContext;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.TerminalNode;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.tree.*;
+import org.eclipse.jdt.annotation.*;
 import tlang.Scope.VarInfo;
-import tlang.TLantlrParser.ConjRelationExprContext;
-import tlang.TLantlrParser.T_expressionContext;
 
 import static tlang.TCompiler.*;
 import static tlang.TLantlrParser.*;
@@ -402,6 +396,18 @@ public Void visitT_block(T_blockContext ctx) {
   return VOIDNULL;
 }
 
+@Override
+public Void visitQuantifierExpr(TLantlrParser.QuantifierExprContext ctx) {
+  if ( ! isInLogic)
+    errs.collectError( contextCheck, getStart(ctx),
+        "A quantified expression may only be used inside logic, not executable code");
+
+  QuantifierMgr.checkContextForQuantifier(ctx, this);
+    // We visit children in the QuantifierMgr
+
+  return VOIDNULL;
+}
+
 private Scope createScopeForBlock(T_blockContext ctx, Scope parentScope) {
   final Token firstToken = getStart(ctx);
   String blockLabel = "block_L" + firstToken.getLine() + "C" + firstToken.getCharPositionInLine();
@@ -427,22 +433,79 @@ public Void visitAssignStmt(AssignStmtContext ctx) {
   /* we reverse the order of visiting the children because assignment happens after the expression
    * is evaluated. This is important because we don't want to change the current value in the
    * variable info until the end of the assignment. */
-  visit(ctx.t_expression());
-  visit(ctx.t_assignable());
+  visit(ctx.t_assignment().t_expression());
+  visit(ctx.t_assignment().t_assignable());
 
-  checkForConfusingRelationalExpression(ctx.t_expression());
+  checkForConfusingRelationalExpression(ctx.t_assignment().t_expression());
   return VOIDNULL;
 }
 
+@Override
+public Void visitWhileStmt(TLantlrParser.WhileStmtContext ctx) {
+  LoopMgr.checkContext(ctx, this);
+  return VOIDNULL;
+}
+
+@Override
+public Void visitT_booleanExpression(T_booleanExpressionContext ctx) {
+//  if ( ! hasBooleanTerm(ctx.?????) /* issue error message */
+  return visitChildren(ctx);
+}
+
+
 /**
- * Is the right-hand expression of an assignment a conjunctive relational expression,
- * like <code>a < b</code> or <code>a = b = c</code>, tempting the
- * programmer to misread the assignment <code>=</code> as an equality in a chain of relations?
- * If so issue an error message.
+ * A boolean expression that is always true at the point at which it occurs in a loop. The syntax
+ * for loop statements shows the places at which it can be placed. An invariant at any other placee
+ * in the loop body can be show by using a lemma or means-statement.
  */
-private void checkForConfusingRelationalExpression(T_expressionContext expression) {
-  if ((expression.t_expressionDetail() instanceof ConjRelationExprContext))
-    errs.collectError(contextCheck, getStart(expression)
+@Override
+public Void visitT_loopInvariant(TLantlrParser.T_loopInvariantContext ctx) {
+  //TODO: write test
+  return VOIDNULL; // return visitChildren(ctx);
+}
+
+/**
+ * An invariant of a loop must be a boolean condition.
+ */
+@Override
+public Void visitT_beginningInvariant(TLantlrParser.T_beginningInvariantContext ctx) {
+  //TODO: write test
+  return VOIDNULL; // return visitChildren(ctx);
+}
+
+/**
+ * The ending invariant must be a boolean condition using the current value name of all variables
+ * that are updated by the body. This means that it must be checked after body processing.
+ */
+@Override
+public Void visitT_endingVariant(TLantlrParser.T_endingVariantContext ctx) {
+  //TODO: write test
+  return VOIDNULL; // return visitChildren(ctx);
+}
+
+/**
+ *
+ */
+@Override
+public Void visitT_variant(TLantlrParser.T_variantContext ctx) {
+  //TODO: write test
+  return VOIDNULL; // return visitChildren(ctx);
+}
+
+/**
+ * Issue error message if an assignment is something like one of the following:
+ * <code><pre>
+ *   x = a < b;
+ *   x = a = b = c;
+ * </pre></code>
+ * tempting the programmer to misread an assignment as an equality in a chain of relations.
+ *
+ */
+// If the right-hand side is parenthesized, it would be an instance of
+// <code>PrimaryExprContext</code> instead of <code>ConjRelationExprContext</code>.
+private void checkForConfusingRelationalExpression(T_expressionContext rightHandSideOfEquality) {
+  if ((rightHandSideOfEquality.t_expressionDetail() instanceof ConjRelationExprContext))
+    errs.collectError(contextCheck, getStart(rightHandSideOfEquality)
                      ,   "The right-hand side must be parenthesized "
                        + "to keep the assignment from looking like "
                        + "part of a conjunctive relational expression"
@@ -652,6 +715,7 @@ public void typeDeclarationVisit(String typeName, ParserRuleContext ctx) {
   // with class fields (and their value names if they were initialized) but it has not
   // filled in the parent scope for that Scope object except for the instance of the top level type.
   // We let the Java compiler check for a single visible top-level type per file.
+  // TODO: Why not have the FieldVisitor assign all class parents? What do we gain by doing it here?
   final Scope parent = currentScope;
 
   if (thisIsTheTopLevelType())

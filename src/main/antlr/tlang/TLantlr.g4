@@ -439,11 +439,23 @@ t_statement
   : t_block                                                                      # BlockStmt
   | ASSERT t_expression (':' t_expression)? ';'                                  # AssertStmt
   | 'if' t_parExpression t_statement ('else' t_statement)?                       # IfStmt
-  | 'for' '(' t_forControl ')' t_statement                                       # ForStmt
-  | t_beginningControl? t_identifier_shifts?
-        'while' t_parExpression t_statement t_endingControl?                     # WhileStmt
-  | t_identifier_shifts?
-        'do' t_statement t_varInvar? 'while' t_parExpression ';'                 # DoStmt
+  | 'for' '(' t_variableModifier* t_type t_identifier ':' t_expression ')'
+                                                                   t_statement   # ForAllOfStmt
+  | 'for' '(' t_forControl ')' t_statement                                       # BasicForStmt
+  | 'while' t_condition
+      '{'
+        t_beginningVariant?
+        t_beginningInvariant
+        (t_statement)+
+        t_endingInvariant?
+      '}'                                                                        # WhileStmt
+  | 'do'
+      '{'
+        (t_statement)+
+        t_endingVariant?
+        t_endingInvariant?
+      '}'
+      'while' t_parExpression ';'                                                # DoStmt
   | 'try' t_block (t_catchClause+ t_finallyBlock? | t_finallyBlock)              # TryStmt
   | 'try' t_resourceSpecification t_block t_catchClause* t_finallyBlock?         # TryStmt
   | 'switch' t_parExpression '{' t_switchBlockStatementGroup* t_switchLabel* '}' # SwitchStmt
@@ -453,7 +465,7 @@ t_statement
   | 'break' UndecoratedIdentifier? ';'                                           # BreakStmt
   | 'continue' UndecoratedIdentifier? ';'                                        # ContinueStmt
   | ';'                                                                          # EmptyStmt
-	| t_assignable op='=' t_expression ';'                                         # AssignStmt
+	| t_assignment ';'                                                             # AssignStmt
   | t_expression '(' t_expressionList? ')' ';'                                   # CallStmt
   | t_expression '.' 'new' t_nonWildcardTypeArguments? t_innerCreator            # CreationStmt
   | UndecoratedIdentifier ':' t_statement                                        # LabelStmt
@@ -463,33 +475,76 @@ t_statement
   | t_ERROR                                                                      # ERROR_STMT
   ;
 
-t_beginningControl
-  : t_varInvar
+t_assignment
+  : t_assignable op='=' t_expression
   ;
 
-t_endingControl
-  : t_varInvar
+/**
+ * An invariant stated at the start of a loop, which uses the beginning form of the value names
+ * for all variables that change in the body of the loop. The beginning and ending invariants must
+ * be logically equivalent, if references to variables that change in the body of the loop use the
+ * correct beginning or ending form of the value names.
+ */
+t_beginningInvariant
+  : t_loopInvariant
   ;
 
-t_varInvar
-  : t_variant t_invariant?
-  | t_invariant t_variant?
+/**
+ * An invariant stated at the end of a loop, which uses the ending form of the value names
+ * for all variables that change in the body of the loop. The beginning and ending invariants must
+ * be logically equivalent, if references to variables that change in the body of the loop use the
+ * correct beginning or ending form of the value names.
+ *
+ * When the loop finishes, the ending invariant will be true.
+ */
+t_endingInvariant
+  : t_loopInvariant
   ;
 
-t_invariant
-  : 'invar' ':' t_expression ';'
+/**
+ * A boolean expression that is always true at the point at which it occurs in a loop. The syntax
+ * for loop statements shows the places at which it can be placed. An invariant at any other placee
+ * in the loop body can be show by using a lemma or means-statement.
+ */
+t_loopInvariant
+  : 'invar' ':' t_booleanExpression ';'
   ;
 
+t_condition
+  : '(' t_booleanExpression ')'
+  ;
+
+t_booleanExpression
+  : t_expression
+  ;
+
+/** A variant placed at the start of a loop, which is stated with the beginning form of the value
+ * names for all variables that change in the body of the loop.
+ */
+t_beginningVariant
+  : t_variant
+  ;
+
+/** A variant placed at the end of a loop, which is stated with the ending form of the value names
+ * for all variables that change in the body of the loop.
+ */
+t_endingVariant
+  : t_variant
+  ;
+
+/**
+ * A discrete relationship that a loop modifies in the direction that would make it less distant,
+ * i.e., towards equality. The relationship can be in either the strict or the relaxed form and be
+ * expressed in either direction, e.g., <, <=, >, >=.
+ *
+ * For example,
+ *
+ *     var: currentRecord <= lastRecord;
+ *
+ * If the loop condition is stated in the correct form, it can serve as the variant.
+ */
 t_variant
   : 'var' ':' t_expression ';'
-  ;
-
-t_identifier_shifts
-  :'(' ','? t_identifier_shift (',' t_identifier_shift)* ','? ')'
-  ;
-
-t_identifier_shift  // from --> to
-  : t_identifier '-->' t_identifier
   ;
 
 /**
@@ -543,13 +598,16 @@ t_switchLabel
   ;
 
 t_forControl
-  : t_enhancedForControl
-  | t_forInit? ';' t_expression? ';' t_forUpdate?
+  : t_forInit? ';' t_expression? ';' t_forUpdate?
   ;
 
 t_forInit
   : t_localVariableDeclaration
-  | t_expressionList
+  | t_varInit (',' t_varInit)*
+  ;
+
+t_varInit
+  : t_assignment | t_expression
   ;
 
 t_enhancedForControl
@@ -589,8 +647,8 @@ t_expressionDetail // in order of most sticky to least sticky
   | ('+'|'-') t_expressionDetail                                               # SignExpr
   | '~' t_expressionDetail                                                     # BitComplementExpr
   | '!' t_expressionDetail                                                     # NotExpr
-  | t_expressionDetail ('*'|'/'|'%') t_expressionDetail                        # MultiplicativeExpr
-  | t_expressionDetail ('+'|'-') t_expressionDetail                            # AdditiveExpr
+  | t_expressionDetail op=('*'|'/'|'%') t_expressionDetail                     # MultiplicativeExpr
+  | t_expressionDetail op=('+'|'-') t_expressionDetail                         # AdditiveExpr
   | t_expressionDetail ('<' '<' | '>' '>' '>' | '>' '>') t_expressionDetail    # ShiftExpr
   | t_expressionDetail op=('<'|'<='|'='|'>='|'>'|'!=') t_expressionDetail      # ConjRelationExpr
       // Unlike C and Java, = is not assignment when it occurs in expressions
@@ -608,44 +666,60 @@ t_expressionDetail // in order of most sticky to least sticky
   | t_expressionDetail '||' t_expressionDetail                                 # ConditionalOrExpr
   | t_expressionDetail '?' t_expressionDetail ':' t_expressionDetail           # ConditionalExpr
   | t_expressionDetail op=('<==' | '===' | '=!='| '==>') t_expressionDetail    # ConjunctiveBoolExpr
-      // Allowed conjunctive chains:
+      // Allowed conjunctive chains for predicate expressions:
       //   A sequence of conjunctive ===
       //   A sequence of conjunctive === with a single embedded =!=
       //   A sequence of intermixed, conjunctive === and ==>
       //   A sequence of intermixed, conjunctive === and <==
       //   Other sequences are prohibited, such as A ==> B =!= C <== D,
 
-  | ('sum' | 'prod' | 'forall' | 'forsome' | 'set' | 'list' | 'bag')
-    t_quantifiedExpression                                                     # QuantifierExpr
+  | quant=('sum' | 'prod' | 'forall' | 'forsome' | 'set' | 'list' | 'bag')
+                                                     t_quantifiedExpression    # QuantifierExpr
 
-//  | t_expressionDetail     // only = assignment allowed
-//      (  '='<assoc=right>     // specified in rule (t_statement # AssignStmt)
+//  | t_expressionDetail      // only = assignment allowed
+//      (  '='<assoc=right>      // specified in rule t_statement at line # AssignStmt
 //      | '+='<assoc=right>
-//      | '-='<assoc=right>  // All incremental operators are useless in TrueJ because reference
-//      | '*='<assoc=right>  // to a particular value of a variable is required, e.g.,
-//      | '/='<assoc=right>  //   x' += 4;
-//      | '&='<assoc=right>  // is ambiguous because we need to specify the value name of the
-//      | '|='<assoc=right>  // previous value of x, as in,
-//      | '^='<assoc=right>  //   x' = x'almostThere + 4;
-//      | '>>='<assoc=right>
-//      | '>>>='<assoc=right>
-//      | '<<='<assoc=right>
+//      | '-='<assoc=right>   // All incremental operators are useless in TrueJ because reference
+//      | '*='<assoc=right>   // to a particular value of a variable is required, e.g.,
+//      | '/='<assoc=right>   //   x' += 4;
+//      | '&='<assoc=right>   // is ambiguous because we need to specify the value name of the
+//      | '|='<assoc=right>   // previous value of x, as in,
+//      | '^='<assoc=right>   //   x' = x'next + 4;
+//      | '>>='<assoc=right>  // There would be a possibility of assuming the current value, as in,
+//      | '>>>='<assoc=right> //   x'next += 4;
+//      | '<<='<assoc=right>  // for advanced TrueJ programmers.
 //      | '%='<assoc=right>
 //      )
 //      t_expressionDetail
   ;
 
 /**
- * The body of a quantified expression. The range constraint may be a collection of a super type of
- * the identifiers, or else it is a boolean expression intended to restrict the possible range of
- * the identifiers. The then-expression is an expression of the type needed by the type of the
- * quantifier.
+ * (type identifiers : collection | boolean range constraint> : body)
+ * <b>
+ * The (optional) range constraint may be either a collection of a subtype of the given identifier
+ * type T or a boolean expression, which is intended to restrict the possible range of the
+ * identifiers that participate in the quantification. If the range constraint is a collection, only * a single identifier is allowed.
+ * <b>
+ * The quantifiers sum and prod take only a single identifier. They require a body of the given type
+ * for the identifier, which is either added or multiplied by the previous result.
+ * <b>
+ * The quantifiers forall and forsome can take multiple identifiers. They require a body of type
+ * boolean, which is either conjoined or disjoined with the previous result.
+ * <b>
+ * The quantifiers set, list, and bag take only a single identifier. They construct the
+ * corresponding collection which is assumed to have members of the same type as the identifier. If
+ * a different resulting type is desired, the type of the members may be specified in angle brackets
+ * before the body, which must then be an expression of that type.
  */
 t_quantifiedExpression
   : '(' t_type t_identifier (',' t_identifier)*
     ':' (t_rangeConstraint)?
-    ':' (t_expression)
+    ':' ('<' t_bodyType '>')? t_expression
     ')'
+  ;
+
+t_bodyType
+  : t_type
   ;
 
 t_rangeConstraint
