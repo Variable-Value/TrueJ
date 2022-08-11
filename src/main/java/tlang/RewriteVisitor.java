@@ -13,7 +13,11 @@ import static tlang.TUtil.*;
 
 abstract class RewriteVisitor extends TLantlrBaseVisitor<Void> {
 
-/** The scope surrounding the current visit. Passed as a "global" field between all the visits. */
+/**
+ * The scope surrounding the current visit. Passed as a "global" field between all the visits.
+ * Null means not in class yet, e.g., package or import. However, once class processing begins the
+ * currentScope is always present.
+ */
   @Nullable protected Scope currentScope = null;
 /** Map from a parse context (ctx) to the scope that the ctx's code defines. */
   protected Map<RuleContext, Scope> scopeMap;
@@ -26,6 +30,8 @@ public RewriteVisitor( TokenStream             tokenStream
   this.scopeMap = ctxToScope;
   this.rewriter = new ExtendedRewriter(tokenStream);
 }
+
+// TODO: Look up the current scope here in a visitT_typeDeclaration(ctx)
 
 @Override public Void visitT_classDeclaration(T_classDeclarationContext ctx) {
   return typeVisit(ctx);
