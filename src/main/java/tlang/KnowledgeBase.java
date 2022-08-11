@@ -552,7 +552,7 @@ public String findInconsistentFact(String statement) throws NotYetImplementedExc
     throw new NotYetImplementedException("The method findInconsistentFact has not been implemented");
   else
     System.exit(0);
-  return "ERROR" + statement;
+  return "ERROR IN " + statement;
 }
 
 /** This method has not been implemented. Do not use it.
