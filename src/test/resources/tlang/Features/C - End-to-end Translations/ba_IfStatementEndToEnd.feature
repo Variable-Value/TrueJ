@@ -100,7 +100,7 @@ Example: Value names do not need to be defined in the same order in all branches
     int /*'*/a;
     int /*'*/b;
 
-    void validSwap() { int a$T$temp2; int $T$a = /*'*/a; int a$T$temp1; int b$T$temp2; int b$T$temp1;
+    void validSwap() { int b$T$temp2; int b$T$temp1; int a$T$temp2; int $T$a = /*'*/a; int a$T$temp1;
       if ($T$a == /*'*/b) {
         a/*'temp1*/ = /*'*/b; a$T$temp1 = a/*'temp1*/;
         a/*'temp2*/ = a$T$temp1; a$T$temp2 = a/*'temp2*/;

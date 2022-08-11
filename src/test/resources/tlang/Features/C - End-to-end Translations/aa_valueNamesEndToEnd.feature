@@ -778,7 +778,7 @@ Scenario: A reused value is saved immediately before it is overwritten
 
     int /*'*/a, /*'*/b;
 
-    void swap() { int a$T$temp; int $T$b = /*'*/b;  // We first copy 'b, because it will be overwritten
+    void swap() { int $T$b = /*'*/b; int a$T$temp;  // We first copy 'b, because it will be overwritten
       b/*'temp*/ = /*'*/a; // 'b is being overwritten, but we have already copied it
       a/*'temp*/ = $T$b; a$T$temp = a/*'temp*/; // 'b was overwritten with b'temp, so we use the copy of 'b, and we copy a'temp
       a/*'*/ = b/*'temp*/; // a'temp is being overwritten, but we have already copied it
