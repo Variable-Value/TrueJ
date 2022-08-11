@@ -51,6 +51,7 @@ visitT_classDeclaration(T_classDeclarationContext classCtx) {
      * they are a top level class. For inner classes, the correct enclosing scope will be determined
      * during the ContextCheckVisitor.
      *
+     * TODO: Why not assign inner class and annonomous class parrents here?
      * TODO: Create a test and implement the inner-class parent
      * assignment. */
   staticScope.setAsStaticScope();
