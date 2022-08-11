@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Hashtable;
 import org.antlr.v4.runtime.Token;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -84,7 +85,7 @@ boolean isStaticScope() {
 }
 
 /** Map from a variable name to its information, if the variable is declared in this scope */
-protected Map<String, @Nullable VarInfo> varToInfoMap = new HashMap<>();
+protected Map<String, VarInfo> varToInfoMap = new Hashtable<>();
 
 boolean isVariableDefinedInThisScope(String varName) {
   return varToInfoMap.containsKey(varName);
@@ -254,7 +255,7 @@ public @Nullable VarInfo getExistingVarInfo(String variableName) {
 /*TODO: finish converting all users from getExistingVarInfo(String)
  *      to getOptionalExistingVarInfo(String), THEN change name back to getExistingVarInfo(String)
  */
-public Optional<@Nullable VarInfo> getOptionalExistingVarInfo(String variableName) {
+public Optional<VarInfo> getOptionalExistingVarInfo(String variableName) {
   var optionalVarInfo = Optional.ofNullable(varToInfoMap.get(variableName));
   if ((optionalVarInfo.isPresent())) { // the varName was found in this scope
     return optionalVarInfo;
