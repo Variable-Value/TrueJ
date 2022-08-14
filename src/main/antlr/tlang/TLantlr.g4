@@ -507,15 +507,11 @@ t_endingInvariant
  * in the loop body can be show by using a lemma or means-statement.
  */
 t_loopInvariant
-  : 'invar' ':' t_booleanExpression ';'
+  : 'invar' ':' t_expression ';'
   ;
 
 t_condition
-  : '(' t_booleanExpression ')'
-  ;
-
-t_booleanExpression
-  : t_expression
+  : '(' t_expression ')'
   ;
 
 /** A variant placed at the start of a loop, which is stated with the beginning form of the value
