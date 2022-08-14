@@ -465,7 +465,7 @@ public Void visitT_booleanExpression(T_booleanExpressionContext ctx) {
 @Override
 public Void visitT_loopInvariant(TLantlrParser.T_loopInvariantContext ctx) {
   //TODO: write test
-  return VOIDNULL; // return visitChildren(ctx);
+  return visitChildren(ctx);
 }
 
 /**
@@ -474,7 +474,7 @@ public Void visitT_loopInvariant(TLantlrParser.T_loopInvariantContext ctx) {
 @Override
 public Void visitT_beginningInvariant(TLantlrParser.T_beginningInvariantContext ctx) {
   //TODO: write test
-  return VOIDNULL; // return visitChildren(ctx);
+  return visitChildren(ctx);
 }
 
 /**
@@ -484,7 +484,7 @@ public Void visitT_beginningInvariant(TLantlrParser.T_beginningInvariantContext 
 @Override
 public Void visitT_endingVariant(TLantlrParser.T_endingVariantContext ctx) {
   //TODO: write test
-  return VOIDNULL; // return visitChildren(ctx);
+  return visitChildren(ctx);
 }
 
 /**
