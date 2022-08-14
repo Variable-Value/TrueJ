@@ -1,11 +1,7 @@
 package tlang;
 
 import java.util.Map;
-import java.util.Objects;
-import java.security.InvalidParameterException;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
 import org.eclipse.jdt.annotation.*;
 
 import org.antlr.v4.runtime.*;
@@ -14,11 +10,21 @@ import tlang.TLantlrParser.*;
 import static tlang.TUtil.*;
 
 /**
- * The engine with the knowledge for processing a while statement.
+ * The engine with the knowledge for processing one of the loop statements. As of August 2022 these
+ * are the ForAllOfStmt, BasicForStmt, WhileStmt, or DoStmt.
  *
+ * @implNote All of the visit methods for looping statements that are coded in the expression tree
+ *           visitors should refer to these methods in order to keep all the knowledge about loop
+ *           processing in one place.
  */
-public class LoopMgr {
+final class LoopMgr {
 
+  /**
+   * A map from the previous looping contexts that have been found to the corresponding managers
+   * that were created for them.
+   *
+   * @implNote The T_statementContext is expected to be a context for a looping statement.
+   */
   private static Map< T_statementContext, @NonNull LoopMgr> loopMap = new HashMap<>();
 
     /** Find (or create) and return the while statement manager for the context. */
@@ -51,9 +57,9 @@ public class LoopMgr {
 //  loopMap.put(ctx, this);
 //}
 
-  public static void checkContext(WhileStmtContext wh, ContextCheckVisitor contextChecker) {
+  public static void checkContext(WhileStmtContext wh, ContextCheckVisitor checker) {
     LoopMgr mgr = findLoopMgr(wh);
-    contextChecker.visitT_booleanExpression(wh.t_condition().t_booleanExpression());
+    checker.visitT_booleanExpression(wh.t_condition().t_booleanExpression());
 
 //    if (mgr.variant != null)
 //      contextChecker.visitT_variant(mgr.variant);
@@ -63,7 +69,7 @@ public class LoopMgr {
 //      contextChecker.visitT_endingInvariant(mgr.endingInvariant);
   }
 
-  public static void validateWhile(WhileStmtContext ctx, TLantlrProofVisitor visitor) {
+  public static void validateWhile(WhileStmtContext ctx, TLantlrProofVisitor validator) {
     var mgr = findLoopMgr(ctx);
 //    whileStatement.validate(visitor);
   }

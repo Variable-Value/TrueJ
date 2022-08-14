@@ -6,6 +6,7 @@ import java.util.Set;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import org.eclipse.jdt.annotation.*;
+
 import tlang.Scope.VarInfo;
 
 import static tlang.TCompiler.*;
@@ -441,17 +442,20 @@ public Void visitAssignStmt(AssignStmtContext ctx) {
 }
 
 @Override
-public Void visitWhileStmt(TLantlrParser.WhileStmtContext ctx) {
+public Void visitWhileStmt(WhileStmtContext ctx) {
   LoopMgr.checkContext(ctx, this);
   return VOIDNULL;
 }
 
 @Override
 public Void visitT_booleanExpression(T_booleanExpressionContext ctx) {
-//  if ( ! hasBooleanTerm(ctx.?????) /* issue error message */
-  return visitChildren(ctx);
+  visitChildren(ctx);
+  if ( ! hasBooleanTerms(ctx.t_expression().t_expressionDetail(), currentScope)) {
+    errs.collectError( contextCheck, getStart(ctx),
+        "Expected a boolean expression, but found: "+ ctx.getText());
+  }
+  return VOIDNULL;
 }
-
 
 /**
  * A boolean expression that is always true at the point at which it occurs in a loop. The syntax
@@ -487,8 +491,8 @@ public Void visitT_endingVariant(TLantlrParser.T_endingVariantContext ctx) {
  *
  */
 @Override
-public Void visitT_variant(TLantlrParser.T_variantContext ctx) {
-  //TODO: write test
+public Void visitT_variant(T_variantContext ctx) {
+  VariantMgr.checkContext(ctx, this);
   return VOIDNULL; // return visitChildren(ctx);
 }
 

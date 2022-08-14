@@ -355,6 +355,12 @@ visitT_lemma(T_lemmaContext ctx) {
   return VOIDNULL;
 }
 
+@Override public Void visitT_loopInvariant(TLantlrParser.T_loopInvariantContext ctx) {
+  LoopInvariantMgr.transformToJava(ctx, this);
+  return VOIDNULL;
+}
+
+
 //@Override public Void visitT_invariant(TLantlrParser.T_invariantContext ctx) {
 //  commentTheCode(ctx);
 //  // do not visitChildren(ctx);
@@ -396,7 +402,7 @@ private String dedecorate(String valueName, final int primeAt) {
   }
 }
 
-private void commentTheCode(ParserRuleContext ctx) {
+void commentTheCode(ParserRuleContext ctx) {
   String code = rewriter.originalSource(ctx);
   rewriter.replace(ctx.getStart(), ctx.getStop(), commentTheCode(code));
 }
@@ -406,7 +412,7 @@ private void commentTheCode(ParserRuleContext ctx) {
  * already contains comments. Even comment delimiters in quotes are marked,
  * but that's ok because they become part of a comment and are not operational.
  */
-private String commentTheCode(String code) {
+private static String commentTheCode(String code) {
   if (code.contains("/*")) {
     return "/*"+ $T$ +"* "+ code.replace("/*", "(*"+ $T$ +"*").replace("*/", "*"+ $T$ +"*)")
           +" *"+ $T$ +"*/";
@@ -419,11 +425,11 @@ private String commentTheCode(String code) {
  * replaces all sections commented out by T with the uncommented version
  */
 @SuppressWarnings("unused")
-private String uncommentTheCode(String code) {
+private static String uncommentTheCode(String code) {
   if (code.contains("/*"+ $T$ +" ")) {
-    code = code.replace("/*"+ $T$ +"* ", ""  ).replace(" *"+ $T$ +"*/", ""  );
+    code = notNull(code.replace("/*"+ $T$ +"* ", ""  ).replace(" *"+ $T$ +"*/", ""  ));
     if (code.contains("(*"+ $T$ +"*")) {
-      code = code.replace("(*"+ $T$ +"*" , "/*").replace("*"+ $T$ +"*)" , "*/");
+      code = notNull(code.replace("(*"+ $T$ +"*" , "/*").replace("*"+ $T$ +"*)" , "*/"));
     }
   }
   return code;
