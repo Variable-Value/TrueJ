@@ -673,7 +673,8 @@ t_expressionDetail // in order of most sticky to least sticky
       //   A sequence of intermixed, conjunctive === and <==
       //   Other sequences are prohibited, such as A ==> B =!= C <== D,
 
-  | quant=('sum' | 'prod' | 'forall' | 'forsome' | 'set' | 'list' | 'bag')
+  | 'forall' t_quantifiedExpression                                            # ForallQuantExpr
+  | quant=('sum' | 'prod' | 'forsome' | 'setof' | 'listof' | 'bagof')
                                                      t_quantifiedExpression    # QuantifierExpr
 
 //  | t_expressionDetail      // only = assignment allowed
@@ -709,10 +710,11 @@ t_expressionDetail // in order of most sticky to least sticky
  * The quantifiers set, list, and bag take only a single identifier. They construct the
  * corresponding collection which is assumed to have members of the same type as the identifier. If
  * a different resulting type is desired, the type of the members may be specified in angle brackets
- * before the body, which must then be an expression of that type.
+ * before the body as a kind of type parameter, and the body must then be an expression of that
+ * type.
  */
 t_quantifiedExpression
-  : '(' t_type t_identifier (',' t_identifier)*
+  : '(' type1=t_type t_identifier (',' (t_type)? t_identifier)*
     ':' (t_rangeConstraint)?
     ':' ('<' t_bodyType '>')? t_expression
     ')'
