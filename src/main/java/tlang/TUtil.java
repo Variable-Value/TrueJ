@@ -19,9 +19,27 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import tlang.TLantlrParser.AndExprContext;
+import tlang.TLantlrParser.ArrayExprContext;
+import tlang.TLantlrParser.ConditionalAndExprContext;
+import tlang.TLantlrParser.ConditionalExprContext;
+import tlang.TLantlrParser.ConditionalOrExprContext;
+import tlang.TLantlrParser.ConjRelationExprContext;
+import tlang.TLantlrParser.ConjunctiveBoolExprContext;
+import tlang.TLantlrParser.DotExprContext;
+import tlang.TLantlrParser.ExclusiveOrExprContext;
+import tlang.TLantlrParser.InstanceOfExprContext;
+import tlang.TLantlrParser.NotExprContext;
+import tlang.TLantlrParser.OrExprContext;
+import tlang.TLantlrParser.PrimaryExprContext;
+import tlang.TLantlrParser.QuantifierExprContext;
+import tlang.TLantlrParser.T_expressionDetailContext;
 import tlang.TLantlrParser.T_identifierContext;
+import tlang.TLantlrParser.T_primaryContext;
 import static tlang.TCompiler.*;
 import static tlang.TLantlrParser.*;
+import static tlang.TUtil.isBooleanIdentifier;
+import static tlang.TUtil.isNull;
 
 /**
  * Utility methods used in both the compiler and testing, but somehow they are
@@ -259,6 +277,77 @@ public static boolean isAFinalValueName(Token valueName) {
 
 public static boolean isAFinalValueName(String valueName) {
   return isUndecorated(valueName) || isFinalDecorated(valueName);
+}
+
+static boolean hasBooleanTerms(T_expressionDetailContext ctx, Scope exprScope) {
+  if (ctx instanceof ConditionalAndExprContext || ctx instanceof AndExprContext)
+    return true;
+  if (ctx instanceof ConditionalOrExprContext || ctx instanceof OrExprContext)
+    return true;
+  if (ctx instanceof NotExprContext)
+    return true;
+  if (ctx instanceof ConjRelationExprContext || ctx instanceof ConjunctiveBoolExprContext)
+    return true;
+  if (ctx instanceof PrimaryExprContext peCtx)
+    return isBooleanPrimary(peCtx.t_primary(), exprScope);
+  if (ctx instanceof DotExprContext dotCtx)
+    return isBooleanDotExpr(notNull(dotCtx), exprScope);
+  if (ctx instanceof ConditionalExprContext ceCtx) {  // expr(0) ? expr(1) : expr(2)
+    return  hasBooleanTerms(ceCtx.t_expressionDetail(1), exprScope);
+      // || hasBooleanTerms(ceCtx.t_expressionDetail(2), currentScope);
+  }
+  if (ctx instanceof InstanceOfExprContext)
+    return true;
+  if (ctx instanceof ArrayExprContext aeCtx) {
+    if (hasBooleanTerms(aeCtx.t_expressionDetail(0), exprScope))
+      return true;
+  }
+  if (ctx instanceof ExclusiveOrExprContext)
+    return true;
+  if (ctx instanceof QuantifierExprContext quantCtx) {
+    String quantText = quantCtx.quant.getText();
+    return quantText.equals("forall") || quantText.equals("forsome");
+  }
+
+  //    if (ctx instanceof DotExplicitGenericExprContext dotExplGenrCtx) { /* TODO: returns boolean? */ }
+
+  //if (ctx instanceof FuncCallExprContext) {
+  //// TODO: does this function return a boolean?
+  //}
+
+  //    if (ctx instanceof NewExprContext) {
+  //      TODO: add this; however, new Boolean(true) is deprecated
+  //    }
+  //    if (ctx instanceof TypeCastExprContext)  { /* TODO: check for casting boolean to Boolean (deprecated) */
+
+  // OTHERWISE
+  return false;
+}
+
+private static boolean isBooleanDotExpr(DotExprContext ctx, Scope exprScope) {
+  if ("this".equals(ctx.t_expressionDetail().getText())
+      && isBooleanIdentifier(ctx.t_identifier(), exprScope))
+    return true;
+  // TODO: return true if other (non-this) object component identifier is boolean
+  // otherwise
+  return false;
+}
+
+/**
+ * Check all possible booleans in the parse rule t_primary in the TLantlr.g4 grammar
+ * as of 2019 Jan 16
+ */
+private static boolean isBooleanPrimary(T_primaryContext ctx, Scope primaryScope) {
+  if (! isNull(ctx.t_parExpression()))
+    return hasBooleanTerms(ctx.t_parExpression().t_expression().t_expressionDetail(), primaryScope);
+
+  if (! isNull(ctx.t_identifier()))
+    return isBooleanIdentifier(ctx.t_identifier(), primaryScope);
+
+  if (! isNull(ctx.t_literal()))
+    return true;
+
+  return false;
 }
 
 static boolean isBooleanIdentifier(T_identifierContext targetCtx, Scope curScope) {
