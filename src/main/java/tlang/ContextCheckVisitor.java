@@ -447,16 +447,6 @@ public Void visitWhileStmt(WhileStmtContext ctx) {
   return VOIDNULL;
 }
 
-@Override
-public Void visitT_booleanExpression(T_booleanExpressionContext ctx) {
-  visitChildren(ctx);
-  if ( ! hasBooleanTerms(ctx.t_expression().t_expressionDetail(), currentScope)) {
-    errs.collectError( contextCheck, getStart(ctx),
-        "Expected a boolean expression, but found: "+ ctx.getText());
-  }
-  return VOIDNULL;
-}
-
 /**
  * A boolean expression that is always true at the point at which it occurs in a loop. The syntax
  * for loop statements shows the places at which it can be placed. An invariant at any other placee
@@ -691,6 +681,18 @@ public Void visitT_expression(T_expressionContext ctx) {
   isInAssignment = oldInAssignment;
   return VOIDNULL;
 }
+
+//@Override
+//public Void visitT_booleanExpression(T_booleanExpressionContext ctx) {
+//visitChildren(ctx);
+//if ( ! hasBooleanTerms(ctx.t_expression().t_expressionDetail(), currentScope)) {
+//  errs.collectError( contextCheck, getStart(ctx),
+//      "Expected a boolean expression, but found: "+ ctx.getText());
+//}
+//return VOIDNULL;
+//}
+
+
 
 @Override
 public Void visitT_identifier(T_identifierContext ctx) {

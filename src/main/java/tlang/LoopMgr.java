@@ -59,7 +59,7 @@ final class LoopMgr {
 
   public static void checkContext(WhileStmtContext wh, ContextCheckVisitor checker) {
     LoopMgr mgr = findLoopMgr(wh);
-    checker.visitT_booleanExpression(wh.t_condition().t_booleanExpression());
+    checker.visitT_expression(wh.t_condition().t_expression());
 
 //    if (mgr.variant != null)
 //      contextChecker.visitT_variant(mgr.variant);
