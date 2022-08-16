@@ -682,18 +682,6 @@ public Void visitT_expression(T_expressionContext ctx) {
   return VOIDNULL;
 }
 
-//@Override
-//public Void visitT_booleanExpression(T_booleanExpressionContext ctx) {
-//visitChildren(ctx);
-//if ( ! hasBooleanTerms(ctx.t_expression().t_expressionDetail(), currentScope)) {
-//  errs.collectError( contextCheck, getStart(ctx),
-//      "Expected a boolean expression, but found: "+ ctx.getText());
-//}
-//return VOIDNULL;
-//}
-
-
-
 @Override
 public Void visitT_identifier(T_identifierContext ctx) {
   final Token idToken = getStart(ctx);
