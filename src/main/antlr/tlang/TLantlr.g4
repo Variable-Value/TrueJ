@@ -669,10 +669,12 @@ t_expressionDetail // in order of most sticky to least sticky
       //   A sequence of intermixed, conjunctive === and <==
       //   Other sequences are prohibited, such as A ==> B =!= C <== D,
 
-  | 'forall' t_booleanQuantification                                            # ForallQuantExpr
-  | 'forsome' t_booleanQuantification                                           # ForSomeQuantExpr
-  | quant=('sum' | 'prod' | 'setof' | 'listof' | 'bagof')
-                                                     t_quantifiedExpression    # QuantifierExpr
+  | 'forall' t_quantification                                                  # ForallQuantExpr
+  | 'forsome' t_quantification                                                 # ForSomeQuantExpr
+  | 'sum' t_quantification                                                     # SumQuantExpr
+  | 'prod' t_quantification                                                    # ProdQuantExpr
+  | 'setof' t_quantification                                                   # SetQuantExpr
+  | 'bagof' t_quantification                                                   # BagQuantExpr
 
 //  | t_expressionDetail      // only = assignment allowed
 //      (  '='<assoc=right>      // specified in rule t_statement at line # AssignStmt
@@ -692,46 +694,41 @@ t_expressionDetail // in order of most sticky to least sticky
   ;
 
 /**
- * (type identifiers : collection | boolean range constraint> : body)
- * <b>
- * The (optional) range constraint may be either a collection of a subtype of the given identifier
- * type T or a boolean expression, which is intended to restrict the possible range of the
- * identifiers that participate in the quantification. If the range constraint is a collection, only * a single identifier is allowed.
- * <b>
- * The quantifiers sum and prod take only a single identifier. They require a body of the given type
- * for the identifier, which is either added or multiplied by the previous result.
- * <b>
- * The quantifiers set, list, and bag take only a single identifier. They construct the
- * corresponding collection which is assumed to have members of the same type as the identifier. If
- * a different resulting type is desired, the type of the members may be specified in angle brackets
- * before the body as a kind of type parameter, and the body must then be an expression of that
- * type.
+ * The general for of a quantification is
+ *
+ *     (type identifiers : <collection | boolean range constraint> : body)
+ *
+ * There may be multiple identifiers for variables that are local to the quantification scope.
+ * Either only the first variable identifier has a specified type, which then applies to all the
+ * following variables, or each of the variable identifiers has a specified type.
+ *
+ * If the (optional) range constraint is a collection, it must be of the single specified type
+ * given for the first variable, and all of the variables are selected from that collection.
+ * Otherwise the range constraint is a boolean expression, which is intended to restrict the
+ * possible values that participate in the quantification.
+ *
+ * The body must be an expression of a type appropriate for the quantifier, and it is evaluated for
+ * each combination of the variables that meet the range constraint. Only the forall and forsome
+ * quantifiers result in a definite type, which is boolean. For all the other quantifiers, the
+ * body's result must either be of the same type as that of the first variable specified for the
+ * quantifier, or must be explicitly specified in angle brackets before the body as a kind of type
+ * parameter, and the body must then be an expression of that type.
+ *
+ * For a forall or forsome quantifier, the body must return a boolean and those boolean results are
+ * either conjoined (forall) or disjoined (forsome).
+ *
+ * For a sum or prod quantifier, the body must have a numeric result, which is either added (sum) or
+ * multiplied (prod) to produce the numeric result for the whole quantification expression.
+ *
+ * For a set or bag quantifier, the body may be an expression that evaluates to any type, and the
+ * results are collected into either a set or bag. (We do not have a list quantifier because the
+ * syntax allows the quantified variables to be selected from a set or bag without a particular
+ * order.)
  */
-t_quantifiedExpression
+t_quantification
   : '(' type1=t_type t_identifier (',' (t_type)? t_identifier)*
     ':' (t_rangeConstraint)?
     ':' ('<' t_bodyType '>')? t_expression
-    ')'
-  ;
-
-/**
- * The parenthesized quantification for the quantifiers forall and forsome.
- * <b>
- * There may be multiple identifiers for variables that are local to the quantification scope.
- * Either only the first variable identifier has a specified type, which then applies to all the
- * following variables, or all of the variable identifiers have a specified type.
- * <b>
- * If the (optional)range constraint is a collection, all of the variables are selected from that
- * collection. Otherwise the range constraint is a boolean expression, which is intended to restrict
- * the possible range of the identifiers that participate in the quantification.
- * <b>
- * The body must return a boolean for each combination of the variables that meet the range
- * constraint, and those boolean results are either conjoined (forall) or disjoined (forsome).
- */
-t_booleanQuantification
-  : '(' type1=t_type t_identifier (',' (t_type)? t_identifier)*
-    ':' (t_rangeConstraint)?
-    ':' t_expression
     ')'
   ;
 

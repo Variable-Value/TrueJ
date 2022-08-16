@@ -19,27 +19,9 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import tlang.TLantlrParser.AndExprContext;
-import tlang.TLantlrParser.ArrayExprContext;
-import tlang.TLantlrParser.ConditionalAndExprContext;
-import tlang.TLantlrParser.ConditionalExprContext;
-import tlang.TLantlrParser.ConditionalOrExprContext;
-import tlang.TLantlrParser.ConjRelationExprContext;
-import tlang.TLantlrParser.ConjunctiveBoolExprContext;
-import tlang.TLantlrParser.DotExprContext;
-import tlang.TLantlrParser.ExclusiveOrExprContext;
-import tlang.TLantlrParser.InstanceOfExprContext;
-import tlang.TLantlrParser.NotExprContext;
-import tlang.TLantlrParser.OrExprContext;
-import tlang.TLantlrParser.PrimaryExprContext;
-import tlang.TLantlrParser.QuantifierExprContext;
-import tlang.TLantlrParser.T_expressionDetailContext;
-import tlang.TLantlrParser.T_identifierContext;
-import tlang.TLantlrParser.T_primaryContext;
+import tlang.TLantlrParser.*;
 import static tlang.TCompiler.*;
 import static tlang.TLantlrParser.*;
-import static tlang.TUtil.isBooleanIdentifier;
-import static tlang.TUtil.isNull;
 
 /**
  * Utility methods used in both the compiler and testing, but somehow they are
@@ -279,6 +261,10 @@ public static boolean isAFinalValueName(String valueName) {
   return isUndecorated(valueName) || isFinalDecorated(valueName);
 }
 
+
+private static final List<String> quantifierTypes
+      = notNull(List.of("forall", "forsome", "sum", "prod", "setof", "bagof"));
+
 static boolean hasBooleanTerms(T_expressionDetailContext ctx, Scope exprScope) {
   if (ctx instanceof ConditionalAndExprContext || ctx instanceof AndExprContext)
     return true;
@@ -304,9 +290,8 @@ static boolean hasBooleanTerms(T_expressionDetailContext ctx, Scope exprScope) {
   }
   if (ctx instanceof ExclusiveOrExprContext)
     return true;
-  if (ctx instanceof QuantifierExprContext quantCtx) {
-    String quantText = quantCtx.quant.getText();
-    return quantText.equals("forall") || quantText.equals("forsome");
+  if (quantifierTypes.contains(ctx.start.getText()) ) {
+    return true;
   }
 
   //    if (ctx instanceof DotExplicitGenericExprContext dotExplGenrCtx) { /* TODO: returns boolean? */ }
@@ -522,7 +507,7 @@ TCompilerCounts {
     if (errorCount > 0) {
       msg.append("Programs with errors: " + errorCount +"\n");
     }
-    return msg.toString();
+    return notNull(msg.toString());
   }
 } // end nested class TCompilerCounts
 

@@ -397,16 +397,10 @@ public Void visitT_block(T_blockContext ctx) {
   return VOIDNULL;
 }
 
-@Override
-public Void visitQuantifierExpr(TLantlrParser.QuantifierExprContext ctx) {
+private void ensureQuantifierIsInLogic(T_expressionDetailContext ctx) {
   if ( ! isInLogic)
     errs.collectError( contextCheck, getStart(ctx),
         "A quantified expression may only be used inside logic, not executable code");
-
-  QuantifierMgr.checkContextForQuantifier(ctx, this);
-    // We visit children in the QuantifierMgr
-
-  return VOIDNULL;
 }
 
 private Scope createScopeForBlock(T_blockContext ctx, Scope parentScope) {

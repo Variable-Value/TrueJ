@@ -6,7 +6,9 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import static tlang.TUtil.isNull;
 import java.util.HashMap;
-import tlang.TLantlrParser.QuantifierExprContext;
+// import tlang.TLantlrParser.QuantifierExprContext;
+import tlang.TLantlrParser.T_expressionDetailContext;
+import tlang.TLantlrParser.T_loopInvariantContext;
 import tlang.TLantlrParser.WhileStmtContext;
 
 /**
@@ -17,10 +19,10 @@ class QuantifierMgr {
 
   enum QuantifierType {Sum, Prod, Forall, Forsome, Set, List, Bag}
 
-  private static Map<QuantifierExprContext, @NonNull QuantifierMgr> quantifierMap = new HashMap<>();
+  private static Map<T_expressionDetailContext, @NonNull QuantifierMgr> quantifierMap = new HashMap<>();
 
       /** Find and return the while statement manager for the context, or create a new one. */
-      private static QuantifierMgr findQuantifier(QuantifierExprContext ctx) {
+      private static QuantifierMgr findQuantifier(T_expressionDetailContext ctx) {
         @Nullable
         QuantifierMgr nullableMgr = quantifierMap.get(ctx);
         return isNull(nullableMgr) ? new QuantifierMgr(ctx) : nullableMgr;
@@ -28,28 +30,29 @@ class QuantifierMgr {
 
 
   /** The context that the parser created for this while statement */
-  private final QuantifierExprContext ctx;
+  private final T_expressionDetailContext ctx;
 
 
-  public QuantifierMgr(QuantifierExprContext ctx) {
+  public QuantifierMgr(T_expressionDetailContext ctx) {
     this.ctx = ctx;
     quantifierMap.put(ctx, this);
   }
 
 
-  static void checkContextForQuantifier(QuantifierExprContext ctx, ContextCheckVisitor visitor) {
+  static void checkContextForQuantifier(T_expressionDetailContext ctx, ContextCheckVisitor checker) {
     // TODO: lookup instance, and create if not found
   }
 
-  static void validateQuantifier(QuantifierExprContext ctx, TLantlrProofVisitor visitor) {
+  static void validateQuantifier(T_expressionDetailContext ctx, TLantlrProofVisitor validator) {
     // TODO: lookup instance, and create if not found
     var quantifierStatement = findQuantifier(ctx);
     // quantifierStatement.validate(visitor);
   }
 
 
-  static void generateJavaForQuantifier(QuantifierExprContext ctx, TLantlrJavaRewriter visitor) {
-    // TODO: lookup instance, and create if not found
+  static void transformToJava(T_expressionDetailContext ctx, TLantlrJavaRewriter transformer) {
+    transformer.commentTheCode(ctx);
+    //do not visitChildren(ctx);
   }
 
 
