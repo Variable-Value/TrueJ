@@ -862,6 +862,7 @@ t_valueName
 
 ABSTRACT      : 'abstract';
 ASSERT        : 'assert';
+BAGOF         : 'bagof';
 BOOLEAN       : 'boolean';
 BREAK         : 'break';
 BYTE          : 'byte';
@@ -904,6 +905,7 @@ PROD          : 'prod';
 PROTECTED     : 'protected';
 PUBLIC        : 'public';
 RETURN        : 'return';
+SETOF         : 'setof';
 SHORT         : 'short';
 STATIC        : 'static';
 STRICTFP      : 'strictfp';

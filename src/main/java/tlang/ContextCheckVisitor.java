@@ -8,7 +8,7 @@ import org.antlr.v4.runtime.tree.*;
 import org.eclipse.jdt.annotation.*;
 
 import tlang.Scope.VarInfo;
-
+import tlang.TLantlrParser.T_expressionDetailContext;
 import static tlang.TCompiler.*;
 import static tlang.TLantlrParser.*;
 import static tlang.TUtil.*;
@@ -52,7 +52,7 @@ private boolean isInMeans      = false;
  * of an if-then-else? */
 enum BranchState { InitialBranch, FollowingBranch, NotInsideConditionalStatement }
 BranchState branchState = BranchState.NotInsideConditionalStatement;
-private static final String contextCheck = "Context Check";
+static final String contextCheck = "Context Check";
 Map<RuleContext, Scope> scopeMap;
 public Map<RuleContext, tlang.Scope> getScopeMap() { return scopeMap; }
 
@@ -397,12 +397,6 @@ public Void visitT_block(T_blockContext ctx) {
   return VOIDNULL;
 }
 
-private void ensureQuantifierIsInLogic(T_expressionDetailContext ctx) {
-  if ( ! isInLogic)
-    errs.collectError( contextCheck, getStart(ctx),
-        "A quantified expression may only be used inside logic, not executable code");
-}
-
 private Scope createScopeForBlock(T_blockContext ctx, Scope parentScope) {
   final Token firstToken = getStart(ctx);
   String blockLabel = "block_L" + firstToken.getLine() + "C" + firstToken.getCharPositionInLine();
@@ -432,6 +426,12 @@ public Void visitAssignStmt(AssignStmtContext ctx) {
   visit(ctx.t_assignment().t_assignable());
 
   checkForConfusingRelationalExpression(ctx.t_assignment().t_expression());
+  return VOIDNULL;
+}
+
+@Override
+public Void visitForallQuantExpr(TLantlrParser.ForallQuantExprContext ctx) {
+  QuantifierMgr.checkContext(ctx, this);
   return VOIDNULL;
 }
 
@@ -1180,6 +1180,15 @@ private Void visitContextChildren(T_fieldDeclaratorContext ctx) {
   return visitChildren(ctx);
 }
 
+void visitChildrenInScope(T_expressionDetailContext ctx, Scope quantifierScope) {
+  Scope parent = currentScope;
+  currentScope = quantifierScope; //push
+
+  visitChildren(ctx);
+
+  currentScope.clearForCodeGeneration();
+  currentScope = parent;  //pop
+}
 @SuppressWarnings("null")
 private static String asString(TerminalNode node) {
   return node.toString();
